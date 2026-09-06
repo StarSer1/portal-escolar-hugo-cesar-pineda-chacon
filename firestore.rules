@@ -3,13 +3,12 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function ownProfile(userId) { return signedIn() && request.auth.uid == userId; }
-    function admin() { return signedIn() && request.auth.token.role == 'admin'; }
-    function teacher() { return signedIn() && request.auth.token.role == 'teacher'; }
+    function role() { return signedIn() ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role : null; }
+    function admin() { return role() == 'admin'; }
 
     match /users/{userId} {
       allow read: if ownProfile(userId) || admin();
-      allow create: if ownProfile(userId);
-      allow update: if ownProfile(userId) || admin();
+      allow create, update: if admin();
       allow delete: if admin();
     }
 
@@ -19,10 +18,16 @@ service cloud.firestore {
     }
 
     match /grades/{gradeId} {
-      allow read: if signedIn() && (resource.data.studentId == request.auth.uid || admin() || teacher());
-      // La escritura final se realizará desde Cloud Functions, no desde el cliente.
-      allow write: if false;
+      // Modo gratuito de prueba: únicamente administradores. En producción,
+      // Cloud Functions validará asignaciones docentes y cierre de periodos.
+      allow read: if admin();
+      allow create, update: if admin();
+      allow delete: if false;
+
+      match /history/{historyId} {
+        allow read, create: if admin();
+        allow update, delete: if false;
+      }
     }
   }
 }
-

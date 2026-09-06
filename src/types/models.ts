@@ -10,9 +10,13 @@ export interface UserProfile {
 export interface Grade {
   id: string
   studentId: string
-  subjectId: string
+  enrollmentId: string
+  groupId: string
+  schoolYearId: string
+  subjectPlanId: string
   periodId: string
+  periodOrder: number
   score: number
+  roundedScore: number
   teacherId: string
 }
-

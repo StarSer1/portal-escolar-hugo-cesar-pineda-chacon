@@ -2,4 +2,14 @@
 * { box-sizing: border-box; }
 body { margin: 0; }
 main { max-width: 1100px; margin: 0 auto; padding: 2rem; }
-
+.form { display: grid; gap: 1rem; max-width: 760px; margin: 1rem 0; }
+.grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+label { display: grid; gap: .35rem; }
+input, textarea, button { font: inherit; padding: .55rem; }
+textarea { min-height: 5rem; }
+button { width: fit-content; cursor: pointer; }
+table { border-collapse: collapse; margin-top: 1rem; width: 100%; }
+th, td { border: 1px solid #cbd5e1; padding: .5rem; text-align: left; }
+.hero { padding: 3rem 0; }
+.eyebrow { color: #155e75; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.button-link { display: inline-block; padding: .65rem 1rem; color: #fff; background: #0f766e; border-radius: .35rem; text-decoration: none; }
