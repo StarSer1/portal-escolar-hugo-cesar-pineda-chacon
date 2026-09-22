@@ -1,8 +1,6 @@
 import { initializeApp } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
-import { getFunctions } from 'firebase/functions'
-import { getStorage } from 'firebase/storage'
+import { connectAuthEmulator, getAuth } from 'firebase/auth'
+import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
 
 const app = initializeApp({
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,6 +13,12 @@ const app = initializeApp({
 
 export const auth = getAuth(app)
 export const db = getFirestore(app)
-export const functions = getFunctions(app)
-export const storage = getStorage(app)
 
+// Tests use an isolated demo project: never send synthetic records to production.
+if (import.meta.env.VITE_USE_EMULATORS === 'true') {
+  if (!import.meta.env.VITE_FIREBASE_PROJECT_ID?.startsWith('demo-')) {
+    throw new Error('Los emuladores requieren un proyecto con prefijo demo-.')
+  }
+  connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true })
+  connectFirestoreEmulator(db, '127.0.0.1', 8080)
+}

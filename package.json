@@ -3,14 +3,18 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "workspaces": ["functions"],
+  "workspaces": [
+    "functions"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "build:functions": "npm --workspace school-functions run build",
-    "emulators": "firebase emulators:start",
+    "emulators": "firebase emulators:start --only auth,firestore --project demo-portal-academico",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-portal-academico-rules \"node --test tests/rules.test.mjs\"",
+    "test:e2e": "firebase emulators:exec --only auth,firestore --project demo-portal-academico \"playwright test\"",
     "deploy:rules": "firebase deploy --only firestore:rules,storage"
   },
   "dependencies": {
@@ -21,6 +25,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "@firebase/rules-unit-testing": "^5.0.0",
+    "@playwright/test": "^1.55.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.0.0",

@@ -2,6 +2,8 @@
 
 > Alcance: evidencia técnica del archivo `2021-2022-03DPR0046P.zip` y requisitos confirmados por la escuela. No contiene datos personales ni credenciales.
 
+> Este documento conserva la auditoría y el modelo conceptual inicial, incluidas propuestas futuras. El alcance implementado y las decisiones posteriores se describen en la [guía vigente del panel académico](panel-academico.md).
+
 ## 1. Auditoría del legado
 
 ### Inventario y función detectada

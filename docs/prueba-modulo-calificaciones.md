@@ -1,5 +1,7 @@
 # Prueba inicial del módulo de calificaciones
 
+> Documento histórico del primer prototipo. Para operar el panel ampliado y crear los catálogos desde la interfaz, utiliza la [guía vigente del panel académico](panel-academico.md). Los pasos de captura mediante IDs y las expectativas de permisos descritas abajo no representan el flujo actual.
+
 ## Decisiones incorporadas
 
 - Escala confirmada: 0 a 10; el valor mostrado se redondea al entero más cercano.

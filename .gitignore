@@ -6,4 +6,5 @@ dist/
 functions/lib/
 functions/node_modules/
 *.log
-
+test-results/
+playwright-report/

@@ -1,33 +1,295 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() { return request.auth != null; }
-    function ownProfile(userId) { return signedIn() && request.auth.uid == userId; }
-    function role() { return signedIn() ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role : null; }
-    function admin() { return role() == 'admin'; }
-
+    function admin() {
+      return request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active == true;
+    }
+    function academic(name) {
+      return name in ['students', 'guardians', 'studentGuardians', 'teachers', 'schoolYears',
+        'curriculumPlans', 'subjectPlans', 'groups', 'gradingPeriods', 'enrollments', 'grades'];
+    }
+    function record(name, id) { return get(/databases/$(database)/documents/$(name)/$(id)).data; }
+    function after(name, id) { return getAfter(/databases/$(database)/documents/$(name)/$(id)).data; }
+    function text(value, maxLength) { return value is string && value.size() <= maxLength; }
+    function required(value, maxLength) { return text(value, maxLength) && value.size() > 0; }
+    function dateValue(value) { return timestamp.date(int(value[0:4]), int(value[5:7]), int(value[8:10])); }
+    function validDateString(value) {
+      return value is string && value.matches('^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$')
+        && dateValue(value).day() == int(value[8:10]);
+    }
+    function activeStatus(value) { return value in ['active', 'inactive']; }
+    function specialty(value) { return value in ['general', 'physical', 'english', 'arts']; }
+    function gradeLevel(value) { return value is int && value >= 1 && value <= 6; }
+    function shape(data, fields) {
+      return data.keys().hasAll(fields.concat(['createdAt', 'updatedAt', 'updatedBy', 'revision', 'auditId']))
+        && data.keys().hasOnly(fields.concat(['createdAt', 'updatedAt', 'updatedBy', 'revision', 'auditId']));
+    }
+    function metadata(name, id) {
+      let data = request.resource.data;
+      let audit = after('auditLogs', data.auditId);
+      return data.updatedBy == request.auth.uid && data.updatedAt == request.time
+        && data.createdAt is timestamp && data.revision is int
+        && (resource == null
+          ? data.createdAt == request.time && data.revision == 1
+          : data.createdAt == resource.data.get('createdAt', request.time)
+            && data.revision == resource.data.get('revision', 0) + 1)
+        && audit.entityType == name && audit.entityId == id
+        && audit.actorId == request.auth.uid && audit.createdAt == request.time;
+    }
+    function unchanged(fields) {
+      return resource == null || !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+    function validStudent(data, id) {
+      return shape(data, ['names', 'surnames', 'curp', 'birthDate', 'sex', 'matricula', 'status'])
+        && required(data.names, 160) && required(data.surnames, 160)
+        && data.curp.matches('^[A-Z0-9]{18}$') && data.matricula.matches('^[A-Z0-9-]{1,40}$')
+        && validDateString(data.birthDate) && dateValue(data.birthDate) <= request.time.date()
+        && data.sex in ['H', 'M'] && activeStatus(data.status)
+        && after('studentIdentifiers', 'curp_' + data.curp).studentId == id
+        && after('studentIdentifiers', 'matricula_' + data.matricula).studentId == id;
+    }
+    function validGuardian(data) {
+      return shape(data, ['name', 'email', 'phone', 'address', 'education', 'occupation', 'status'])
+        && required(data.name, 160) && text(data.email, 254) && text(data.phone, 40)
+        && text(data.address, 500) && text(data.education, 160) && text(data.occupation, 160)
+        && activeStatus(data.status);
+    }
+    function validGuardianLink(data, id) {
+      return shape(data, ['studentId', 'guardianId', 'relationship', 'primary'])
+        && id == data.studentId + '_' + data.guardianId
+        && exists(/databases/$(database)/documents/students/$(data.studentId))
+        && exists(/databases/$(database)/documents/guardians/$(data.guardianId))
+        && required(data.relationship, 160) && data.primary is bool
+        && unchanged(['studentId', 'guardianId'])
+        && (data.primary ? after('guardianSlots', data.studentId).linkId == id
+          : resource == null || resource.data.primary == false || after('guardianSlots', data.studentId).linkId != id);
+    }
+    function validTeacher(data) {
+      return shape(data, ['name', 'email', 'phone', 'specialty', 'status'])
+        && required(data.name, 160) && text(data.email, 254) && text(data.phone, 40)
+        && specialty(data.specialty) && activeStatus(data.status)
+        && unchanged(['specialty']);
+    }
+    function validYear(data, id) {
+      return shape(data, ['name', 'startDate', 'endDate', 'status'])
+        && required(data.name, 160) && validDateString(data.startDate) && validDateString(data.endDate)
+        && data.startDate < data.endDate && data.status in ['active', 'closed', 'planned']
+        && unchanged(['startDate', 'endDate'])
+        && (data.status == 'active' ? after('academicSettings', 'currentYear').schoolYearId == id
+          : resource == null || resource.data.status != 'active' || after('academicSettings', 'currentYear').schoolYearId != id);
+    }
+    function validPlan(data) {
+      return shape(data, ['name', 'version', 'status']) && required(data.name, 160)
+        && required(data.version, 40) && activeStatus(data.status);
+    }
+    function validSubject(data) {
+      return shape(data, ['curriculumPlanId', 'name', 'grade', 'specialty', 'status'])
+        && required(data.name, 160) && gradeLevel(data.grade) && specialty(data.specialty)
+        && activeStatus(data.status) && exists(/databases/$(database)/documents/curriculumPlans/$(data.curriculumPlanId))
+        && unchanged(['curriculumPlanId', 'grade', 'specialty']);
+    }
+    function assignedTeacher(data, key, area) {
+      let teacher = record('teachers', data[key]);
+      return teacher.specialty == area && (data.status == 'inactive' || teacher.status == 'active');
+    }
+    function validGroup(data) {
+      return shape(data, ['schoolYearId', 'curriculumPlanId', 'grade', 'label', 'shift', 'status',
+          'generalTeacherId', 'physicalTeacherId', 'englishTeacherId', 'artsTeacherId'])
+        && gradeLevel(data.grade) && required(data.label, 160) && data.shift in ['matutino', 'vespertino']
+        && exists(/databases/$(database)/documents/schoolYears/$(data.schoolYearId))
+        && exists(/databases/$(database)/documents/curriculumPlans/$(data.curriculumPlanId))
+        && activeStatus(data.status) && (resource != null || record('schoolYears', data.schoolYearId).status != 'closed')
+        && (data.status == 'inactive' || record('curriculumPlans', data.curriculumPlanId).status == 'active')
+        && unchanged(['schoolYearId', 'curriculumPlanId', 'grade'])
+        && assignedTeacher(data, 'generalTeacherId', 'general') && assignedTeacher(data, 'physicalTeacherId', 'physical')
+        && assignedTeacher(data, 'englishTeacherId', 'english') && assignedTeacher(data, 'artsTeacherId', 'arts');
+    }
+    function nonOverlappingPeriod(data, order) {
+      let path = /databases/$(database)/documents/gradingPeriods/$(data.schoolYearId + '_' + string(order));
+      return data.order == order || !existsAfter(path)
+        || data.endDate < getAfter(path).data.startDate || data.startDate > getAfter(path).data.endDate;
+    }
+    function validPeriod(data, id) {
+      let year = record('schoolYears', data.schoolYearId);
+      return shape(data, ['schoolYearId', 'name', 'order', 'startDate', 'endDate', 'status'])
+        && data.order in [1, 2, 3] && id == data.schoolYearId + '_' + string(data.order)
+        && required(data.name, 160) && validDateString(data.startDate) && validDateString(data.endDate)
+        && data.startDate <= data.endDate && data.startDate >= year.startDate && data.endDate <= year.endDate
+        && data.status in ['open', 'closed'] && (data.status == 'closed' || year.status != 'closed')
+        && nonOverlappingPeriod(data, 1) && nonOverlappingPeriod(data, 2) && nonOverlappingPeriod(data, 3)
+        && unchanged(['schoolYearId', 'order']);
+    }
+    function validCatalog(name, id) {
+      let data = request.resource.data;
+      return (name == 'students' && validStudent(data, id))
+        || (name == 'guardians' && validGuardian(data))
+        || (name == 'studentGuardians' && validGuardianLink(data, id))
+        || (name == 'teachers' && validTeacher(data))
+        || (name == 'schoolYears' && validYear(data, id))
+        || (name == 'curriculumPlans' && validPlan(data))
+        || (name == 'subjectPlans' && validSubject(data))
+        || (name == 'groups' && validGroup(data))
+        || (name == 'gradingPeriods' && validPeriod(data, id));
+    }
     match /users/{userId} {
-      allow read: if ownProfile(userId) || admin();
-      allow create, update: if admin();
-      allow delete: if admin();
+      allow read: if request.auth != null && (request.auth.uid == userId || admin());
+      // Account provisioning stays outside the browser. A user cannot promote themselves.
+      allow write: if false;
     }
-
-    match /announcements/{announcementId} {
-      allow read: if true;
-      allow create, update, delete: if admin();
-    }
-
-    match /grades/{gradeId} {
-      // Modo gratuito de prueba: únicamente administradores. En producción,
-      // Cloud Functions validará asignaciones docentes y cierre de periodos.
+    match /announcements/{id} { allow read: if true; allow write: if admin(); }
+    match /academicSettings/currentYear {
       allow read: if admin();
-      allow create, update: if admin();
+      allow create, update: if admin()
+        && request.resource.data.keys().hasOnly(['schoolYearId', 'updatedAt', 'updatedBy'])
+        && request.resource.data.updatedAt == request.time && request.resource.data.updatedBy == request.auth.uid
+        && (request.resource.data.schoolYearId == '' ||
+          (after('schoolYears', request.resource.data.schoolYearId).status == 'active'
+            && after('schoolYears', request.resource.data.schoolYearId).updatedAt == request.time))
+        && (resource == null || resource.data.schoolYearId == '' || resource.data.schoolYearId == request.resource.data.schoolYearId
+          || (after('schoolYears', resource.data.schoolYearId).status != 'active'
+            && after('schoolYears', resource.data.schoolYearId).updatedAt == request.time));
+    }
+    match /{name}/{id} {
+      allow read: if academic(name) && admin();
+      allow create, update: if admin() && validCatalog(name, id) && metadata(name, id);
       allow delete: if false;
-
+    }
+    match /studentIdentifiers/{identifierId} {
+      allow read: if admin();
+      allow create, update: if admin()
+        && request.resource.data.keys().hasOnly(['studentId', 'updatedAt'])
+        && request.resource.data.updatedAt == request.time
+        && ((request.resource.data.studentId != ''
+            && (resource == null || resource.data.studentId == '' || resource.data.studentId == request.resource.data.studentId)
+            && (identifierId == 'curp_' + after('students', request.resource.data.studentId).curp
+              || identifierId == 'matricula_' + after('students', request.resource.data.studentId).matricula))
+          || (resource != null && request.resource.data.studentId == '' && resource.data.studentId != ''
+            && identifierId != 'curp_' + after('students', resource.data.studentId).curp
+            && identifierId != 'matricula_' + after('students', resource.data.studentId).matricula));
+    }
+    match /guardianSlots/{studentId} {
+      allow read: if admin();
+      allow create, update: if admin()
+        && request.resource.data.keys().hasOnly(['studentId', 'linkId', 'updatedAt'])
+        && request.resource.data.studentId == studentId && request.resource.data.updatedAt == request.time
+        && (request.resource.data.linkId == '' ||
+          (after('studentGuardians', request.resource.data.linkId).studentId == studentId
+            && after('studentGuardians', request.resource.data.linkId).primary == true))
+        && (resource == null || resource.data.linkId == '' || resource.data.linkId == request.resource.data.linkId
+          || after('studentGuardians', resource.data.linkId).primary == false);
+    }
+    function validEnrollment(data) {
+      let group = record('groups', data.groupId);
+      let year = record('schoolYears', data.schoolYearId);
+      return shape(data, ['studentId', 'groupId', 'schoolYearId', 'startDate', 'endDate', 'status', 'reason'])
+        && group.schoolYearId == data.schoolYearId && validDateString(data.startDate)
+        && data.startDate >= year.startDate && data.startDate <= year.endDate
+        && text(data.reason, 1000)
+        && (data.status == 'active' ? data.endDate == ''
+          : data.status in ['transferred', 'withdrawn'] && validDateString(data.endDate)
+            && data.endDate >= data.startDate && data.endDate <= year.endDate && required(data.reason, 1000));
+    }
+    function validEnrollmentTransition(data, id) {
+      let slot = after('enrollmentSlots', data.studentId + '_' + data.schoolYearId);
+      return slot.previousEnrollmentId == id && slot.currentEnrollmentId != id
+        && (data.status == 'withdrawn' ? slot.currentEnrollmentId == ''
+          : slot.currentEnrollmentId != ''
+            && after('enrollments', slot.currentEnrollmentId).groupId != data.groupId
+            && after('enrollments', slot.currentEnrollmentId).startDate == data.endDate);
+    }
+    match /enrollments/{id} {
+      allow create: if admin() && validEnrollment(request.resource.data) && metadata('enrollments', id)
+        && request.resource.data.status == 'active'
+        && record('students', request.resource.data.studentId).status == 'active'
+        && record('groups', request.resource.data.groupId).status == 'active'
+        && record('schoolYears', request.resource.data.schoolYearId).status == 'active'
+        && after('enrollmentSlots', request.resource.data.studentId + '_' + request.resource.data.schoolYearId).currentEnrollmentId == id;
+      allow update: if admin() && validEnrollment(request.resource.data) && metadata('enrollments', id)
+        && unchanged(['studentId', 'groupId', 'schoolYearId', 'startDate'])
+        && resource.data.status == 'active' && request.resource.data.status in ['transferred', 'withdrawn']
+        && validEnrollmentTransition(request.resource.data, id);
+    }
+    function validEnrollmentSlot(data, id) {
+      return data.keys().hasOnly(['studentId', 'schoolYearId', 'currentEnrollmentId', 'previousEnrollmentId', 'updatedAt', 'updatedBy'])
+        && id == data.studentId + '_' + data.schoolYearId && data.updatedBy == request.auth.uid && data.updatedAt == request.time
+        && (data.currentEnrollmentId == '' ||
+          (after('enrollments', data.currentEnrollmentId).studentId == data.studentId
+            && after('enrollments', data.currentEnrollmentId).schoolYearId == data.schoolYearId
+            && after('enrollments', data.currentEnrollmentId).status == 'active'));
+    }
+    match /enrollmentSlots/{id} {
+      allow read: if admin();
+      allow create: if admin() && validEnrollmentSlot(request.resource.data, id)
+        && request.resource.data.currentEnrollmentId != '' && request.resource.data.previousEnrollmentId == '';
+      allow update: if admin() && validEnrollmentSlot(request.resource.data, id)
+        && unchanged(['studentId', 'schoolYearId'])
+        && request.resource.data.currentEnrollmentId != resource.data.currentEnrollmentId
+        && request.resource.data.previousEnrollmentId == resource.data.currentEnrollmentId
+        && (resource.data.currentEnrollmentId == ''
+          ? resource.data.previousEnrollmentId == '' || after('enrollments', request.resource.data.currentEnrollmentId).startDate >= record('enrollments', resource.data.previousEnrollmentId).endDate
+          : after('enrollments', resource.data.currentEnrollmentId).status in ['transferred', 'withdrawn']);
+    }
+    function gradeRelations(data) {
+      let enrollment = record('enrollments', data.enrollmentId);
+      let group = record('groups', data.groupId);
+      let subject = record('subjectPlans', data.subjectPlanId);
+      let period = record('gradingPeriods', data.periodId);
+      return enrollment.studentId == data.studentId && enrollment.groupId == data.groupId
+        && enrollment.schoolYearId == data.schoolYearId && group.schoolYearId == data.schoolYearId
+        && subject.curriculumPlanId == group.curriculumPlanId && subject.grade == group.grade
+        && period.schoolYearId == data.schoolYearId && period.order == data.periodOrder
+        && (resource != null || (enrollment.status == 'active' && group.status == 'active'
+          && subject.status == 'active' && period.status == 'open'
+          && record('schoolYears', data.schoolYearId).status == 'active'
+          && data.teacherId == group[subject.specialty + 'TeacherId']));
+    }
+    function validGrade(data, id) {
+      return shape(data, ['studentId', 'enrollmentId', 'groupId', 'schoolYearId', 'subjectPlanId',
+          'periodId', 'periodOrder', 'score', 'roundedScore', 'teacherId', 'observation', 'correctionReason', 'version'])
+        && id == data.enrollmentId + '_' + data.subjectPlanId + '_' + data.periodId
+        && data.score is number && data.score >= 0 && data.score <= 10
+        && data.roundedScore is int && data.roundedScore == math.floor(data.score + 0.5)
+        && text(data.observation, 1000) && text(data.correctionReason, 1000) && data.version is int
+        && gradeRelations(data);
+    }
+    match /grades/{id} {
+      allow create: if admin() && validGrade(request.resource.data, id) && metadata('grades', id)
+        && request.resource.data.version == 1;
+      allow update: if admin() && validGrade(request.resource.data, id) && metadata('grades', id)
+        && unchanged(['studentId', 'enrollmentId', 'groupId', 'schoolYearId', 'subjectPlanId', 'periodId', 'periodOrder', 'teacherId'])
+        && request.resource.data.version == resource.data.get('version', 0) + 1
+        && required(request.resource.data.correctionReason, 1000)
+        && getAfter(/databases/$(database)/documents/grades/$(id)/history/$(request.resource.data.auditId)).data.version == request.resource.data.version;
       match /history/{historyId} {
-        allow read, create: if admin();
-        allow update, delete: if false;
+        allow read: if admin();
+        allow create: if admin()
+          && request.resource.data.keys().hasOnly(['gradeId', 'previousScore', 'newScore', 'previousObservation', 'newObservation', 'actorId', 'reason', 'version', 'createdAt'])
+          && request.resource.data.gradeId == id && request.resource.data.actorId == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && after('grades', id).auditId == historyId
+          && after('grades', id).updatedAt == request.time
+          && after('grades', id).version == record('grades', id).get('version', 0) + 1
+          && request.resource.data.version == after('grades', id).version
+          && request.resource.data.previousScore == record('grades', id).score
+          && request.resource.data.newScore == after('grades', id).score
+          && request.resource.data.previousObservation == record('grades', id).get('observation', '')
+          && request.resource.data.newObservation == after('grades', id).observation
+          && request.resource.data.reason == after('grades', id).correctionReason;
       }
+    }
+    match /auditLogs/{id} {
+      allow read: if admin();
+      allow create: if admin() && request.resource.data.keys().hasOnly(['action', 'entityType', 'entityId', 'actorId', 'createdAt', 'previousData'])
+        && academic(request.resource.data.entityType) && required(request.resource.data.action, 40)
+        && request.resource.data.actorId == request.auth.uid && request.resource.data.createdAt == request.time
+        && after(request.resource.data.entityType, request.resource.data.entityId).auditId == id
+        && after(request.resource.data.entityType, request.resource.data.entityId).updatedAt == request.time
+        && (exists(/databases/$(database)/documents/$(request.resource.data.entityType)/$(request.resource.data.entityId))
+          ? request.resource.data.previousData == record(request.resource.data.entityType, request.resource.data.entityId)
+          : request.resource.data.previousData == null);
+      allow update, delete: if false;
     }
   }
 }
