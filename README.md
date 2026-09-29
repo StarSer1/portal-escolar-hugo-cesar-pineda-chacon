@@ -20,7 +20,7 @@ npm run dev
 
 Antes de iniciar Vite, completa `.env.local` con la configuración del proyecto correspondiente. Si el archivo ya existe, no vuelvas a copiarlo encima. `npm ci` instala de una vez todas las dependencias fijadas en `package-lock.json`; tu colega no necesita instalarlas individualmente.
 
-Abre `/iniciar-sesion` y usa una cuenta existente de Authentication con perfil `users/{uid}` que tenga `role: 'admin'` y `active: true`. El panel no crea usuarios administradores desde el navegador. La [guía del panel académico](docs/panel-academico.md) explica cómo configurar los catálogos, inscribir alumnos y capturar calificaciones.
+Abre `/iniciar-sesion` y usa una cuenta existente de Authentication con perfil `users/{uid}` que tenga `role: 'admin'` y `active: true`. El panel no crea usuarios administradores desde el navegador. La [guía del panel académico](docs/panel-academico.md) explica cómo configurar los catálogos, inscribir alumnos y capturar calificaciones. El director también puede [crear cuentas docentes con permisos restringidos](docs/acceso-docentes.md); estas acceden a `/docente` sin compartir la cuenta administradora.
 
 **Importante:** `npm run dev` usa la base configurada en `.env.local`. No significa que la información quede solo en tu computadora. Las pruebas automatizadas de abajo configuran un entorno local aislado y no necesitan cuentas reales.
 
@@ -47,4 +47,4 @@ Las dependencias no se guardan en Git. Después de clonar el repositorio, ejecut
 
 El archivo `.env.local` no se comparte por Git porque contiene la configuración de cada entorno. El administrador del proyecto debe dar acceso al colega tanto al repositorio de GitHub como al proyecto de Firebase cuando necesite administrar Authentication, Firestore, Storage o Functions.
 
-Esta versión incluye alumnos, tutores y vínculos, docentes, ciclos, planes, materias, grupos, periodos, inscripciones, calificaciones y actividad. Las cuentas restringidas de docentes/familias, documentos oficiales, asistencia e integración SEP quedan pendientes; no se debe compartir una cuenta administradora para suplir esos permisos.
+Esta versión incluye alumnos, tutores y vínculos, docentes con cuenta individual y correo único, ciclos, planes, materias, grupos, periodos, inscripciones, calificaciones y actividad. El docente consulta sus grupos del ciclo actual, captura calificaciones de su especialidad y puede cambiar su contraseña; las correcciones académicas corresponden a dirección. Las cuentas de familias, documentos oficiales, asistencia e integración SEP quedan pendientes; no se debe compartir una cuenta administradora para suplir esos permisos.

@@ -110,6 +110,7 @@ function cleanInput(name: EditableCollection, input: Record<string, unknown>) {
 }
 
 export async function saveRecord(name: EditableCollection, input: Record<string, unknown>, id?: string): Promise<string> {
+  if (name === 'teachers') throw new Error('Registra y edita docentes desde el flujo de cuentas de Docentes.')
   const actorId = currentActor()
   const data = cleanInput(name, input)
   const stableId = name === 'gradingPeriods' ? `${data.schoolYearId}_${data.order}`

@@ -4,7 +4,7 @@ import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
 import { GradesPage } from '@/features/grades/pages/GradesPage'
 import { NotFoundPage } from '@/shared/pages/NotFoundPage'
-import { AuthProvider, RequireAdmin } from '@/features/auth/AuthContext'
+import { AuthProvider, RequireAdmin, RequireTeacher } from '@/features/auth/AuthContext'
 import { PanelLayout } from '@/app/PanelLayout'
 import { StudentsPage } from '@/features/academic/pages/StudentsPage'
 import { GuardiansPage } from '@/features/academic/pages/GuardiansPage'
@@ -12,11 +12,15 @@ import { TeachersPage } from '@/features/academic/pages/TeachersPage'
 import { OrganizationPage } from '@/features/academic/pages/OrganizationPage'
 import { EnrollmentsPage } from '@/features/academic/pages/EnrollmentsPage'
 import { ActivityPage } from '@/features/academic/pages/ActivityPage'
+import { TeacherPanelPage } from '@/features/teacher/TeacherPanelPage'
 
 export function App() {
   return <AuthProvider><Routes>
     <Route path="/" element={<HomePage />} />
     <Route path="/iniciar-sesion" element={<LoginPage />} />
+    <Route element={<RequireTeacher />}>
+      <Route path="/docente" element={<TeacherPanelPage />} />
+    </Route>
     <Route element={<RequireAdmin />}>
       <Route path="/panel" element={<PanelLayout />}>
         <Route index element={<DashboardPage />} />

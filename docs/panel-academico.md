@@ -6,7 +6,7 @@ Esta guía describe el panel administrativo ampliado. Sustituye las instruccione
 
 1. Inicia sesión con una cuenta administradora habilitada. La cuenta debe existir en Firebase Authentication y tener su perfil `users/{uid}` en Firestore.
 2. Registra el plan de estudios y sus materias por grado. Indica la especialidad que imparte cada materia.
-3. Registra los docentes: general, Educación Física, Inglés y Artes. Este registro representa al personal; no crea automáticamente una cuenta para iniciar sesión.
+3. Registra los docentes: general, Educación Física, Inglés y Artes. Cada docente nuevo necesita un correo único y una contraseña inicial de al menos 12 caracteres. El alta crea su cuenta de acceso y la vincula con su expediente, sin cerrar la sesión del director. Consulta la [guía de acceso docente](acceso-docentes.md) antes de habilitar registros anteriores.
 4. Crea el ciclo escolar, con sus fechas, y configura los periodos de evaluación.
 5. Crea los grupos, vinculando ciclo, grado, plan y los cuatro docentes correspondientes.
 6. Registra alumnos y tutores. Vincula cada tutor con sus alumnos, especificando parentesco y contacto principal. Un mismo tutor puede estar vinculado con hermanos sin duplicar su expediente.
@@ -43,11 +43,12 @@ Los contratos TypeScript están en `src/types/models.ts`. Firestore guarda docum
 
 | Colección | Datos principales y relaciones |
 | --- | --- |
-| `users` | Documento con ID igual al UID de Authentication; rol y habilitación de acceso |
+| `users` | Documento con ID igual al UID de Authentication; rol, habilitación y `teacherId` para cuentas docentes |
 | `students` | `names`, `surnames`, `curp`, `birthDate`, `sex`, `matricula`, `status` |
 | `guardians` | `name`, `email`, `phone`, `address`, `education`, `occupation`, `status` |
 | `studentGuardians` | `studentId`, `guardianId`, `relationship`, `primary`; relación N:M |
-| `teachers` | `name`, `email`, `phone`, `specialty`, `status` |
+| `teachers` | `name`, `email`, `phone`, `specialty`, `status`; `authUid` enlaza la cuenta de acceso cuando está habilitada |
+| `teacherEmails` | Reserva técnica por correo normalizado, vinculada a un único expediente docente |
 | `schoolYears` | `name`, `startDate`, `endDate`, `status` |
 | `curriculumPlans` | `name`, `version`, `status` |
 | `subjectPlans` | `curriculumPlanId`, `grade`, `name`, `specialty`, `status` |
@@ -88,7 +89,7 @@ La tabla se basa en la auditoría documentada; no atribuye a RASE flujos de inte
 - La escala aprobada es de 0 a 10. El prototipo conserva el valor capturado y calcula también su redondeo al entero más cercano. Esto es una regla técnica inicial, no una certificación de la política oficial de evaluación.
 - Los tres periodos son el punto de partida observado en los ciclos recientes del archivo. Los nombres y las fechas se configuran para el ciclo nuevo; no se copian calendarios históricos.
 - La dirección administra las correcciones. Un periodo o ciclo cerrado bloquea calificaciones nuevas, pero permite corregir una existente con motivo obligatorio, incremento de versión e historial atómico. No hace falta reabrirlo para una corrección. El cierre y la reapertura también quedan registrados; no hay envío ni validación ante SEP.
-- Cada grupo utiliza cuatro funciones: general, Educación Física, Inglés y Artes. El registro de un docente y la cuenta con la que se autentica son conceptos distintos.
+- Cada grupo utiliza cuatro funciones: general, Educación Física, Inglés y Artes. El registro de un docente y la cuenta con la que se autentica son conceptos distintos, vinculados mediante `teachers.authUid` y `users.teacherId`. La contraseña se gestiona exclusivamente en Firebase Authentication.
 - Solo puede existir un ciclo activo. Las fechas de un ciclo y la especialidad de un registro docente no se modifican después del alta; los formularios lo indican. Las fechas de los periodos sí se pueden editar dentro del ciclo, sin cruzarse entre periodos.
 - Una inscripción activa por alumno y ciclo. El cambio de grupo cierra la anterior con motivo y crea otra, sin trasladar ni sobrescribir calificaciones. La baja cierra la inscripción, no elimina el expediente. Los movimientos de ciclos cerrados se consultan sin acciones desde Inscripciones.
 - El panel no ofrece eliminación física de expedientes ni historiales. Los catálogos se inactivan o cierran cuando corresponde. Antes de inactivar un alumno con inscripción vigente, registra su baja.
@@ -96,13 +97,17 @@ La tabla se basa en la auditoría documentada; no atribuye a RASE flujos de inte
 
 ## Acceso y límites de esta entrega
 
-El panel ampliado es administrativo. Firebase Authentication comprueba la identidad y Firestore exige un perfil `users/{uid}` con `role: 'admin'` y `active: true`. Dar de alta un docente o un tutor no les concede acceso. El navegador no puede crear ni modificar roles de usuarios. Las vistas restringidas de docentes, alumnos y tutores requieren todavía su flujo de asignación y permisos; no deben habilitarse compartiendo una cuenta administradora.
+El panel `/panel` es administrativo. Firebase Authentication comprueba la identidad y Firestore exige un perfil `users/{uid}` con `role: 'admin'` y `active: true`. El director puede crear únicamente perfiles de acceso docente vinculados a sus expedientes; no puede crear administradores desde el panel. Crear un tutor no le concede acceso.
+
+Los docentes habilitados entran en `/docente`. Solo consultan grupos activos del ciclo actual en los que estén asignados y sus alumnos inscritos; solo capturan materias de su propia especialidad y con periodo abierto. No administran catálogos, tutores, inscripciones ni usuarios. Una calificación ya registrada solo puede corregirla la dirección, con motivo e historial. Las reglas de Firestore verifican estas restricciones independientemente de la interfaz. No se debe compartir una cuenta administradora para suplir permisos.
+
+El docente también puede cambiar su contraseña desde su panel, verificando primero la contraseña actual. La lista muestra nombre y matrícula, pero las reglas autorizan el documento completo de cada alumno asignado: no debe confundirse esa presentación reducida con restricciones por campo. Los datos de tutores y los alumnos de grupos ajenos siguen fuera de su autorización.
 
 El panel usa el SDK de Firestore directamente, con reglas de seguridad, para funcionar con la configuración gratuita existente. Las Cloud Functions del repositorio no forman parte de este recorrido ni son necesarias para probarlo: son un prototipo pendiente de revisión y no deben desplegarse en esta entrega. No debe publicarse únicamente la interfaz: las reglas actualizadas forman parte del mismo cambio.
 
-Esta primera versión mantiene sus catálogos en memoria mediante suscripciones de Firestore. Todavía no incorpora paginación de expedientes ni consultas por grupo para todas las colecciones. Antes de ampliar significativamente el volumen deberá optimizarse ese acceso y revisarse el consumo; no se promete capacidad ilimitada dentro del plan gratuito.
+El panel administrativo mantiene sus catálogos en memoria mediante suscripciones de Firestore. Todavía no incorpora paginación de expedientes. El panel docente hace consultas acotadas a sus asignaciones y especialidad. Antes de ampliar significativamente el volumen deberá optimizarse ese acceso y revisarse el consumo; no se promete capacidad ilimitada dentro del plan gratuito.
 
-No hay generación de cuentas desde el navegador, importación de RASE, integraciones SEP ni emisión de documentos oficiales en esta entrega. Los catálogos e historiales guardados pertenecen al proyecto Firebase configurado; una sesión de desarrollo local no crea por sí misma una base separada.
+La creación de cuentas docentes usa una instancia secundaria de Authentication, para conservar la sesión administradora. No requiere desplegar Cloud Functions ni cambiar de plan. No hay importación de RASE, integraciones SEP ni emisión de documentos oficiales en esta entrega. Los catálogos e historiales guardados pertenecen al proyecto Firebase configurado; una sesión de desarrollo local no crea por sí misma una base separada.
 
 ## Verificación manual con datos de prueba
 
@@ -111,7 +116,7 @@ Usa el entorno de emuladores cuando esté disponible y datos ficticios reconocib
 Comprueba al menos:
 
 1. Un visitante sin sesión no puede abrir el panel ni leer los expedientes.
-2. Un perfil sin permisos administrativos no puede guardar información académica.
+2. Un perfil sin permisos administrativos no puede abrir los catálogos. Un docente vinculado y activo solo puede registrar calificaciones autorizadas de sus grupos.
 3. Los catálogos creados aparecen en los selectores que dependen de ellos.
 4. Una calificación reaparece al recargar y su corrección conserva el registro previo.
 5. Un traslado conserva la inscripción anterior y sus calificaciones.
@@ -119,6 +124,9 @@ Comprueba al menos:
 7. Los estados vacíos y los errores de conexión se muestran sin anunciar que una operación fallida se guardó.
 8. No se puede registrar otra CURP o matrícula ya reservada, ni dejar dos tutores principales o dos inscripciones activas para el mismo alumno y ciclo.
 9. No se puede activar un segundo ciclo sin cerrar el actual, ni guardar periodos con fechas cruzadas.
+10. Un alta docente conserva la sesión del director, no acepta un correo repetido y no guarda contraseñas en Firestore ni en la bitácora. Los registros anteriores no reciben cuentas automáticamente.
+11. Un docente no puede consultar otro grupo, capturar otra especialidad, corregir calificaciones ni guardar en periodos cerrados. Inactivar su acceso bloquea el panel docente sin borrar su historial.
+12. El cambio de contraseña del docente requiere la actual y confirmación de la nueva; después la anterior deja de permitir el inicio de sesión. No queda almacenada en los documentos de Firestore.
 
 ## Pruebas automatizadas locales
 
@@ -132,7 +140,7 @@ npm run test:rules
 npm run test:e2e
 ```
 
-`test:rules` ejecuta las pruebas de autorización e integridad de `tests/rules.test.mjs` contra el emulador de Firestore. `test:e2e` inicia Authentication y Firestore locales, prepara usuarios ficticios y recorre el navegador con Playwright: acceso, catálogos, expediente, tutor, inscripción, captura, corrección, persistencia, traslado y baja. La configuración está en `playwright.config.ts` y las capturas/trazas se escriben en `test-results/`, fuera de Git.
+`test:rules` ejecuta las pruebas de autorización e integridad contra el emulador de Firestore. `test:e2e` inicia Authentication y Firestore locales, prepara usuarios ficticios y recorre el navegador con Playwright: acceso, catálogos, expediente, tutor, inscripción, captura, corrección, persistencia, traslado y baja; también comprueba altas docentes, correos repetidos y separación de permisos. La configuración está en `playwright.config.ts` y las capturas/trazas se escriben en `test-results/`, fuera de Git.
 
 Para estas pruebas necesitas Java 21 y, para el navegador configurado, Google Chrome instalado. Ejecuta las suites una después de otra; utilizan puertos locales fijos y limpian sus datos de emulador. Playwright configura Vite con un proyecto `demo-` y `VITE_USE_EMULATORS=true`: no necesita credenciales reales ni toca los expedientes alojados en Firebase. No cambies sus proyectos de prueba por un proyecto real. Detén cualquier emulador que ya ocupe 8080 o 9099 antes de ejecutarlas.
 

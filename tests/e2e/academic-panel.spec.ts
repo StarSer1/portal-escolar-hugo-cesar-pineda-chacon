@@ -31,7 +31,7 @@ async function login(page: Page, email = adminEmail) {
   await page.getByLabel('Correo electrónico', { exact: true }).fill(email)
   await page.getByLabel(/^Contraseña/).fill(password)
   await page.getByRole('button', { name: 'Entrar al panel' }).click()
-  await expect(page).toHaveURL(/\/panel(?:\/|$)/)
+  await expect(page).toHaveURL(email === adminEmail ? /\/panel(?:\/|$)/ : /\/docente(?:\/|$)/)
   if (email === adminEmail) await expect(page.getByRole('navigation', { name: 'Panel académico' })).toBeVisible()
 }
 
@@ -49,7 +49,8 @@ async function createRecord(page: Page, route: string, singular: string, fields:
   await page.getByRole('button', { name: `+ Agregar ${singular}`, exact: true }).click()
   const dialog = page.getByRole('dialog', { name: `Agregar ${singular}`, exact: true })
   await fillFields(dialog, fields)
-  await dialog.getByRole('button', { name: 'Guardar cambios', exact: true }).click()
+  if (singular === 'docente') await dialog.locator('[name="confirmPassword"]').fill(password)
+  await dialog.getByRole('button', { name: singular === 'docente' ? 'Crear docente y acceso' : 'Guardar cambios', exact: true }).click()
   await expect(dialog).not.toBeVisible()
   await expect(page.getByRole('status')).toContainText('correctamente')
 }
@@ -74,13 +75,12 @@ test.describe.serial('Panel académico con Firestore y Authentication reales en 
     await seedUser(request, teacherEmail, 'teacher')
   })
 
-  test('protege rutas privadas y rechaza un perfil sin rol administrador', async ({ page }) => {
+  test('protege rutas privadas y rechaza un docente sin expediente vinculado', async ({ page }) => {
     await page.goto('/panel/alumnos')
     await expect(page).toHaveURL(/\/iniciar-sesion$/)
     await expect(page.getByRole('heading', { name: 'Iniciar sesión', exact: true })).toBeVisible()
     await login(page, teacherEmail)
-    await expect(page.getByRole('heading', { name: 'Acceso al panel administrativo' })).toBeVisible()
-    await expect(page.getByText('Tu cuenta no tiene acceso administrativo activo.')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Acceso docente no disponible' })).toBeVisible()
     await expect(page.getByRole('navigation', { name: 'Panel académico' })).not.toBeVisible()
     await page.getByRole('button', { name: 'Volver a iniciar sesión' }).click()
     await expect(page).toHaveURL(/\/iniciar-sesion$/)
@@ -101,7 +101,7 @@ test.describe.serial('Panel académico con Firestore y Authentication reales en 
       name: 'Plan académico de prueba', version: 'v1', status: 'active',
     })
     for (const [specialty, name] of Object.entries({ general: 'Docente General QA', physical: 'Docente Física QA', english: 'Docente Inglés QA', arts: 'Docente Artes QA' })) {
-      await createRecord(page, '/panel/docentes', 'docente', { name, specialty, email: `${specialty}@example.test`, phone: '6121234567', status: 'active' })
+      await createRecord(page, '/panel/docentes', 'docente', { name, specialty, email: `${specialty}@example.test`, phone: '6121234567', status: 'active', password })
     }
     const yearId = await selectedId(page, '/panel/organizacion?tab=periods', 'periodo', 'schoolYearId', 'Ciclo de prueba')
     const planId = await selectedId(page, '/panel/organizacion?tab=subjects', 'materia', 'curriculumPlanId', 'Plan académico de prueba')

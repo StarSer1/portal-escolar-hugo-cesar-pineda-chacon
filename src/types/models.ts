@@ -16,6 +16,7 @@ export interface UserProfile {
   displayName?: string
   email?: string
   active?: boolean
+  teacherId?: string
 }
 export interface Student extends Entity {
   names: string
@@ -47,6 +48,7 @@ export interface Teacher extends Entity {
   phone: string
   specialty: TeacherSpecialty
   status: ActiveStatus
+  authUid?: string
 }
 export interface SchoolYear extends Entity {
   name: string

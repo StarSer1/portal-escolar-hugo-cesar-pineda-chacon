@@ -214,6 +214,8 @@ input[type='checkbox'] { accent-color: var(--green); width: 17px; min-height: 17
 .hero { padding: 4rem 0; }
 .hero h1 { max-width: 760px; font-size: 3rem; }
 .mobile-toggle, .sidebar-overlay { display: none; }
+.teacher-panel { padding-top: 35px; }
+.teacher-panel > .page-heading > .row-actions { flex-wrap: wrap; white-space: normal; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 1250px) { .sidebar { width: 225px; padding-inline: 12px; } .panel-body { margin-left: 225px; } .panel-content { padding: 28px; } .topbar { padding-inline: 28px; } .stat-card { padding: 18px 16px; } .stat-icon { width: 30px; height: 30px; } .stat-icon svg { width: 18px; } .banner-art { margin-right: 10px; } .group-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 1050px) { .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dashboard-columns { grid-template-columns: 1fr; gap: 0; } .banner-art { width: 180px; transform: scale(.88); margin-right: -10px; } .school-brand { font-size: .9rem; } .topbar-user > div { display: none; } .grade-filters { grid-template-columns: 1fr; } .login-page { gap: 6%; } }
@@ -232,6 +234,8 @@ input[type='checkbox'] { accent-color: var(--green); width: 17px; min-height: 17
   .login-back { left: 30px; top: 25px; } .login-card { padding: 35px 25px; margin: auto; max-width: 430px; }
 }
 @media (max-width: 540px) {
+  .teacher-panel { padding: 23px 16px; }
+  .teacher-panel .welcome-banner > svg { display: none; }
   .panel-content { padding: 23px 16px; } .topbar { padding-inline: 12px; }
   .breadcrumb > span:first-of-type, .breadcrumb-separator { display: none; } .topbar-user { gap: 5px; }
   .page-heading { align-items: flex-start; flex-wrap: wrap; gap: 14px; margin-bottom: 20px; } .page-description { font-size: .8rem; }

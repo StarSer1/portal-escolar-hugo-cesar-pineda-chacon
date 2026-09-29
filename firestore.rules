@@ -6,6 +6,31 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active == true;
     }
+    function profile() { return record('users', request.auth.uid); }
+    function teacherId() { return profile().teacherId; }
+    function teacherRecord() { return record('teachers', teacherId()); }
+    // An Authentication account alone never grants access. All four links must agree.
+    function teacher() {
+      return request.auth != null && profile().role == 'teacher' && profile().active == true
+        && teacherRecord().authUid == request.auth.uid && teacherRecord().status == 'active'
+        && teacherRecord().email == profile().email
+        && teacherRecord().email == request.auth.token.get('email', '');
+    }
+    function currentTeacherGroup(data) {
+      return data.status == 'active'
+        && data.schoolYearId == record('academicSettings', 'currentYear').schoolYearId
+        && record('schoolYears', data.schoolYearId).status == 'active'
+        && data[teacherRecord().specialty + 'TeacherId'] == teacherId();
+    }
+    function teacherEnrollment(data) {
+      return data.status == 'active' && currentTeacherGroup(record('groups', data.groupId));
+    }
+    function teacherStudent(id) {
+      let yearId = record('academicSettings', 'currentYear').schoolYearId;
+      let slot = record('enrollmentSlots', id + '_' + yearId);
+      let enrollment = record('enrollments', slot.currentEnrollmentId);
+      return enrollment.studentId == id && enrollment.schoolYearId == yearId && teacherEnrollment(enrollment);
+    }
     function academic(name) {
       return name in ['students', 'guardians', 'studentGuardians', 'teachers', 'schoolYears',
         'curriculumPlans', 'subjectPlans', 'groups', 'gradingPeriods', 'enrollments', 'grades'];
@@ -66,11 +91,24 @@ service cloud.firestore {
         && (data.primary ? after('guardianSlots', data.studentId).linkId == id
           : resource == null || resource.data.primary == false || after('guardianSlots', data.studentId).linkId != id);
     }
-    function validTeacher(data) {
-      return shape(data, ['name', 'email', 'phone', 'specialty', 'status'])
-        && required(data.name, 160) && text(data.email, 254) && text(data.phone, 40)
+    function validEmail(email) {
+      return required(email, 254) && email == email.lower()
+        && email.matches('^[^\\s/@]+@[^\\s/@]+[.][^\\s/@]+$');
+    }
+    function linkedTeacherProfile(data, id) {
+      let user = after('users', data.authUid);
+      return user.role == 'teacher' && user.teacherId == id && user.email == data.email
+        && user.displayName == data.name && user.active == (data.status == 'active');
+    }
+    function validTeacher(data, id) {
+      let emailSlot = after('teacherEmails', data.email);
+      return shape(data, ['name', 'email', 'phone', 'specialty', 'status', 'authUid'])
+        && required(data.name, 160) && validEmail(data.email) && text(data.phone, 40)
         && specialty(data.specialty) && activeStatus(data.status)
-        && unchanged(['specialty']);
+        && emailSlot.teacherId == id && emailSlot.blocked == false
+        && unchanged(['specialty']) && text(data.authUid, 128)
+        && (resource == null || resource.data.get('authUid', '') == '' || unchanged(['authUid', 'email']))
+        && (data.authUid == '' || linkedTeacherProfile(data, id));
     }
     function validYear(data, id) {
       return shape(data, ['name', 'startDate', 'endDate', 'status'])
@@ -126,7 +164,7 @@ service cloud.firestore {
       return (name == 'students' && validStudent(data, id))
         || (name == 'guardians' && validGuardian(data))
         || (name == 'studentGuardians' && validGuardianLink(data, id))
-        || (name == 'teachers' && validTeacher(data))
+        || (name == 'teachers' && validTeacher(data, id))
         || (name == 'schoolYears' && validYear(data, id))
         || (name == 'curriculumPlans' && validPlan(data))
         || (name == 'subjectPlans' && validSubject(data))
@@ -135,12 +173,37 @@ service cloud.firestore {
     }
     match /users/{userId} {
       allow read: if request.auth != null && (request.auth.uid == userId || admin());
-      // Account provisioning stays outside the browser. A user cannot promote themselves.
-      allow write: if false;
+      // Directors can only provision/synchronize a linked teacher, never grant admin.
+      allow create, update: if admin()
+        && request.resource.data.keys().hasAll(['role', 'teacherId', 'displayName', 'email', 'active', 'createdAt', 'updatedAt', 'updatedBy'])
+        && request.resource.data.keys().hasOnly(['role', 'teacherId', 'displayName', 'email', 'active', 'createdAt', 'updatedAt', 'updatedBy'])
+        && request.resource.data.role == 'teacher'
+        && request.resource.data.updatedAt == request.time && request.resource.data.updatedBy == request.auth.uid
+        && (resource == null ? request.resource.data.createdAt == request.time
+          : resource.data.role == 'teacher' && unchanged(['role', 'teacherId', 'email', 'createdAt']))
+        && after('teachers', request.resource.data.teacherId).authUid == userId
+        && after('teachers', request.resource.data.teacherId).updatedAt == request.time
+        && linkedTeacherProfile(after('teachers', request.resource.data.teacherId), request.resource.data.teacherId);
+      allow delete: if false;
+    }
+    match /teacherEmails/{email} {
+      allow read: if admin();
+      allow create, update: if admin() && validEmail(email)
+        && request.resource.data.keys().hasAll(['teacherId', 'blocked', 'updatedAt', 'updatedBy'])
+        && request.resource.data.keys().hasOnly(['teacherId', 'blocked', 'updatedAt', 'updatedBy'])
+        && request.resource.data.blocked == false
+        && request.resource.data.updatedAt == request.time && request.resource.data.updatedBy == request.auth.uid
+        && (resource == null || resource.data.blocked == false)
+        && ((request.resource.data.teacherId != ''
+            && (resource == null || resource.data.teacherId == '' || resource.data.teacherId == request.resource.data.teacherId)
+            && after('teachers', request.resource.data.teacherId).email == email)
+          || (resource != null && request.resource.data.teacherId == '' && resource.data.teacherId != ''
+            && after('teachers', resource.data.teacherId).email != email));
+      allow delete: if false;
     }
     match /announcements/{id} { allow read: if true; allow write: if admin(); }
     match /academicSettings/currentYear {
-      allow read: if admin();
+      allow read: if admin() || teacher();
       allow create, update: if admin()
         && request.resource.data.keys().hasOnly(['schoolYearId', 'updatedAt', 'updatedBy'])
         && request.resource.data.updatedAt == request.time && request.resource.data.updatedBy == request.auth.uid
@@ -156,6 +219,15 @@ service cloud.firestore {
       allow create, update: if admin() && validCatalog(name, id) && metadata(name, id);
       allow delete: if false;
     }
+    match /teachers/{id} { allow get: if teacher() && id == teacherId(); }
+    match /schoolYears/{id} { allow read: if teacher(); }
+    match /gradingPeriods/{id} { allow read: if teacher(); }
+    match /curriculumPlans/{id} { allow read: if teacher(); }
+    match /groups/{id} { allow read: if teacher() && currentTeacherGroup(resource.data); }
+    match /subjectPlans/{id} {
+      allow read: if teacher() && resource.data.specialty == teacherRecord().specialty && resource.data.status == 'active';
+    }
+    match /students/{id} { allow get: if teacher() && teacherStudent(id); }
     match /studentIdentifiers/{identifierId} {
       allow read: if admin();
       allow create, update: if admin()
@@ -200,6 +272,7 @@ service cloud.firestore {
             && after('enrollments', slot.currentEnrollmentId).startDate == data.endDate);
     }
     match /enrollments/{id} {
+      allow read: if teacher() && teacherEnrollment(resource.data);
       allow create: if admin() && validEnrollment(request.resource.data) && metadata('enrollments', id)
         && request.resource.data.status == 'active'
         && record('students', request.resource.data.studentId).status == 'active'
@@ -255,7 +328,14 @@ service cloud.firestore {
         && gradeRelations(data);
     }
     match /grades/{id} {
-      allow create: if admin() && validGrade(request.resource.data, id) && metadata('grades', id)
+      allow get: if teacher() && (resource == null
+        || (resource.data.teacherId == teacherId() && currentTeacherGroup(record('groups', resource.data.groupId))));
+      allow list: if teacher() && resource.data.teacherId == teacherId() && currentTeacherGroup(record('groups', resource.data.groupId));
+      allow create: if (admin() || (teacher() && request.resource.data.teacherId == teacherId()
+          && currentTeacherGroup(record('groups', request.resource.data.groupId))
+          && record('subjectPlans', request.resource.data.subjectPlanId).specialty == teacherRecord().specialty
+          && record('students', request.resource.data.studentId).status == 'active'))
+        && validGrade(request.resource.data, id) && metadata('grades', id)
         && request.resource.data.version == 1;
       allow update: if admin() && validGrade(request.resource.data, id) && metadata('grades', id)
         && unchanged(['studentId', 'enrollmentId', 'groupId', 'schoolYearId', 'subjectPlanId', 'periodId', 'periodOrder', 'teacherId'])
@@ -281,7 +361,11 @@ service cloud.firestore {
     }
     match /auditLogs/{id} {
       allow read: if admin();
-      allow create: if admin() && request.resource.data.keys().hasOnly(['action', 'entityType', 'entityId', 'actorId', 'createdAt', 'previousData'])
+      allow create: if (admin() || (teacher() && request.resource.data.entityType == 'grades'
+          && request.resource.data.action == 'create-grade' && request.resource.data.previousData == null
+          && !exists(/databases/$(database)/documents/grades/$(request.resource.data.entityId))
+          && after('grades', request.resource.data.entityId).teacherId == teacherId()))
+        && request.resource.data.keys().hasOnly(['action', 'entityType', 'entityId', 'actorId', 'createdAt', 'previousData'])
         && academic(request.resource.data.entityType) && required(request.resource.data.action, 40)
         && request.resource.data.actorId == request.auth.uid && request.resource.data.createdAt == request.time
         && after(request.resource.data.entityType, request.resource.data.entityId).auditId == id

@@ -11,15 +11,15 @@
 
 ## Flujo de calificaciones
 
-1. El administrador inicia sesión mediante Firebase Authentication.
+1. El director o el docente inicia sesión mediante Firebase Authentication.
 2. El panel consulta su perfil `users/{uid}` en Firestore y comprueba su permiso de acceso. El recorrido actual no utiliza *custom claims*.
 3. Los servicios del frontend consultan catálogos y relaciones de Firestore para presentar ciclo, grupo, inscripción, materia y periodo.
 4. El servicio de calificaciones escribe mediante el SDK de Firestore; las reglas publicadas son la barrera de autorización, además de las comprobaciones de interfaz.
-5. Los datos guardados se reutilizan en consultas e historial. Las vistas de docentes, alumnos y tutores requieren una implementación posterior de permisos restringidos.
+5. Los datos guardados se reutilizan en consultas e historial. El docente accede a `/docente`, con consultas acotadas a sus grupos activos del ciclo vigente y su especialidad; solo crea calificaciones nuevas en periodos abiertos. Las vistas de alumnos y tutores siguen pendientes.
 
 ## Integridad y trazabilidad
 
-`AuthContext` verifica sesión y perfil activo, `RequireAdmin` protege las rutas y `AcademicContext` reúne las suscripciones a los catálogos. Esas barreras de interfaz no sustituyen `firestore.rules`, que valida cada operación incluso si se omite React.
+`AuthContext` verifica sesión y perfil activo. `RequireAdmin` y `RequireTeacher` separan las rutas; `AcademicContext` reúne los catálogos de dirección y `TeacherContext` ejecuta las consultas restringidas del docente. Esas barreras de interfaz no sustituyen `firestore.rules`, que valida cada operación incluso si se omite React.
 
 Los catálogos y movimientos se escriben con transacciones y una entrada de `auditLogs` asociada. Las actualizaciones incrementan la revisión; las correcciones de calificación incrementan además su versión y escriben `grades/{id}/history` con valor anterior, valor nuevo, motivo y actor. No se ofrece borrado de historiales. Una corrección administrativa de una calificación existente puede realizarse en periodo cerrado si aporta motivo; una captura nueva no.
 
@@ -29,6 +29,9 @@ Las referencias técnicas mantienen restricciones entre documentos:
 - `guardianSlots`: mantiene un único vínculo de tutor principal por alumno.
 - `enrollmentSlots`: mantiene una inscripción activa por alumno y ciclo; los traslados conservan la anterior.
 - `academicSettings/currentYear`: señala el único ciclo activo.
+- `teacherEmails`: reserva correos normalizados únicos; bloquea los correos repetidos del prototipo sin modificar los expedientes anteriores.
+
+`teachers/{id}.authUid` y `users/{uid}.teacherId` relacionan expediente y cuenta. El director crea la cuenta con una instancia secundaria de Authentication en memoria para conservar su sesión; después una transacción guarda expediente, perfil docente, reserva de correo y auditoría. Si falla, solo se elimina la cuenta recién creada tras confirmar desde el servidor que no quedó vinculada. Las contraseñas nunca pasan a Firestore. Consulta [Acceso de docentes](acceso-docentes.md).
 
 Las relaciones estructurales de grupos, materias y periodos no se reasignan al editar. Las fechas originales de un ciclo y la especialidad de un registro docente también son inmutables. Así, una edición no redefine silenciosamente el contexto del historial ya registrado.
 

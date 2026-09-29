@@ -6,7 +6,7 @@ import { auth, db } from '@/config/firebase'
 
 interface Session {
   user: User | null
-  profile: { displayName: string; role: string; active: boolean } | null
+  profile: { displayName: string; role: string; active: boolean; teacherId?: string; email?: string } | null
   loading: boolean
   error: string
 }
@@ -24,6 +24,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession({ user, loading: false, error: '', profile: value ? {
           displayName: String(value.displayName || user.email || 'Administrador'),
           role: String(value.role || ''), active: value.active === true,
+          teacherId: typeof value.teacherId === 'string' ? value.teacherId : undefined,
+          email: typeof value.email === 'string' ? value.email : undefined,
         } : null })
       }, () => setSession({ user, profile: null, loading: false, error: 'No pudimos verificar tu acceso. Revisa la conexión y vuelve a iniciar sesión.' }))
     })
@@ -39,8 +41,21 @@ export function RequireAdmin() {
   const location = useLocation()
   if (loading) return <main className="session-screen" role="status"><div className="loading-dot" />Verificando acceso…</main>
   if (!user) return <Navigate to="/iniciar-sesion" state={{ from: location.pathname }} replace />
+  if (profile?.role === 'teacher') return <Navigate to="/docente" replace />
   if (error || !profile?.active || profile.role !== 'admin') return <main className="session-screen">
     <h1>Acceso al panel administrativo</h1><p>{error || 'Tu cuenta no tiene acceso administrativo activo. Solicita al director que revise tu perfil.'}</p>
+    <button className="btn btn-primary" onClick={() => void signOut(auth)}>Volver a iniciar sesión</button>
+  </main>
+  return <Outlet />
+}
+
+export function RequireTeacher() {
+  const { user, profile, loading, error } = useAuth()
+  if (loading) return <main className="session-screen" role="status"><div className="loading-dot" />Verificando acceso…</main>
+  if (!user) return <Navigate to="/iniciar-sesion" replace />
+  if (profile?.active && profile.role === 'admin') return <Navigate to="/panel" replace />
+  if (error || !profile?.active || profile.role !== 'teacher' || !profile.teacherId) return <main className="session-screen">
+    <h1>Acceso docente no disponible</h1><p>{error || 'Tu cuenta no tiene acceso docente activo. Solicita al director que revise tu perfil y las asignaciones.'}</p>
     <button className="btn btn-primary" onClick={() => void signOut(auth)}>Volver a iniciar sesión</button>
   </main>
   return <Outlet />
