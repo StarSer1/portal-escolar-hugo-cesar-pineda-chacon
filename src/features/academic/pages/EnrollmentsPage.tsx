@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { useAcademic } from '@/features/academic/AcademicContext'
 import { enrollStudent, withdrawEnrollment } from '@/features/academic/services/academic.service'
 import type { Enrollment } from '@/types/models'
+import { Icon } from '@/shared/components/Icon'
 import { DataState, displayDate, EmptyState, errorMessage, fullName, groupName, matchesQuery, Modal, PageHeading, StatusBadge, today } from '../components/AcademicUI'
 
 export function EnrollmentsPage() {
@@ -56,13 +57,13 @@ export function EnrollmentsPage() {
   }
 
   return <>
-    <PageHeading eyebrow="Trayectoria escolar" title="Inscripciones" description="Inscribe alumnos, gestiona cambios de grupo y conserva cada movimiento de su trayectoria." action={<button className="btn btn-primary" disabled={loading || !!dataError || !activeYear} onClick={() => open('enroll')}>+ Inscribir alumno</button>} />
+    <PageHeading title="Inscripciones" description="Inscribe alumnos, gestiona cambios de grupo y conserva cada movimiento de su trayectoria." action={<button className="btn btn-primary" disabled={loading || !!dataError || !activeYear} onClick={() => open('enroll')}><Icon name="plus" size={18} /> Inscribir alumno</button>} />
     {!activeYear && <p className="info-banner">Necesitas un ciclo activo para inscribir alumnos. <Link to="/panel/organizacion?tab=years">Configurar ciclos</Link>.</p>}
     {linkedStudent && <p className="info-banner">Mostrando el expediente de {data.students.find((student) => student.id === linkedStudent)?.names ?? 'este alumno'}. <Link to="/panel/inscripciones">Ver todos los alumnos</Link>.</p>}
     {notice && <p className="success-banner" role="status">{notice}</p>}
     <DataState><section className="card">
       <div className="toolbar">
-        <label className="search-field"><span className="sr-only">Buscar inscripción</span><input type="search" placeholder="Buscar alumno, matrícula o grupo…" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
+        <label className="search-field"><span className="sr-only">Buscar inscripción</span><Icon name="search" /><input type="search" placeholder="Buscar alumno, matrícula o grupo…" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
         <label className="filter-field"><span className="sr-only">Filtrar por ciclo escolar</span><select value={yearId} onChange={(event) => setYearId(event.target.value)}><option value="">Todos los ciclos</option>{data.schoolYears.map((year) => <option key={year.id} value={year.id}>{year.name}</option>)}</select></label>
         <label className="filter-field"><span className="sr-only">Filtrar por estado de inscripción</span><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="">Todos los estados</option><option value="active">Activa</option><option value="transferred">Cambio de grupo</option><option value="withdrawn">Baja</option></select></label>
         <span className="record-count">{visible.length} registros</span>
@@ -71,11 +72,11 @@ export function EnrollmentsPage() {
         const student = data.students.find((item) => item.id === enrollment.studentId)
         const group = data.groups.find((item) => item.id === enrollment.groupId)
         const year = data.schoolYears.find((item) => item.id === enrollment.schoolYearId)
-        return <tr key={enrollment.id}><td><div className="cell-stack"><strong>{student ? fullName(student) : 'Alumno no disponible'}</strong><small>{student?.matricula}</small></div></td><td><div className="cell-stack"><span>{group ? groupName(group) : 'Grupo no disponible'}</span><small>{year?.name ?? 'Ciclo no disponible'}</small></div></td><td><div className="cell-stack"><span>{displayDate(enrollment.startDate)}</span><small>{enrollment.endDate ? `Hasta ${displayDate(enrollment.endDate)}` : 'Sin fecha de cierre'}</small></div></td><td><StatusBadge value={enrollment.status} />{enrollment.reason && <small className="text-muted">{enrollment.reason}</small>}</td><td>{enrollment.status === 'active' && year?.status === 'active' ? <div className="row-actions"><button className="btn btn-small btn-secondary" onClick={() => open('enroll', enrollment)}>Cambiar grupo</button><button className="btn btn-small btn-quiet" onClick={() => open('withdraw', enrollment)}>Dar de baja</button></div> : <span className="text-muted">Histórico · solo consulta</span>}</td></tr>
+        return <tr key={enrollment.id}><td data-label="Alumno"><div className="cell-stack"><strong>{student ? fullName(student) : 'Alumno no disponible'}</strong><small>{student?.matricula}</small></div></td><td data-label="Grupo y ciclo"><div className="cell-stack"><span>{group ? groupName(group) : 'Grupo no disponible'}</span><small>{year?.name ?? 'Ciclo no disponible'}</small></div></td><td data-label="Vigencia"><div className="cell-stack"><span>{displayDate(enrollment.startDate)}</span><small>{enrollment.endDate ? `Hasta ${displayDate(enrollment.endDate)}` : 'Sin fecha de cierre'}</small></div></td><td data-label="Estado"><StatusBadge value={enrollment.status} />{enrollment.reason && <small className="text-muted">{enrollment.reason}</small>}</td><td data-label="Acciones">{enrollment.status === 'active' && year?.status === 'active' ? <div className="row-actions"><button className="btn btn-small btn-secondary" onClick={() => open('enroll', enrollment)}>Cambiar grupo</button><button className="btn btn-small btn-quiet" onClick={() => open('withdraw', enrollment)}>Dar de baja</button></div> : <span className="text-muted">Histórico · solo consulta</span>}</td></tr>
       })}</tbody></table></div> : <EmptyState title="Sin inscripciones para mostrar">Registra un alumno y un grupo activo para comenzar, o revisa los filtros de consulta.</EmptyState>}
     </section></DataState>
     <p className="form-help">Un alumno tiene una sola inscripción activa por ciclo. Los cambios de grupo y las bajas conservan sus calificaciones anteriores.</p>
-    {mode && <Modal title={mode === 'withdraw' ? 'Dar de baja la inscripción' : selected ? 'Cambiar de grupo' : 'Inscribir alumno'} onClose={() => setMode(null)} busy={busy}><form onSubmit={submit}>
+    {mode && <Modal title={mode === 'withdraw' ? 'Dar de baja la inscripción' : selected ? 'Cambiar de grupo' : 'Inscribir alumno'} onClose={() => setMode(null)} busy={busy} focusField><form onSubmit={submit}>
       {mode === 'withdraw' ? <p className="info-banner">Esta acción cierra la inscripción de {data.students.find((student) => student.id === selected?.studentId)?.names ?? 'este alumno'}. No elimina su expediente ni sus calificaciones.</p> : <p className="form-help">Selecciona alumno y grupo por nombre. Los campos con * son obligatorios.</p>}
       <fieldset className="form-fieldset" disabled={busy}><div className="form-grid">
         {mode === 'enroll' && <>

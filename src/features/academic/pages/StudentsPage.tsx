@@ -53,6 +53,8 @@ function StudentRecord({ studentId, onClose }: { studentId: string; onClose: () 
   const links = data.studentGuardians.filter((record) => record.studentId === studentId)
   const enrollments = data.enrollments.filter((record) => record.studentId === studentId).sort((a, b) => b.startDate.localeCompare(a.startDate))
   const grades = data.grades.filter((record) => record.studentId === studentId)
+  const currentEnrollment = enrollments.find((record) => record.status === 'active' && data.schoolYears.some((year) => year.id === record.schoolYearId && year.status === 'active'))
+  const currentGroup = data.groups.find((record) => record.id === currentEnrollment?.groupId)
   async function saveLink(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError(''); setMessage('')
     try {
@@ -62,10 +64,10 @@ function StudentRecord({ studentId, onClose }: { studentId: string; onClose: () 
     } catch (caught) { setError(errorMessage(caught)) } finally { setBusy(false) }
   }
   return <Modal title={fullName(student)} onClose={onClose} busy={busy} wide>
-    <div className="profile-summary"><span className="avatar avatar-large avatar-student" aria-hidden="true">{student.names.charAt(0)}{student.surnames.charAt(0)}</span><div><p className="eyebrow">Expediente del alumno</p><p className="text-mono">{student.curp}</p><StatusBadge value={student.status} /></div><Link className="btn btn-secondary" to={`/panel/inscripciones?alumno=${student.id}`} onClick={onClose}>Gestionar inscripción</Link></div>
+    <div className="profile-summary"><span className="avatar avatar-large avatar-student" aria-hidden="true">{student.names.charAt(0)}{student.surnames.charAt(0)}</span><dl><div><dt>CURP</dt><dd className="text-mono">{student.curp}</dd></div><div><dt>Matrícula</dt><dd className="text-mono">{student.matricula || 'No registrada'}</dd></div><div><dt>Expediente</dt><dd><StatusBadge value={student.status} /></dd></div></dl><Link className="btn btn-secondary" to={`/panel/inscripciones?alumno=${student.id}`} onClick={onClose}>Gestionar inscripción</Link></div>
     <div className="tabs" role="tablist" aria-label="Secciones del expediente">{[{ key: 'summary', label: 'Datos y tutores' }, { key: 'history', label: 'Historial académico' }].map((item) => <button type="button" role="tab" key={item.key} aria-selected={tab === item.key} className={tab === item.key ? 'tab-active' : ''} onClick={() => setTab(item.key)}>{item.label}</button>)}</div>
     {tab === 'summary' ? <>
-      <dl className="detail-grid"><div><dt>Matrícula</dt><dd>{student.matricula || 'No registrada'}</dd></div><div><dt>Nacimiento</dt><dd>{displayDate(student.birthDate)}</dd></div><div><dt>Sexo registrado</dt><dd>{student.sex === 'H' ? 'Hombre' : student.sex === 'M' ? 'Mujer' : student.sex}</dd></div><div><dt>Inscripciones históricas</dt><dd>{enrollments.length}</dd></div></dl>
+      <dl className="detail-grid"><div><dt>Grupo actual</dt><dd>{currentGroup ? groupName(currentGroup) : 'Sin inscripción vigente'}</dd></div><div><dt>Nacimiento</dt><dd>{displayDate(student.birthDate)}</dd></div><div><dt>Sexo registrado</dt><dd>{student.sex === 'H' ? 'Hombre' : student.sex === 'M' ? 'Mujer' : student.sex}</dd></div><div><dt>Inscripciones históricas</dt><dd>{enrollments.length}</dd></div></dl>
       <h3>Tutores y contactos</h3>
       {links.length ? <div className="contact-list">{links.map((link) => {
         const guardian = data.guardians.find((record) => record.id === link.guardianId)
@@ -83,7 +85,7 @@ function StudentRecord({ studentId, onClose }: { studentId: string; onClose: () 
         const year = data.schoolYears.find((record) => record.id === enrollment.schoolYearId)
         const records = grades.filter((record) => record.enrollmentId === enrollment.id).sort((a, b) => a.periodOrder - b.periodOrder)
         return <section className="history-block" key={enrollment.id}><div className="card-heading"><div><h3>{year?.name ?? 'Ciclo no disponible'} · {group ? groupName(group) : 'Grupo no disponible'}</h3><p>{displayDate(enrollment.startDate)} — {enrollment.endDate ? displayDate(enrollment.endDate) : 'Vigente'}</p></div><StatusBadge value={enrollment.status} /></div>{enrollment.reason && <p className="text-muted">{enrollment.reason}</p>}
-          {records.length ? <div className="table-wrap"><table className="data-table"><thead><tr><th>Materia</th><th>Periodo</th><th>Capturada</th><th>Redondeada</th></tr></thead><tbody>{records.map((grade) => <tr key={grade.id}><td>{data.subjectPlans.find((record) => record.id === grade.subjectPlanId)?.name ?? 'Materia no disponible'}</td><td>{data.gradingPeriods.find((record) => record.id === grade.periodId)?.name ?? `Periodo ${grade.periodOrder}`}</td><td>{grade.score}</td><td><span className="grade-value">{grade.roundedScore}</span></td></tr>)}</tbody></table></div> : <p className="text-muted">Sin calificaciones registradas para esta inscripción.</p>}
+          {records.length ? <div className="table-wrap"><table className="data-table"><thead><tr><th>Materia</th><th>Periodo</th><th>Capturada</th><th>Redondeada</th></tr></thead><tbody>{records.map((grade) => <tr key={grade.id}><td data-label="Materia">{data.subjectPlans.find((record) => record.id === grade.subjectPlanId)?.name ?? 'Materia no disponible'}</td><td data-label="Periodo">{data.gradingPeriods.find((record) => record.id === grade.periodId)?.name ?? `Periodo ${grade.periodOrder}`}</td><td data-label="Capturada">{grade.score}</td><td data-label="Redondeada"><span className="grade-value">{grade.roundedScore}</span></td></tr>)}</tbody></table></div> : <p className="text-muted">Sin calificaciones registradas para esta inscripción.</p>}
         </section>
       })}
     </>}

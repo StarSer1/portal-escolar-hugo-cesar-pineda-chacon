@@ -3,11 +3,15 @@ import { Link } from 'react-router-dom'
 import { useAcademic } from '@/features/academic/AcademicContext'
 import { useAuth } from '@/features/auth/AuthContext'
 import type { AuditLog } from '@/types/models'
+import { Icon } from '@/shared/components/Icon'
 import { DataState, EmptyState, fullName, groupName, matchesQuery, PageHeading } from '../components/AcademicUI'
 
 const actions: Record<string, string> = {
   create: 'Registro creado', update: 'Registro actualizado', enroll: 'Inscripción registrada',
   transfer: 'Cambio de grupo', withdraw: 'Baja de inscripción', 'create-grade': 'Calificación capturada', 'correct-grade': 'Calificación corregida',
+}
+const actionTones: Record<string, string> = {
+  create: 'badge-success', enroll: 'badge-success', 'create-grade': 'badge-success', update: 'badge-info', transfer: 'badge-info', 'correct-grade': 'badge-warn', withdraw: 'badge-alert',
 }
 const collections: Record<string, { label: string; route: string }> = {
   students: { label: 'Alumnos', route: '/panel/alumnos' }, guardians: { label: 'Tutores', route: '/panel/tutores' },
@@ -43,15 +47,17 @@ export function ActivityPage() {
     const named = [...data.guardians, ...data.teachers, ...data.schoolYears, ...data.curriculumPlans, ...data.subjectPlans, ...data.gradingPeriods]
     return named.find((item) => item.id === audit.entityId)?.name ?? 'Registro conservado'
   }
-  const visible = data.auditLogs.filter((audit) => (!entityType || audit.entityType === entityType) && matchesQuery(query, recordName(audit), actions[audit.action] ?? audit.action, collections[audit.entityType]?.label, audit.actorId))
+  // Teacher accounts are linked to their record through authUid; other accounts keep their ID.
+  const actorTeacher = (audit: AuditLog) => data.teachers.find((teacher) => teacher.authUid && teacher.authUid === audit.actorId)
+  const visible = data.auditLogs.filter((audit) => (!entityType || audit.entityType === entityType) && matchesQuery(query, recordName(audit), actions[audit.action] ?? audit.action, collections[audit.entityType]?.label, audit.actorId, actorTeacher(audit)?.name))
   return <>
-    <PageHeading eyebrow="Trazabilidad" title="Actividad del panel" description="Consulta los últimos 100 movimientos registrados: altas, modificaciones, inscripciones y correcciones de calificaciones." />
+    <PageHeading title="Actividad del panel" description="Consulta los últimos 100 movimientos registrados: altas, modificaciones, inscripciones y correcciones de calificaciones." />
     <p className="info-banner">La bitácora es de solo lectura. Conserva la fecha y el identificador de la cuenta responsable; los registros históricos no se eliminan desde el panel.</p>
     <DataState><section className="card"><div className="toolbar">
-      <label className="search-field"><span className="sr-only">Buscar en actividad</span><input type="search" placeholder="Buscar registro o movimiento…" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
+      <label className="search-field"><span className="sr-only">Buscar en actividad</span><Icon name="search" /><input type="search" placeholder="Buscar registro o movimiento…" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
       <label className="filter-field"><span className="sr-only">Filtrar por módulo</span><select value={entityType} onChange={(event) => setEntityType(event.target.value)}><option value="">Todos los módulos</option>{Object.entries(collections).map(([key, entry]) => <option key={key} value={key}>{entry.label}</option>)}</select></label>
       <span className="record-count">{visible.length} movimientos</span>
-    </div>{visible.length ? <div className="table-wrap"><table className="data-table"><thead><tr><th scope="col">Fecha</th><th scope="col">Movimiento</th><th scope="col">Registro</th><th scope="col">Responsable</th><th scope="col">Módulo</th></tr></thead><tbody>{visible.map((audit) => <tr key={audit.id}><td>{auditDate(audit.createdAt)}</td><td><span className={`badge ${audit.action === 'correct-grade' || audit.action === 'withdraw' ? 'badge-muted' : 'badge-success'}`}>{actions[audit.action] ?? audit.action}</span></td><td><strong>{recordName(audit)}</strong></td><td>{audit.actorId === user?.uid ? <span>{profile?.displayName || 'Tu cuenta'} <small className="text-muted">(tú)</small></span> : <span className="text-mono" title={`Identificador de la cuenta: ${audit.actorId}`}>{audit.actorId}</span>}</td><td>{collections[audit.entityType] ? <Link to={collections[audit.entityType].route}>{collections[audit.entityType].label}</Link> : audit.entityType}</td></tr>)}</tbody></table></div> : <EmptyState title={data.auditLogs.length ? 'Sin movimientos que coincidan' : 'La bitácora está lista'}>{data.auditLogs.length ? 'Cambia la búsqueda o el filtro del módulo.' : 'Los movimientos se mostrarán automáticamente conforme utilices los módulos del panel.'}</EmptyState>}</section></DataState>
+    </div>{visible.length ? <div className="table-wrap"><table className="data-table"><thead><tr><th scope="col">Fecha</th><th scope="col">Movimiento</th><th scope="col">Registro</th><th scope="col">Responsable</th><th scope="col">Módulo</th></tr></thead><tbody>{visible.map((audit) => <tr key={audit.id}><td data-label="Fecha">{auditDate(audit.createdAt)}</td><td data-label="Movimiento"><span className={`badge ${actionTones[audit.action] ?? 'badge-muted'}`}>{actions[audit.action] ?? audit.action}</span></td><td data-label="Registro"><strong>{recordName(audit)}</strong></td><td data-label="Responsable">{audit.actorId === user?.uid ? <span>{profile?.displayName || 'Tu cuenta'} <small className="text-muted">(tú)</small></span> : actorTeacher(audit) ? <span title={`Identificador de la cuenta: ${audit.actorId}`}>{actorTeacher(audit)?.name} <small className="text-muted">(docente)</small></span> : <span className="text-mono" title={`Identificador de la cuenta: ${audit.actorId}`}>{audit.actorId}</span>}</td><td data-label="Módulo">{collections[audit.entityType] ? <Link to={collections[audit.entityType].route}>{collections[audit.entityType].label}</Link> : audit.entityType}</td></tr>)}</tbody></table></div> : <EmptyState title={data.auditLogs.length ? 'Sin movimientos que coincidan' : 'La bitácora está lista'}>{data.auditLogs.length ? 'Cambia la búsqueda o el filtro del módulo.' : 'Los movimientos se mostrarán automáticamente conforme utilices los módulos del panel.'}</EmptyState>}</section></DataState>
     <p className="form-help">Los nombres mostrados corresponden al catálogo actual. Esta vista limita la consulta a los últimos 100 movimientos; no representa un reporte histórico completo.</p>
   </>
 }

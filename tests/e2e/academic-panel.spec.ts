@@ -46,7 +46,7 @@ async function fillFields(dialog: Locator, fields: Record<string, string>) {
 
 async function createRecord(page: Page, route: string, singular: string, fields: Record<string, string>) {
   await page.goto(route)
-  await page.getByRole('button', { name: `+ Agregar ${singular}`, exact: true }).click()
+  await page.getByRole('button', { name: `Agregar ${singular}`, exact: true }).click()
   const dialog = page.getByRole('dialog', { name: `Agregar ${singular}`, exact: true })
   await fillFields(dialog, fields)
   if (singular === 'docente') await dialog.locator('[name="confirmPassword"]').fill(password)
@@ -57,7 +57,7 @@ async function createRecord(page: Page, route: string, singular: string, fields:
 
 async function selectedId(page: Page, route: string, singular: string, field: string, label: string) {
   await page.goto(route)
-  await page.getByRole('button', { name: `+ Agregar ${singular}`, exact: true }).click()
+  await page.getByRole('button', { name: `Agregar ${singular}`, exact: true }).click()
   const dialog = page.getByRole('dialog')
   const value = await dialog.locator(`[name="${field}"] option`).filter({ hasText: label }).getAttribute('value')
   await dialog.getByRole('button', { name: 'Cancelar', exact: true }).click()
@@ -112,7 +112,7 @@ test.describe.serial('Panel académico con Firestore y Authentication reales en 
       schoolYearId: yearId, order: '1', name: 'Primer periodo QA', startDate: '2026-08-01', endDate: '2026-11-30', status: 'open',
     })
     await page.goto('/panel/organizacion?tab=groups')
-    await page.getByRole('button', { name: '+ Agregar grupo', exact: true }).click()
+    await page.getByRole('button', { name: 'Agregar grupo', exact: true }).click()
     let dialog = page.getByRole('dialog', { name: 'Agregar grupo', exact: true })
     await fillFields(dialog, { schoolYearId: yearId, curriculumPlanId: planId, grade: '1', label: 'A', shift: 'matutino', status: 'active' })
     for (const specialty of ['general', 'physical', 'english', 'arts']) {
@@ -125,7 +125,7 @@ test.describe.serial('Panel académico con Firestore y Authentication reales en 
     await createRecord(page, '/panel/alumnos', 'alumno', {
       names: 'Alumna', surnames: 'Demostración Local', curp: 'DELA180101MBSMLN01', matricula: 'QA-0001', birthDate: '2018-01-01', sex: 'M', status: 'active',
     })
-    await page.getByRole('button', { name: '+ Agregar alumno', exact: true }).click()
+    await page.getByRole('button', { name: 'Agregar alumno', exact: true }).click()
     dialog = page.getByRole('dialog', { name: 'Agregar alumno', exact: true })
     await fillFields(dialog, { names: 'Duplicado', surnames: 'No Guardar', curp: 'DELA180101MBSMLN01', matricula: 'QA-0002', birthDate: '2018-01-01', sex: 'M', status: 'active' })
     await dialog.getByRole('button', { name: 'Guardar cambios', exact: true }).click()
@@ -146,7 +146,7 @@ test.describe.serial('Panel académico con Firestore y Authentication reales en 
 
     await page.goto('/panel/inscripciones')
     // Names below intentionally use visible labels, matching the enrollment form.
-    await page.getByRole('button', { name: '+ Inscribir alumno', exact: true }).click()
+    await page.getByRole('button', { name: 'Inscribir alumno', exact: true }).click()
     await page.getByLabel(/^Alumno/).selectOption({ label: `${studentName} · QA-0001` })
     await page.getByLabel(/^Grupo/).selectOption({ label: '1° A · matutino · Ciclo de prueba 2026–2027' })
     await page.getByLabel(/^Fecha de inscripción \*/).fill('2026-09-01')
@@ -236,7 +236,7 @@ test.describe.serial('Panel académico con Firestore y Authentication reales en 
     await expect(page.getByRole('status')).toContainText('Calificación guardada correctamente: 10.')
 
     await page.goto('/panel/organizacion?tab=groups')
-    await page.getByRole('button', { name: '+ Agregar grupo', exact: true }).click()
+    await page.getByRole('button', { name: 'Agregar grupo', exact: true }).click()
     dialog = page.getByRole('dialog', { name: 'Agregar grupo', exact: true })
     await dialog.locator('[name="curriculumPlanId"]').selectOption({ index: 1 })
     await fillFields(dialog, { grade: '1', label: 'B', shift: 'matutino', status: 'active' })

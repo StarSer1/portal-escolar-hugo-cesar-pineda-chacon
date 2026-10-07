@@ -8,7 +8,7 @@ export function OrganizationPage() {
   const [params, setParams] = useSearchParams()
   const tab = sections.some((section) => section.key === params.get('tab')) ? params.get('tab') : 'years'
   return <>
-    <PageHeading title="Organización escolar" description="Define la estructura del ciclo: planes, materias, grupos y periodos de evaluación." eyebrow="Configuración académica" />
+    <PageHeading title="Organización escolar" description="Define la estructura del ciclo: planes, materias, grupos y periodos de evaluación." />
     <nav className="tabs" aria-label="Secciones de organización escolar">{sections.map((section) => <button key={section.key} type="button" className={tab === section.key ? 'tab-active' : ''} aria-current={tab === section.key ? 'page' : undefined} onClick={() => setParams({ tab: section.key })}>{section.label}</button>)}</nav>
     <div className="organization-content" key={tab}>{tab === 'years' ? <YearsSection /> : tab === 'plans' ? <PlansSection /> : tab === 'subjects' ? <SubjectsSection /> : tab === 'groups' ? <GroupsSection /> : <PeriodsSection />}</div>
   </>
@@ -16,7 +16,7 @@ export function OrganizationPage() {
 
 function YearsSection() {
   const { data } = useAcademic()
-  return <RecordManager title="Ciclos escolares" singular="Ciclo" description="Conserva cada ciclo como parte del historial. Solo uno puede estar activo al mismo tiempo." collection="schoolYears" records={data.schoolYears.map((record) => ({ ...record }))} searchFields={['name']} fields={[
+  return <RecordManager nested title="Ciclos escolares" singular="Ciclo" description="Conserva cada ciclo como parte del historial. Solo uno puede estar activo al mismo tiempo." collection="schoolYears" records={data.schoolYears.map((record) => ({ ...record }))} searchFields={['name']} fields={[
     { key: 'name', label: 'Nombre del ciclo', required: true, maxLength: 60, full: true, hint: 'Por ejemplo: 2026–2027.' },
     { key: 'startDate', label: 'Inicio del ciclo', type: 'date', required: true, immutable: true, hint: 'La fecha se conserva después del alta para proteger las inscripciones y los periodos.' },
     { key: 'endDate', label: 'Fin del ciclo', type: 'date', required: true, immutable: true, hint: 'Para un calendario distinto crea un ciclo nuevo; estas fechas no se editan.' },
@@ -38,7 +38,7 @@ function YearsSection() {
 
 function PlansSection() {
   const { data } = useAcademic()
-  return <RecordManager title="Planes de estudio" singular="Plan" description="Cada plan reúne las materias por grado. Una nueva versión permite conservar la estructura de ciclos anteriores." collection="curriculumPlans" records={data.curriculumPlans.map((record) => ({ ...record }))} searchFields={['name', 'version']} fields={[
+  return <RecordManager nested title="Planes de estudio" singular="Plan" description="Cada plan reúne las materias por grado. Una nueva versión permite conservar la estructura de ciclos anteriores." collection="curriculumPlans" records={data.curriculumPlans.map((record) => ({ ...record }))} searchFields={['name', 'version']} fields={[
     { key: 'name', label: 'Nombre del plan', required: true, full: true },
     { key: 'version', label: 'Versión', required: true, maxLength: 30, hint: 'Por ejemplo: 2026 o v1.' },
     { key: 'status', label: 'Estado', type: 'select', required: true, defaultValue: 'active', options: activeOptions },
@@ -57,7 +57,7 @@ function SubjectsSection() {
   const { data } = useAcademic()
   return <>
     {!data.curriculumPlans.length && <p className="info-banner">Primero registra un plan en la pestaña Planes de estudio.</p>}
-    <RecordManager title="Materias" singular="Materia" description="Asocia cada materia con un plan, un grado y la especialidad docente que la evalúa." collection="subjectPlans" records={data.subjectPlans.map((record) => ({ ...record }))} searchFields={['name']} fields={[
+    <RecordManager nested title="Materias" singular="Materia" description="Asocia cada materia con un plan, un grado y la especialidad docente que la evalúa." collection="subjectPlans" records={data.subjectPlans.map((record) => ({ ...record }))} searchFields={['name']} fields={[
       { key: 'name', label: 'Nombre de la materia', required: true, full: true },
       { key: 'curriculumPlanId', label: 'Plan de estudios', type: 'select', required: true, immutable: true, options: (draft) => data.curriculumPlans.filter((plan) => plan.status === 'active' || plan.id === draft.curriculumPlanId).map((plan) => ({ value: plan.id, label: `${plan.name} · ${plan.version}` })) },
       { key: 'grade', label: 'Grado', type: 'select', required: true, immutable: true, options: gradeOptions },
@@ -83,7 +83,7 @@ function GroupsSection() {
   }))
   return <>
     {specialtyOptions.some((specialty) => !data.teachers.some((teacher) => teacher.specialty === specialty.value && teacher.status === 'active')) && <p className="info-banner">Para crear un grupo necesitas personal activo en las cuatro especialidades. <Link to="/panel/docentes">Ir a Docentes</Link>.</p>}
-    <RecordManager title="Grupos" singular="Grupo" description="Organiza a los alumnos por ciclo, grado y turno, con sus cuatro docentes responsables." collection="groups" records={data.groups.map((record) => ({ ...record }))} searchFields={['label', 'grade', 'shift']} fields={[
+    <RecordManager nested title="Grupos" singular="Grupo" description="Organiza a los alumnos por ciclo, grado y turno, con sus cuatro docentes responsables." collection="groups" records={data.groups.map((record) => ({ ...record }))} searchFields={['label', 'grade', 'shift']} fields={[
       { key: 'schoolYearId', label: 'Ciclo escolar', type: 'select', required: true, immutable: true, options: (draft) => data.schoolYears.filter((year) => year.status !== 'closed' || year.id === draft.schoolYearId).map((year) => ({ value: year.id, label: year.name })), defaultValue: data.schoolYears.find((year) => year.status === 'active')?.id },
       { key: 'curriculumPlanId', label: 'Plan de estudios', type: 'select', required: true, immutable: true, options: (draft) => data.curriculumPlans.filter((plan) => plan.status === 'active' || plan.id === draft.curriculumPlanId).map((plan) => ({ value: plan.id, label: `${plan.name} · ${plan.version}` })) },
       { key: 'grade', label: 'Grado', type: 'select', required: true, immutable: true, options: gradeOptions },
@@ -107,7 +107,7 @@ function GroupsSection() {
 
 function PeriodsSection() {
   const { data } = useAcademic()
-  return <RecordManager title="Periodos de evaluación" singular="Periodo" description="Configura tres periodos por ciclo. Un periodo cerrado conserva sus calificaciones y requiere motivo para una corrección administrativa." collection="gradingPeriods" records={data.gradingPeriods.map((record) => ({ ...record }))} searchFields={['name']} fields={[
+  return <RecordManager nested title="Periodos de evaluación" singular="Periodo" description="Configura tres periodos por ciclo. Un periodo cerrado conserva sus calificaciones y requiere motivo para una corrección administrativa." collection="gradingPeriods" records={data.gradingPeriods.map((record) => ({ ...record }))} searchFields={['name']} fields={[
     { key: 'schoolYearId', label: 'Ciclo escolar', type: 'select', required: true, immutable: true, defaultValue: data.schoolYears.find((year) => year.status === 'active')?.id, options: (draft) => data.schoolYears.filter((year) => year.status !== 'closed' || year.id === draft.schoolYearId).map((year) => ({ value: year.id, label: year.name })) },
     { key: 'order', label: 'Número de periodo', type: 'select', required: true, immutable: true, options: [1, 2, 3].map((value) => ({ value: String(value), label: `Periodo ${value}` })) },
     { key: 'name', label: 'Nombre', required: true, maxLength: 80, full: true, hint: 'Por ejemplo: Primer periodo.' },
