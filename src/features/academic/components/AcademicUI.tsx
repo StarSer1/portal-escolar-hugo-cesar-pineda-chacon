@@ -1,8 +1,15 @@
-import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAcademic } from '@/features/academic/AcademicContext'
 import { saveRecord } from '@/features/academic/services/academic.service'
+import { Button, IconButton } from '@/shared/ui/Button'
+import { DataTable, type Column } from '@/shared/ui/DataTable'
+import { Alert, Badge, EmptyState, PageHeader, type BadgeTone } from '@/shared/ui/Feedback'
+import { Field, FilterSelect, FormSection, SearchField, Toolbar, type Option } from '@/shared/ui/Field'
+import { Modal } from '@/shared/ui/Modal'
 import type { EditableCollection } from '@/types/models'
 
+export type { Option } from '@/shared/ui/Field'
 export const specialtyLabels: Record<string, string> = { general: 'Docente general', physical: 'Educación Física', english: 'Inglés', arts: 'Artes' }
 export const statusLabels: Record<string, string> = { active: 'Activo', inactive: 'Inactivo', planned: 'Planeado', closed: 'Cerrado', open: 'Abierto', withdrawn: 'Baja', transferred: 'Cambio de grupo' }
 export const specialtyOptions = Object.entries(specialtyLabels).map(([value, label]) => ({ value, label }))
@@ -10,6 +17,7 @@ export const activeOptions = [{ value: 'active', label: 'Activo' }, { value: 'in
 export const gradeOptions = [1, 2, 3, 4, 5, 6].map((grade) => ({ value: String(grade), label: `${grade}° de primaria` }))
 
 export function fullName(student: { names: string; surnames: string }) { return `${student.names} ${student.surnames}`.trim() }
+export function initials(name: string) { return name.split(/\s+/).filter((word) => word && !word.endsWith('.')).slice(0, 2).map((word) => word.charAt(0)).join('').toUpperCase() }
 export function groupName(group: { grade: number; label: string; shift?: string }) { return `${group.grade}° ${group.label}${group.shift ? ` · ${group.shift}` : ''}` }
 export function today() { const date = new Date(); return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` }
 export function displayDate(value: string | undefined) { return value ? new Date(`${value}T12:00:00`).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) : '—' }
@@ -23,35 +31,17 @@ export function matchesQuery(query: string, ...values: unknown[]) {
   const normalize = (value: unknown) => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
   return values.some((value) => normalize(value).includes(normalize(query.trim())))
 }
-export function StatusBadge({ value }: { value: string }) { return <span className={`badge ${['active', 'open'].includes(value) ? 'badge-success' : 'badge-muted'}`}>{statusLabels[value] ?? value}</span> }
 
-export function PageHeading({ eyebrow, title, description, action }: { eyebrow?: string; title: string; description: string; action?: ReactNode }) {
-  return <header className="page-heading"><div>{eyebrow && <p className="eyebrow">{eyebrow}</p>}<h1>{title}</h1><p className="page-description">{description}</p></div>{action}</header>
-}
-export function EmptyState({ title, children }: { title: string; children?: ReactNode }) { return <div className="empty-state"><h3>{title}</h3>{children && <p>{children}</p>}</div> }
+const statusTones: Record<string, BadgeTone> = { active: 'success', open: 'success', planned: 'info', transferred: 'info', withdrawn: 'alert' }
+export function StatusBadge({ value }: { value: string }) { return <Badge tone={statusTones[value] ?? 'muted'}>{statusLabels[value] ?? value}</Badge> }
+
 export function DataState({ children }: { children: ReactNode }) {
   const { loading, error, retry } = useAcademic()
-  if (loading) return <div className="card empty-state" role="status"><span className="loading-dot" /> Cargando información académica…</div>
-  if (error) return <div className="error-banner" role="alert"><p>{error}</p><button className="btn btn-secondary" onClick={retry}>Volver a intentar</button></div>
+  if (loading) return <div className="card loading-state" role="status"><span className="spinner" aria-hidden="true" /> Cargando información académica…</div>
+  if (error) return <Alert tone="error" role="alert" title="No pudimos cargar la información" action={<Button icon="refresh" onClick={retry}>Volver a intentar</Button>}>{error}</Alert>
   return <>{children}</>
 }
 
-export function Modal({ title, children, onClose, busy = false, wide = false }: { title: string; children: ReactNode; onClose: () => void; busy?: boolean; wide?: boolean }) {
-  const ref = useRef<HTMLDialogElement>(null)
-  const titleId = useId()
-  useEffect(() => {
-    const dialog = ref.current
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null
-    dialog?.showModal()
-    return () => { dialog?.close(); previous?.focus() }
-  }, [])
-  return <dialog ref={ref} className={`modal${wide ? ' modal-wide' : ''}`} aria-labelledby={titleId} onCancel={(event) => { event.preventDefault(); if (!busy) onClose() }}>
-    <div className="modal-heading"><h2 id={titleId}>{title}</h2><button className="icon-button" type="button" aria-label="Cerrar ventana" onClick={onClose} disabled={busy}>×</button></div>
-    <div className="modal-body">{children}</div>
-  </dialog>
-}
-
-export type Option = { value: string; label: string }
 export type Draft = Record<string, string>
 export type ManagedRecord = { id: string; [key: string]: unknown }
 export interface FormField {
@@ -62,45 +52,100 @@ export interface FormField {
   options?: Option[] | ((draft: Draft) => Option[])
   defaultValue?: string
   hint?: string
+  placeholder?: string
   maxLength?: number
   min?: string | number
   max?: string | number
   full?: boolean
   immutable?: boolean
   uppercase?: boolean
+  /** Fields that share a section render together under its title. */
+  section?: string
 }
-export interface TableColumn { label: string; render: (record: ManagedRecord) => ReactNode }
+export interface RecordFilter { key: string; label: string; allLabel: string; options: Option[]; defaultValue?: string; match: (record: ManagedRecord, value: string) => boolean }
+
+function FieldControl({ field, draft, editing, onChange }: { field: FormField; draft: Draft; editing: boolean; onChange: (key: string, value: string) => void }) {
+  const value = draft[field.key] ?? ''
+  const locked = editing && field.immutable
+  const hint = field.hint ?? (locked ? 'Se conserva desde el alta para proteger el historial.' : undefined)
+  if (field.type === 'select') {
+    const options = typeof field.options === 'function' ? field.options(draft) : field.options
+    return <Field label={field.label} required={field.required} hint={hint} full={field.full}>
+      <select name={field.key} value={value} disabled={locked} required={field.required} onChange={(event) => onChange(field.key, event.target.value)}>
+        <option value="">Seleccionar…</option>
+        {options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+      </select>
+    </Field>
+  }
+  if (field.type === 'textarea') {
+    return <Field label={field.label} required={field.required} hint={hint} full={field.full}>
+      <textarea name={field.key} value={value} required={field.required} maxLength={field.maxLength ?? 500} rows={3} placeholder={field.placeholder} onChange={(event) => onChange(field.key, event.target.value)} />
+    </Field>
+  }
+  return <Field label={field.label} required={field.required} hint={hint} full={field.full}>
+    <input
+      name={field.key}
+      type={field.type ?? 'text'}
+      value={value}
+      disabled={locked}
+      required={field.required}
+      maxLength={field.maxLength ?? 120}
+      min={field.min}
+      max={field.max}
+      placeholder={field.placeholder}
+      className={field.uppercase ? 'text-mono' : undefined}
+      onChange={(event) => onChange(field.key, field.uppercase ? event.target.value.toUpperCase() : event.target.value)}
+    />
+  </Field>
+}
 
 export function RecordFields({ fields, draft, onChange, editing = false }: { fields: FormField[]; draft: Draft; onChange: (key: string, value: string) => void; editing?: boolean }) {
-  return <div className="form-grid">{fields.map((field) => {
-    const options = typeof field.options === 'function' ? field.options(draft) : field.options
-    return <label className={`field${field.full ? ' field-full' : ''}`} key={field.key}><span>{field.label}{field.required ? ' *' : ''}</span>
-      {field.type === 'select' ? <select name={field.key} value={draft[field.key] ?? ''} disabled={editing && field.immutable} required={field.required} onChange={(event) => onChange(field.key, event.target.value)}><option value="">Seleccionar…</option>{options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>
-        : field.type === 'textarea' ? <textarea name={field.key} value={draft[field.key] ?? ''} required={field.required} maxLength={field.maxLength ?? 500} rows={3} onChange={(event) => onChange(field.key, event.target.value)} />
-          : <input name={field.key} type={field.type ?? 'text'} value={draft[field.key] ?? ''} disabled={editing && field.immutable} required={field.required} maxLength={field.maxLength ?? 120} min={field.min} max={field.max} onChange={(event) => onChange(field.key, field.uppercase ? event.target.value.toUpperCase() : event.target.value)} />}
-      {field.hint && <small>{field.hint}</small>}
-    </label>
-  })}</div>
+  const sections: { title?: string; fields: FormField[] }[] = []
+  for (const field of fields) {
+    const last = sections.at(-1)
+    if (last && last.title === field.section) last.fields.push(field)
+    else sections.push({ title: field.section, fields: [field] })
+  }
+  return <div className="form-sections">
+    {sections.map((section, index) => {
+      const controls = section.fields.map((field) => <FieldControl key={field.key} field={field} draft={draft} editing={editing} onChange={onChange} />)
+      return section.title ? <FormSection key={section.title} title={section.title}>{controls}</FormSection> : <div key={index} className="form-grid">{controls}</div>
+    })}
+  </div>
 }
 
-export function RecordManager({ title, singular, description, collection, records, fields, columns, searchFields, validate, detail, emptyHint, beforeSave }: {
-  title: string; singular: string; description: string; collection: EditableCollection; records: ManagedRecord[]; fields: FormField[]; columns: TableColumn[]; searchFields: string[]
+export function RecordManager({ title, singular, description, collection, records, fields, columns, searchFields, searchPlaceholder, validate, detail, emptyHint, beforeSave, nested = false, filters = [], initialSort }: {
+  title: string; singular: string; description: string; collection: EditableCollection; records: ManagedRecord[]; fields: FormField[]; columns: Column<ManagedRecord>[]; searchFields: string[]
+  searchPlaceholder?: string
   validate?: (draft: Draft, editingId?: string) => string | undefined
   detail?: (record: ManagedRecord) => void
   emptyHint?: string
   beforeSave?: (input: Record<string, unknown>, id?: string) => Record<string, unknown>
+  nested?: boolean
+  filters?: RecordFilter[]
+  initialSort?: { key: string; direction: 'asc' | 'desc' }
 }) {
   const { loading, error: dataError } = useAcademic()
+  const [params, setParams] = useSearchParams()
+  const blankDraft = (record: ManagedRecord | null) => Object.fromEntries(fields.map((field) => [field.key, String(record?.[field.key] ?? field.defaultValue ?? '')]))
+  // "?nuevo=1" (from shortcuts such as "Registrar alumno") opens the add form directly.
+  const [editing, setEditing] = useState<ManagedRecord | null | undefined>(() => params.get('nuevo') === '1' ? null : undefined)
+  const [draft, setDraft] = useState<Draft>(() => blankDraft(null))
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState('')
-  const [editing, setEditing] = useState<ManagedRecord | null | undefined>(undefined)
-  const [draft, setDraft] = useState<Draft>({})
+  const [filterValues, setFilterValues] = useState<Record<string, string>>(() => Object.fromEntries(filters.map((filter) => [filter.key, filter.defaultValue ?? ''])))
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const name = singular.toLowerCase()
+
   function open(record: ManagedRecord | null) {
-    setDraft(Object.fromEntries(fields.map((field) => [field.key, String(record?.[field.key] ?? field.defaultValue ?? '')])))
+    setDraft(blankDraft(record))
     setEditing(record); setError(''); setNotice('')
+  }
+  function close() {
+    setEditing(undefined)
+    if (params.has('nuevo')) setParams((current) => { const next = new URLSearchParams(current); next.delete('nuevo'); return next }, { replace: true })
   }
   async function submit(event: FormEvent) {
     event.preventDefault()
@@ -112,27 +157,54 @@ export function RecordManager({ title, singular, description, collection, record
       const values = Object.fromEntries(fields.map((field) => [field.key, field.type === 'number' || field.key === 'grade' || field.key === 'order' ? Number(normalized[field.key]) : normalized[field.key]]))
       await saveRecord(collection, { ...(beforeSave ? beforeSave(values, editing?.id) : values), ...(editing ? { revision: editing.revision } : {}) }, editing?.id)
       setNotice(`${singular} ${editing ? 'actualizado' : 'registrado'} correctamente.`)
-      setEditing(undefined)
+      close()
     } catch (caught) { setError(errorMessage(caught)) } finally { setBusy(false) }
   }
-  const filtered = records.filter((record) => (!status || record.status === status) && matchesQuery(query, ...searchFields.map((field) => record[field])))
+
   const statuses = Array.from(new Set(records.map((record) => String(record.status ?? '')).filter(Boolean)))
+  const filtered = records.filter((record) => (!status || record.status === status)
+    && filters.every((filter) => !filterValues[filter.key] || filter.match(record, filterValues[filter.key]))
+    && matchesQuery(query, ...searchFields.map((field) => record[field])))
+  const resetKey = [query, status, ...Object.values(filterValues)].join('|')
+
   return <>
-    <PageHeading eyebrow="Gestión académica" title={title} description={description} action={<button className="btn btn-primary" onClick={() => open(null)} disabled={loading || !!dataError}>+ Agregar {singular.toLowerCase()}</button>} />
-    {notice && <p className="success-banner" role="status">{notice}</p>}
-    <DataState><section className="card">
-      <div className="toolbar"><label className="search-field"><span className="sr-only">Buscar en {title.toLowerCase()}</span><input className="search-input" type="search" placeholder={`Buscar en ${title.toLowerCase()}…`} value={query} onChange={(event) => setQuery(event.target.value)} /></label>
-        {statuses.length > 0 && <label className="filter-field"><span className="sr-only">Filtrar por estado</span><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="">Todos los estados</option>{statuses.map((value) => <option key={value} value={value}>{statusLabels[value] ?? value}</option>)}</select></label>}
-        <span className="record-count">{filtered.length} {filtered.length === 1 ? 'registro' : 'registros'}</span>
-      </div>
-      {filtered.length ? <div className="table-wrap"><table className="data-table"><thead><tr>{columns.map((column) => <th key={column.label} scope="col">{column.label}</th>)}<th scope="col">Acciones</th></tr></thead><tbody>{filtered.map((record) => <tr key={record.id}>{columns.map((column) => <td key={column.label}>{column.render(record)}</td>)}<td><div className="row-actions">{detail && <button className="btn btn-small btn-secondary" onClick={() => detail(record)}>Ver expediente</button>}<button className="btn btn-small btn-quiet" onClick={() => open(record)} aria-label={`Editar ${singular.toLowerCase()} ${String(record.name ?? record.names ?? record.label ?? '')}`}>Editar</button></div></td></tr>)}</tbody></table></div>
-        : <EmptyState title={records.length ? 'Sin coincidencias' : `Todavía no hay ${title.toLowerCase()}`}>{records.length ? 'Prueba otra búsqueda o cambia el filtro.' : emptyHint ?? `Agrega el primer registro para empezar a trabajar.`}</EmptyState>}
-    </section></DataState>
-    {editing !== undefined && <Modal title={`${editing ? 'Editar' : 'Agregar'} ${singular.toLowerCase()}`} onClose={() => setEditing(undefined)} busy={busy}><form onSubmit={submit}>
-      <p className="form-help">Los campos con * son obligatorios.</p>
-      <fieldset className="form-fieldset" disabled={busy}><RecordFields fields={fields} draft={draft} editing={!!editing} onChange={(key, value) => setDraft((current) => ({ ...current, [key]: value }))} /></fieldset>
-      {error && <p className="error-banner" role="alert">{error}</p>}
-      <div className="form-actions"><button type="button" className="btn btn-secondary" onClick={() => setEditing(undefined)} disabled={busy}>Cancelar</button><button type="submit" className="btn btn-primary" disabled={busy}>{busy ? 'Guardando…' : 'Guardar cambios'}</button></div>
-    </form></Modal>}
+    <PageHeader level={nested ? 2 : 1} title={title} description={description} actions={<Button variant="primary" icon="plus" onClick={() => open(null)} disabled={loading || !!dataError}>Agregar {name}</Button>} />
+    {notice && <Alert tone="success" role="status">{notice}</Alert>}
+    <DataState>
+      <section className="card table-card" aria-label={title}>
+        <Toolbar count={`${filtered.length} ${filtered.length === 1 ? 'registro' : 'registros'}`}>
+          <SearchField label={`Buscar en ${title.toLowerCase()}`} placeholder={searchPlaceholder ?? `Buscar en ${title.toLowerCase()}…`} value={query} onChange={setQuery} />
+          {filters.map((filter) => <FilterSelect key={filter.key} label={filter.label} allLabel={filter.allLabel} options={filter.options} value={filterValues[filter.key] ?? ''} onChange={(value) => setFilterValues((current) => ({ ...current, [filter.key]: value }))} />)}
+          {statuses.length > 1 && <FilterSelect label="Filtrar por estado" allLabel="Todos los estados" options={statuses.map((value) => ({ value, label: statusLabels[value] ?? value }))} value={status} onChange={setStatus} />}
+        </Toolbar>
+        <DataTable
+          caption={title}
+          rows={filtered}
+          columns={columns}
+          rowKey={(record) => record.id}
+          initialSort={initialSort}
+          resetKey={resetKey}
+          actions={(record) => <div className="row-actions">
+            {detail && <Button size="sm" icon="file" onClick={() => detail(record)}>Ver expediente</Button>}
+            <IconButton icon="pencil" label={`Editar ${name} ${String(record.name ?? record.names ?? record.label ?? '')}`.trim()} onClick={() => open(record)} />
+          </div>}
+          empty={records.length
+            ? <EmptyState icon="search" title="Sin coincidencias">Prueba otra búsqueda o cambia los filtros.</EmptyState>
+            : <EmptyState icon="plus" title={`Todavía no hay ${title.toLowerCase()}`}>{emptyHint ?? 'Agrega el primer registro para empezar a trabajar.'}</EmptyState>}
+        />
+      </section>
+    </DataState>
+    {editing !== undefined && <Modal title={`${editing ? 'Editar' : 'Agregar'} ${name}`} description="Los campos con * son obligatorios." onClose={close} busy={busy} focusField wide={fields.length > 6}>
+      <form onSubmit={submit}>
+        <fieldset className="form-fieldset" disabled={busy}>
+          <RecordFields fields={fields} draft={draft} editing={!!editing} onChange={(key, value) => setDraft((current) => ({ ...current, [key]: value }))} />
+        </fieldset>
+        {error && <Alert tone="error" role="alert">{error}</Alert>}
+        <div className="form-actions">
+          <Button onClick={close} disabled={busy}>Cancelar</Button>
+          <Button type="submit" variant="primary" loading={busy}>{busy ? 'Guardando…' : 'Guardar cambios'}</Button>
+        </div>
+      </form>
+    </Modal>}
   </>
 }

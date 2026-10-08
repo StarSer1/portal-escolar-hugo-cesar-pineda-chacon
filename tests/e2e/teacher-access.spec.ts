@@ -49,7 +49,7 @@ async function login(page: Page, email: string, route: RegExp) {
 }
 
 async function newTeacher(page: Page, email: string, name: string) {
-  await page.getByRole('button', { name: '+ Agregar docente', exact: true }).click()
+  await page.getByRole('button', { name: 'Agregar docente', exact: true }).click()
   const dialog = page.getByRole('dialog', { name: 'Agregar docente', exact: true })
   await dialog.locator('[name="name"]').fill(name)
   await dialog.locator('[name="email"]').fill(email)
@@ -180,7 +180,7 @@ test.describe.serial('Cuentas docentes y separación de permisos', () => {
     await page.screenshot({ path: testInfo.outputPath('panel-docente.png'), fullPage: true })
     await page.goto('/panel/docentes')
     await expect(page.getByRole('navigation', { name: 'Panel académico' })).not.toBeVisible()
-    await expect(page.getByRole('button', { name: '+ Agregar docente', exact: true })).not.toBeVisible()
+    await expect(page.getByRole('button', { name: 'Agregar docente', exact: true })).not.toBeVisible()
   })
 
   test('habilita un docente anterior sin reemplazar su expediente ni los duplicados históricos', async ({ page, request }) => {

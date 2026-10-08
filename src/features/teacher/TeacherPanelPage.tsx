@@ -3,10 +3,16 @@ import { EmailAuthProvider, reauthenticateWithCredential, signOut, updatePasswor
 import { Link } from 'react-router-dom'
 import { auth } from '@/config/firebase'
 import { useAuth } from '@/features/auth/AuthContext'
-import { Modal, fullName, groupName, specialtyLabels } from '@/features/academic/components/AcademicUI'
+import { fullName, groupName, specialtyLabels } from '@/features/academic/components/AcademicUI'
 import { saveGrade } from '@/features/grades/services/grades.service'
 import { Icon } from '@/shared/components/Icon'
+import { SchoolEmblem } from '@/shared/components/SchoolEmblem'
 import { errorMessage } from '@/shared/errors'
+import { Button } from '@/shared/ui/Button'
+import { DataTable } from '@/shared/ui/DataTable'
+import { Alert, Badge, EmptyState, PageHeader } from '@/shared/ui/Feedback'
+import { Field } from '@/shared/ui/Field'
+import { Modal } from '@/shared/ui/Modal'
 import { TeacherProvider, useTeacher } from './TeacherContext'
 
 function ChangePassword({ onClose }: { onClose: () => void }) {
@@ -30,14 +36,16 @@ function ChangePassword({ onClose }: { onClose: () => void }) {
       setCurrentPassword(''); setNewPassword(''); setConfirmation(''); setSuccess(true)
     } catch (caught) { setError(errorMessage(caught)) } finally { setBusy(false) }
   }
-  return <Modal title="Cambiar mi contraseña" onClose={onClose} busy={busy}>
-    {success ? <><p className="success-banner" role="status">Tu contraseña se actualizó correctamente.</p><button className="btn btn-primary" onClick={onClose}>Cerrar</button></> : <form className="form" onSubmit={submit}>
-      <p className="form-help">Usa una contraseña exclusiva para el portal escolar. No tiene que ser la contraseña de tu correo.</p>
-      <label>Contraseña actual<input type="password" required autoComplete="current-password" value={currentPassword} disabled={busy} onChange={(event) => setCurrentPassword(event.target.value)} /></label>
-      <label>Nueva contraseña<input type="password" required minLength={12} maxLength={128} autoComplete="new-password" value={newPassword} disabled={busy} onChange={(event) => setNewPassword(event.target.value)} /><small>Al menos 12 caracteres.</small></label>
-      <label>Confirmar nueva contraseña<input type="password" required minLength={12} maxLength={128} autoComplete="new-password" value={confirmation} disabled={busy} onChange={(event) => setConfirmation(event.target.value)} /></label>
-      {error && <p className="error-banner" role="alert">{error}</p>}
-      <div className="form-actions"><button className="btn btn-secondary" type="button" disabled={busy} onClick={onClose}>Cancelar</button><button className="btn btn-primary" disabled={busy}>{busy ? 'Actualizando…' : 'Actualizar contraseña'}</button></div>
+  return <Modal title="Cambiar mi contraseña" description="Usa una contraseña exclusiva para el portal escolar. No tiene que ser la contraseña de tu correo." onClose={onClose} busy={busy} focusField>
+    {success ? <>
+      <Alert tone="success" role="status">Tu contraseña se actualizó correctamente.</Alert>
+      <div className="form-actions"><Button variant="primary" onClick={onClose}>Cerrar</Button></div>
+    </> : <form className="form" onSubmit={submit}>
+      <Field label="Contraseña actual"><input type="password" required autoComplete="current-password" value={currentPassword} disabled={busy} onChange={(event) => setCurrentPassword(event.target.value)} /></Field>
+      <Field label="Nueva contraseña" hint="Al menos 12 caracteres."><input type="password" required minLength={12} maxLength={128} autoComplete="new-password" value={newPassword} disabled={busy} onChange={(event) => setNewPassword(event.target.value)} /></Field>
+      <Field label="Confirmar nueva contraseña"><input type="password" required minLength={12} maxLength={128} autoComplete="new-password" value={confirmation} disabled={busy} onChange={(event) => setConfirmation(event.target.value)} /></Field>
+      {error && <Alert tone="error" role="alert">{error}</Alert>}
+      <div className="form-actions"><Button disabled={busy} onClick={onClose}>Cancelar</Button><Button type="submit" variant="primary" loading={busy}>{busy ? 'Actualizando…' : 'Actualizar contraseña'}</Button></div>
     </form>}
   </Modal>
 }
@@ -82,28 +90,57 @@ function TeacherWorkspace() {
     } finally { setBusy(false) }
   }
   return <>
-    <section className="welcome-banner"><div><span className="banner-tag">{data.schoolYear?.name ?? 'Sin ciclo activo'}</span><h2>Tu espacio de enseñanza</h2><p>Consulta tus grupos y registra resultados de {specialtyLabels[data.teacher?.specialty ?? '']?.toLowerCase() ?? 'tu área'}.</p><span className="badge badge-success">{data.groups.length} {data.groups.length === 1 ? 'grupo asignado' : 'grupos asignados'}</span></div><Icon name="book" size={72} /></section>
-    <p className="notice-banner">Tu acceso se limita a los grupos y materias que te asignó el director en el ciclo activo. Puedes capturar nuevas calificaciones en periodos abiertos; las correcciones y la administración de expedientes corresponden al director.</p>
-    {!data.groups.length ? <section className="card empty-state"><Icon name="students" size={34} /><h2>Sin grupos asignados</h2><p>{data.schoolYear ? 'El director debe asignarte a un grupo activo con tu especialidad para empezar a trabajar.' : 'El director debe activar un ciclo escolar y asignarte tus grupos.'}</p></section> : <>
-      <section className="card"><div className="form-grid"><label>Grupo asignado<select value={groupId} disabled={busy} onChange={(event) => { setGroupId(event.target.value); clearCapture() }}><option value="">Selecciona tu grupo</option>{data.groups.map((item) => <option key={item.id} value={item.id}>{groupName(item)}</option>)}</select></label><label>Periodo de evaluación<select value={periodId} disabled={busy} onChange={(event) => { setPeriodId(event.target.value); clearCapture() }}><option value="">Selecciona un periodo</option>{data.periods.map((item) => <option key={item.id} value={item.id}>{item.name} · {item.status === 'open' ? 'Abierto' : 'Cerrado'}</option>)}</select></label></div></section>
-      {period?.status === 'closed' && <p className="notice-banner">El periodo está cerrado. La captura de nuevas calificaciones está bloqueada.</p>}
-      {notice && <p className="success-banner" role="status">{notice}</p>}
-      <section className="card"><div className="card-heading"><div><h2>Nueva calificación</h2><p className="muted">Únicamente alumnos inscritos y materias de tu especialidad.</p></div><Icon name="grades" /></div>
-        <form className="form-grid" onSubmit={submit}>
-          <label>Alumno inscrito<select required value={enrollmentId} disabled={!group || busy} onChange={(event) => setEnrollmentId(event.target.value)}><option value="">Selecciona un alumno</option>{enrollments.map((item) => <option key={item.id} value={item.id}>{studentName(item.studentId)}</option>)}</select></label>
-          <label>Materia<select required value={subjectId} disabled={!group || busy} onChange={(event) => setSubjectId(event.target.value)}><option value="">Selecciona una materia</option>{subjects.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
-          <label>Calificación<input type="number" required min={0} max={10} step="0.1" value={score} disabled={busy} placeholder="Ej. 8.5" onChange={(event) => setScore(event.target.value)} /><small>Escala de 0 a 10. Valor redondeado: {score !== '' && Number.isFinite(Number(score)) ? Math.round(Number(score)) : '—'}</small></label>
-          <label>Observación (opcional)<textarea maxLength={1000} value={observation} disabled={busy} onChange={(event) => setObservation(event.target.value)} /></label>
-          <div className="form-actions field-full"><button className="btn btn-primary" disabled={busy || !group || !period || period.status !== 'open'}>{busy ? 'Guardando…' : 'Guardar calificación'}</button></div>
-        </form>{error && <p className="error-banner" role="alert">{error}</p>}
-        {group && !subjects.length && <p className="notice-banner">No hay materias activas de tu especialidad para este grupo. Solicita al director que revise el plan de estudios.</p>}
+    <section className="welcome-banner">
+      <div><h2>Tu espacio de enseñanza</h2><p>{data.schoolYear ? `Ciclo ${data.schoolYear.name}` : 'Sin ciclo activo'} · Consulta tus grupos y registra resultados de {specialtyLabels[data.teacher?.specialty ?? '']?.toLowerCase() ?? 'tu área'}.</p></div>
+      <Badge tone="success">{data.groups.length} {data.groups.length === 1 ? 'grupo asignado' : 'grupos asignados'}</Badge>
+    </section>
+    <Alert tone="info">Tu acceso se limita a los grupos y materias que te asignó el director en el ciclo activo. Puedes capturar nuevas calificaciones en periodos abiertos; las correcciones y la administración de expedientes corresponden al director.</Alert>
+    {!data.groups.length ? <section className="card empty-state">
+      <span className="empty-icon"><Icon name="students" size={24} /></span>
+      <h2>Sin grupos asignados</h2>
+      <p>{data.schoolYear ? 'El director debe asignarte a un grupo activo con tu especialidad para empezar a trabajar.' : 'El director debe activar un ciclo escolar y asignarte tus grupos.'}</p>
+    </section> : <>
+      <section className="card context-bar" aria-label="Selección de grupo y periodo">
+        <div className="context-fields context-fields-two">
+          <Field label="Grupo asignado"><select value={groupId} disabled={busy} onChange={(event) => { setGroupId(event.target.value); clearCapture() }}><option value="">Selecciona tu grupo</option>{data.groups.map((item) => <option key={item.id} value={item.id}>{groupName(item)}</option>)}</select></Field>
+          <Field label="Periodo de evaluación"><select value={periodId} disabled={busy} onChange={(event) => { setPeriodId(event.target.value); clearCapture() }}><option value="">Selecciona un periodo</option>{data.periods.map((item) => <option key={item.id} value={item.id}>{item.name} · {item.status === 'open' ? 'Abierto' : 'Cerrado'}</option>)}</select></Field>
+        </div>
       </section>
-      <section className="card"><div className="card-heading"><h2>Lista del grupo</h2><span className="badge badge-muted">{enrollments.length} alumnos</span></div>
-        {enrollments.length ? <div className="table-wrap"><table className="data-table"><thead><tr><th>Alumno</th><th>Matrícula</th></tr></thead><tbody>{enrollments.map((item) => <tr key={item.id}><td>{studentName(item.studentId)}</td><td>{data.students.find((student) => student.id === item.studentId)?.matricula || '—'}</td></tr>)}</tbody></table></div> : <p className="muted">{group ? 'No hay alumnos con inscripción activa en este grupo.' : 'Selecciona un grupo para consultar su lista.'}</p>}
-      </section>
-      <section className="card"><div className="card-heading"><div><h2>Mis resultados registrados</h2><p className="muted">Para corregir un resultado, solicita la revisión del director.</p></div><span className="badge badge-muted">{results.length} registros</span></div>
-        {results.length ? <div className="table-wrap"><table className="data-table"><thead><tr><th>Alumno</th><th>Materia</th><th>Periodo</th><th>Capturada</th><th>Redondeada</th></tr></thead><tbody>{results.map((item) => <tr key={item.id}><td>{studentName(item.studentId)}</td><td>{data.subjects.find((subject) => subject.id === item.subjectPlanId)?.name ?? 'Materia no activa'}</td><td>{data.periods.find((period) => period.id === item.periodId)?.name ?? `Periodo ${item.periodOrder}`}</td><td>{item.score}</td><td><span className="grade-value">{item.roundedScore}</span></td></tr>)}</tbody></table></div> : <div className="empty-state compact"><p>No hay resultados registrados para esta selección.</p></div>}
-      </section>
+      {period?.status === 'closed' && <Alert tone="warning">El periodo está cerrado. La captura de nuevas calificaciones está bloqueada.</Alert>}
+      {notice && <Alert tone="success" role="status">{notice}</Alert>}
+      <div className="grades-layout">
+        <section className="card capture-card" aria-labelledby="teacher-capture-title">
+          <div className="card-heading"><div><h2 id="teacher-capture-title">Nueva calificación</h2><p>Únicamente alumnos inscritos y materias de tu especialidad.</p></div></div>
+          <form className="form-grid capture-form" onSubmit={submit}>
+            <Field label="Alumno inscrito" full><select required value={enrollmentId} disabled={!group || busy} onChange={(event) => setEnrollmentId(event.target.value)}><option value="">Selecciona un alumno</option>{enrollments.map((item) => <option key={item.id} value={item.id}>{studentName(item.studentId)}</option>)}</select></Field>
+            <Field label="Materia" full><select required value={subjectId} disabled={!group || busy} onChange={(event) => setSubjectId(event.target.value)}><option value="">Selecciona una materia</option>{subjects.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
+            <Field label="Calificación" full hint={`Escala de 0 a 10. Valor redondeado: ${score !== '' && Number.isFinite(Number(score)) ? Math.round(Number(score)) : '—'}`}><input type="number" required min={0} max={10} step="0.1" inputMode="decimal" className="score-input" value={score} disabled={busy} placeholder="Ej. 8.5" onChange={(event) => setScore(event.target.value)} /></Field>
+            <Field label="Observación (opcional)" full><textarea maxLength={1000} value={observation} disabled={busy} onChange={(event) => setObservation(event.target.value)} /></Field>
+            <div className="form-actions field-full"><Button type="submit" variant="primary" loading={saving} disabled={busy || !group || !period || period.status !== 'open'}>{saving ? 'Guardando…' : 'Guardar calificación'}</Button></div>
+          </form>
+          {error && <Alert tone="error" role="alert">{error}</Alert>}
+          {group && !subjects.length && <Alert tone="warning">No hay materias activas de tu especialidad para este grupo. Solicita al director que revise el plan de estudios.</Alert>}
+        </section>
+        <div className="stack">
+          <section className="card table-card" aria-labelledby="roster-title">
+            <div className="card-heading"><h2 id="roster-title">Lista del grupo</h2><Badge tone="count">{enrollments.length} alumnos</Badge></div>
+            <DataTable caption="Lista del grupo" rows={enrollments} rowKey={(item) => item.id} initialSort={{ key: 'name', direction: 'asc' }} columns={[
+              { key: 'name', header: 'Alumno', sortValue: (item) => studentName(item.studentId), cell: (item) => studentName(item.studentId) },
+              { key: 'matricula', header: 'Matrícula', cell: (item) => <span className="text-mono">{data.students.find((student) => student.id === item.studentId)?.matricula || '—'}</span> },
+            ]} empty={<EmptyState compact icon="students" title={group ? 'Sin alumnos inscritos' : 'Elige un grupo'}>{group ? 'No hay alumnos con inscripción activa en este grupo.' : 'Selecciona un grupo para consultar su lista.'}</EmptyState>} />
+          </section>
+          <section className="card table-card" aria-labelledby="mine-title">
+            <div className="card-heading"><div><h2 id="mine-title">Mis resultados registrados</h2><p>Para corregir un resultado, solicita la revisión del director.</p></div><Badge tone="count">{results.length} registros</Badge></div>
+            <DataTable caption="Mis resultados registrados" rows={results} rowKey={(item) => item.id} initialSort={{ key: 'name', direction: 'asc' }} columns={[
+              { key: 'name', header: 'Alumno', sortValue: (item) => studentName(item.studentId), cell: (item) => studentName(item.studentId) },
+              { key: 'subject', header: 'Materia', sortValue: (item) => data.subjects.find((subject) => subject.id === item.subjectPlanId)?.name ?? '', cell: (item) => data.subjects.find((subject) => subject.id === item.subjectPlanId)?.name ?? 'Materia no activa' },
+              { key: 'period', header: 'Periodo', priority: 'low', cell: (item) => data.periods.find((entry) => entry.id === item.periodId)?.name ?? `Periodo ${item.periodOrder}` },
+              { key: 'score', header: 'Capturada', align: 'end', sortValue: (item) => item.score, cell: (item) => item.score },
+              { key: 'rounded', header: 'Redondeada', align: 'end', cell: (item) => <span className="grade-value">{item.roundedScore}</span> },
+            ]} empty={<EmptyState compact icon="grades" title="Sin resultados">No hay resultados registrados para esta selección.</EmptyState>} />
+          </section>
+        </div>
+      </div>
     </>}
   </>
 }
@@ -114,16 +151,27 @@ function TeacherPanelContent() {
   const [changingPassword, setChangingPassword] = useState(false)
   const [logoutError, setLogoutError] = useState('')
   async function logout() { try { await signOut(auth) } catch { setLogoutError('No pudimos cerrar la sesión. Inténtalo de nuevo.') } }
-  return <main className="teacher-panel">
+  return <div className="teacher-shell">
     <a className="skip-link" href="#teacher-content">Ir al contenido</a>
-    <header className="page-heading"><div><p className="eyebrow">Escuela Primaria Hugo César Piñeda Chacón</p><h1>Mi panel docente</h1><p className="page-description">{profile?.displayName} · Acceso docente</p></div><div className="row-actions"><button className="btn btn-secondary" onClick={() => setChangingPassword(true)}>Cambiar contraseña</button><button className="btn btn-quiet" onClick={() => void logout()}><Icon name="logout" /> Cerrar sesión</button></div></header>
-    <div className="toolbar"><Link className="text-link" to="/">Ir al portal público</Link><button className="btn btn-small btn-secondary" onClick={refresh} disabled={loading}>Actualizar datos</button></div>
-    {logoutError && <p className="error-banner" role="alert">{logoutError}</p>}
-    <div id="teacher-content">{loading && !data.teacher ? <section className="card loading-state" role="status"><div className="loading-dot" />Cargando tus asignaciones…</section>
-      : error ? <section className="card"><h2>Acceso docente no disponible</h2><p className="error-banner" role="alert">{error}</p><button className="btn btn-primary" onClick={refresh}>Volver a intentar</button></section> : <TeacherWorkspace />}</div>
-    <footer className="panel-footer"><span>Portal escolar · Área docente</span><span>Los cambios de calificaciones quedan registrados.</span></footer>
+    <header className="teacher-topbar">
+      <Link to="/docente" className="teacher-brand"><SchoolEmblem size={36} /><span><small>Escuela Primaria</small><strong>Hugo César Piñeda Chacón</strong></span></Link>
+      <div className="row-actions teacher-actions">
+        <Button size="sm" icon="lock" onClick={() => setChangingPassword(true)}>Cambiar contraseña</Button>
+        <Button size="sm" variant="quiet" icon="logout" onClick={() => void logout()}>Cerrar sesión</Button>
+      </div>
+    </header>
+    <main className="teacher-panel" id="teacher-content">
+      <PageHeader title="Mi panel docente" description={`${profile?.displayName ?? ''} · Acceso docente`} actions={<>
+        <Link className="text-link" to="/">Ir al portal público</Link>
+        <Button size="sm" icon="refresh" onClick={refresh} disabled={loading}>Actualizar datos</Button>
+      </>} />
+      {logoutError && <Alert tone="error" role="alert">{logoutError}</Alert>}
+      {loading && !data.teacher ? <section className="card loading-state" role="status"><span className="spinner" aria-hidden="true" />Cargando tus asignaciones…</section>
+        : error ? <section className="card"><h2>Acceso docente no disponible</h2><Alert tone="error" role="alert" action={<Button variant="primary" icon="refresh" onClick={refresh}>Volver a intentar</Button>}>{error}</Alert></section> : <TeacherWorkspace />}
+      <footer className="panel-footer"><span>Portal escolar · Área docente</span><span>Los cambios de calificaciones quedan registrados.</span></footer>
+    </main>
     {changingPassword && <ChangePassword onClose={() => setChangingPassword(false)} />}
-  </main>
+  </div>
 }
 
 export function TeacherPanelPage() { return <TeacherProvider><TeacherPanelContent /></TeacherProvider> }
