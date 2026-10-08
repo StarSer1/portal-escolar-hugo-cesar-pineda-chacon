@@ -128,6 +128,20 @@ Comprueba al menos:
 11. Un docente no puede consultar otro grupo, capturar otra especialidad, corregir calificaciones ni guardar en periodos cerrados. Inactivar su acceso bloquea el panel docente sin borrar su historial.
 12. El cambio de contraseña del docente requiere la actual y confirmación de la nueva; después la anterior deja de permitir el inicio de sesión. No queda almacenada en los documentos de Firestore.
 
+### Datos de demostración
+
+`scripts/reset-demo-data.mjs` sustituye los registros académicos de un proyecto por un conjunto ficticio y coherente: ciclo 2026-2027 con tres periodos (el primero abierto), plan de estudios con materias de primero a sexto, 11 docentes sin acceso al portal, 7 grupos, 43 alumnos con sus tutores, un cambio de grupo, una baja, calificaciones del primer periodo con distinto avance por grupo y tres correcciones con historial. Cada registro lleva sus reservas de CURP, matrícula y correo, sus cupos y su entrada en la bitácora, igual que si se hubiera capturado desde el panel. Los correos usan el dominio `example.com`.
+
+```bash
+npx firebase login
+# 1. Inventario, solo lectura:
+node scripts/reset-demo-data.mjs --project ID_DEL_PROYECTO
+# 2. Borrar los registros académicos y cargar la demostración:
+node scripts/reset-demo-data.mjs --project ID_DEL_PROYECTO --purge --seed --confirm ID_DEL_PROYECTO
+```
+
+`--purge` guarda primero un respaldo completo en `.backups/` (excluido de git) y se detiene si no queda ningún perfil de administrador activo. Elimina alumnos, tutores, docentes, ciclos, planes, materias, grupos, periodos, inscripciones, calificaciones con su historial, la bitácora, las reservas y los perfiles que no son de administrador, junto con las cuentas de Authentication vinculadas a docentes. Conserva los perfiles y cuentas de administrador y los avisos públicos. **La eliminación no se puede deshacer desde el panel**; úsalo solo en proyectos de prueba.
+
 ## Pruebas automatizadas locales
 
 Desde la raíz del repositorio:

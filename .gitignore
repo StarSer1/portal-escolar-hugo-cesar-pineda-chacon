@@ -8,3 +8,4 @@ functions/node_modules/
 *.log
 test-results/
 playwright-report/
+.backups/

@@ -47,19 +47,29 @@ function CycleLine({ cycle, periods, now }: { cycle: SchoolYear; periods: Gradin
   const position = (value: string) => Math.min(Math.max((dayStamp(value) - start) / span, 0), 1) * 100
   const status = (period: GradingPeriod) => period.status === 'open' ? 'open' : period.startDate > now ? 'future' : 'past'
   const label = { open: 'Abierto', future: 'Próximo', past: 'Cerrado' }
+  const tone = { open: 'success', future: 'muted', past: 'info' } as const
   const boxes = periods.map((period) => { const left = position(period.startDate); return { period, left, width: Math.max(position(period.endDate) - left, 1) } })
+  const inCycle = now >= cycle.startDate && now <= cycle.endDate
   return <div className="cycle-line">
-    <div className="cycle-track" aria-hidden="true">
-      {boxes.map(({ period, left, width }) => {
-        const elapsed = Math.min(Math.max((dayStamp(now) - dayStamp(period.startDate)) / Math.max(dayStamp(period.endDate) - dayStamp(period.startDate), DAY), 0), 1)
-        return <span key={period.id} className={`cycle-segment is-${status(period)}`} style={{ left: `${left}%`, width: `${width}%` }}>{status(period) === 'open' && <span className="cycle-elapsed" style={{ width: `${elapsed * 100}%` }} />}</span>
-      })}
-      {now >= cycle.startDate && now <= cycle.endDate && <span className="cycle-today" style={{ left: `${position(now)}%` }}><span>Hoy</span></span>}
+    <div className="cycle-scale">
+      <span className="cycle-edge">{shortDate(cycle.startDate)}</span>
+      <div className="cycle-track" aria-hidden="true">
+        {boxes.map(({ period, left, width }) => {
+          const elapsed = Math.min(Math.max((dayStamp(now) - dayStamp(period.startDate)) / Math.max(dayStamp(period.endDate) - dayStamp(period.startDate), DAY), 0), 1)
+          return <span key={period.id} className={`cycle-segment is-${status(period)}`} style={{ left: `${left}%`, width: `${width}%` }}>{status(period) === 'open' && <span className="cycle-elapsed" style={{ width: `${elapsed * 100}%` }} />}</span>
+        })}
+        {inCycle && <span className="cycle-today" style={{ left: `${position(now)}%` }}><span>Hoy</span></span>}
+      </div>
+      <span className="cycle-edge">{shortDate(cycle.endDate)}</span>
     </div>
-    {/* Labels sit under their own segment: the margin is the gap since the previous period. */}
-    <ol className="cycle-periods" aria-label="Periodos de evaluación del ciclo">{boxes.map(({ period, left, width }, index) => {
-      const previous = index ? boxes[index - 1].left + boxes[index - 1].width : 0
-      return <li key={period.id} style={{ marginLeft: `${Math.max(left - previous, 0)}%`, width: `${width}%` }}><strong>{period.name}</strong><small>{shortDate(period.startDate)} – {shortDate(period.endDate)} · {label[status(period)]}</small></li>
+    {/* Periods read as a list, not as labels pinned under their segment:
+        a two-day period would otherwise squeeze its label into a sliver. */}
+    <ol className="cycle-periods" aria-label="Periodos de evaluación del ciclo">{periods.map((period) => {
+      const state = status(period)
+      return <li key={period.id} className={`cycle-period is-${state}`}>
+        <span className="cycle-period-text"><strong>{period.name}</strong><small>{shortDate(period.startDate)} – {shortDate(period.endDate)}</small></span>
+        <Badge tone={tone[state]}>{label[state]}</Badge>
+      </li>
     })}</ol>
   </div>
 }
@@ -137,9 +147,16 @@ export function DashboardPage() {
     </section>}
     {cycle && <>
       <section className="card overview" aria-labelledby="overview-title">
-        <h2 id="overview-title" className="overview-lead"><span className="figure">{count.format(enrollments.length)}</span> {enrollments.length === 1 ? 'alumno inscrito' : 'alumnos inscritos'} en <span className="figure">{groups.length}</span> {groups.length === 1 ? 'grupo' : 'grupos'}, con <span className="figure">{teachers.length}</span> {teachers.length === 1 ? 'docente activo' : 'docentes activos'}.</h2>
-        <p className="overview-lead overview-week">{now < cycle.startDate ? `El ciclo inicia el ${longDate(cycle.startDate)}.` : now > cycle.endDate ? `El ciclo terminó el ${longDate(cycle.endDate)}.` : <>Semana <span className="figure">{week}</span> de {totalWeeks} del ciclo escolar.</>}</p>
-        <p className="overview-meta"><span>Ciclo escolar <strong className="nowrap">{cycle.name}</strong></span><span>Del {longDate(cycle.startDate)} al {longDate(cycle.endDate)}</span><Badge tone="success">Vigente</Badge></p>
+        <div className="overview-head">
+          <div>
+            <h2 id="overview-title" className="overview-lead"><span className="figure">{count.format(enrollments.length)}</span> {enrollments.length === 1 ? 'alumno inscrito' : 'alumnos inscritos'} en <span className="figure">{groups.length}</span> {groups.length === 1 ? 'grupo' : 'grupos'}, con <span className="figure">{teachers.length}</span> {teachers.length === 1 ? 'docente activo' : 'docentes activos'}.</h2>
+            <p className="overview-meta">Ciclo escolar <strong>{cycle.name}</strong> · del {longDate(cycle.startDate)} al {longDate(cycle.endDate)}</p>
+          </div>
+          <p className="overview-week">
+            <Badge tone="success">Vigente</Badge>
+            <span>{now < cycle.startDate ? `Inicia el ${shortDate(cycle.startDate)}` : now > cycle.endDate ? `Terminó el ${shortDate(cycle.endDate)}` : <>Semana <strong>{week}</strong> de {totalWeeks}</>}</span>
+          </p>
+        </div>
         {periods.length > 0 && <CycleLine cycle={cycle} periods={periods} now={now} />}
       </section>
       <div className="summary-grid">
