@@ -1,0 +1,133 @@
+SURFACE CONCEPT SEED (key: 4345a074; mode: persuade; source: api; approved pool: c3b204a1eed6; 306/564 human-approved; rerun with --scope surface --mode persuade --from 4345a074 --candidate-count 7 to reproduce this roll against this catalog revision)
+DEALT INDICES: 3, 4, 5 (index 3 leads)
+  After ordering the task's grounded structural candidates by resonance,
+  deal candidates 3, 4, 5 of your own grounded list to the
+  table; index 3 leads, and the deal never points at a challenger.
+  The deal is the roll, not a suggestion: the dice decide which structures
+  reach the user, so the ranking rut stays broken while the user still gets a
+  real choice, and the full ranked list stays yours. In an attended run,
+  present the three dealt structures as full cards of equal salience, the
+  lead carrying kicker THE ROLL, with steer and re-roll, and let the user
+  lock one in; the world is already settled, so this choice is composition.
+  Visualize every dealt card: with image generation available and a
+  comp-led default (.impeccable/config.json buildPath; the page toggle
+  handles the exception), declare a comp per card and generate after
+  serving, lead first; otherwise author each card's wireframe field (see
+  serve-question --schema) and the page draws the schematic. Carry the
+  recorded default in the payload as buildPath with toggle: true. Locking a card
+  approves its comp: a surface round that put three visualized structures on
+  the table replaces the three-option comp round in visualize.md. Re-roll
+  yourself only when every dealt structure fails audience identification or
+  product clarity on named factual grounds.
+  The assignment exists to refuse the model's ranking rut, never to outrank
+  the user or the brief. Never expose assignment metadata in user-facing labels.
+CHALLENGERS:
+  1. an alphabet storm, where letters condense into words, break into weather, and reshape the landscape according to grammar
+     SOURCE ID: dream-surreal-impossible-worlds-alphabet-storm
+     CREATIVE SPARK: Black letters gather into CLOUD, burst into rain, and carve the word RIVER across white ground; changing one vowel turns the current into a field of silver ravens.
+     SYSTEM GRAMMAR:
+       - Palette/material: paper white ground, storm-letter black as both body ink and weather mass, one silver flash for words mid-transformation, rain gray for spent grammar
+       - Type/composition: a single monumental grotesk behaving as matter, kerning loosening into wind, words breaking across lines as literal weather fronts on an open field
+       - Topology/navigation: Travel between letter fronts, word formations, grammatical forces, and the landscapes they produce.
+       - Controls/state: Type, split, conjugate, and recombine language while physical consequences remain reversible.
+       - Responsive/motion: Use one word-weather event per phone viewport and preserve readable text throughout transformation.
+     WEB LEVERAGE: Text parsing, procedural particles, and semantic rules turn typed language into deterministic weather with accessible narrative descriptions.
+     QUALITY BAR: board https://impeccable.style/worlds/cards/dream-surreal-impossible-worlds-alphabet-storm.webp · hero https://impeccable.style/worlds/cards/dream-surreal-impossible-worlds-alphabet-storm-hero.webp
+  2. a newly formed cloud edge diffracting sunlight through similarly sized droplets, with pastel bands shifting as droplet distribution and angular distance from the sun change
+     SOURCE ID: clouds-storms-auroras-iridescent-cloud-edge
+     CREATIVE SPARK: A plain white cloud grows a narrow crown of mint, rose, and violet; minutes later the droplets broaden in size and the entire spectral edge dissolves.
+     SYSTEM GRAMMAR:
+       - Palette/material: plain cloud white ground with slate gray body ink, a narrow fringe of mint, rose, and violet at the edge, violet marking the active band
+       - Type/composition: quiet thin humanist sans, wide white margins, color confined to hairline band edges while the text field stays achromatic
+       - Topology/navigation: Move between cloud body, droplet-size sample, angular color band, observation moment, and competing explanation.
+       - Controls/state: Adjust droplet distribution, compare images, mark uncertainty, and inspect absent, forming, vivid, and dispersed states.
+       - Responsive/motion: Stack image, spectrum, and droplet evidence on phones; never require device motion or direct viewing near the sun.
+     WEB LEVERAGE: Local image analysis, a droplet-diffraction model, and shareable comparison states let users test observed bands against particle-size hypotheses while retaining safe-viewing guidance and semantic spectra.
+     QUALITY BAR: board https://impeccable.style/worlds/cards/clouds-storms-auroras-iridescent-cloud-edge.webp · hero https://impeccable.style/worlds/cards/clouds-storms-auroras-iridescent-cloud-edge-hero.webp
+  3. an algorave floor, where projected live code edits the music mid-dance and every thrown bracket changes what a hundred bodies do next
+     SOURCE ID: medium-native-algorave-source-floor
+     CREATIVE SPARK: The coder deletes half a line and the kick drops out; the crowd howls, the line comes back wrong on purpose, and the room lifts.
+     SYSTEM GRAMMAR:
+       - Palette/material: phosphor green and magenta syntax on projector black, the code buffer as ground; the pattern about to change flashes amber before it sounds
+       - Type/composition: monospaced terminal type at stage scale with hard line breaks as musical bars, the composition one code buffer whose cursor line is the downbeat
+       - Topology/navigation: the source is the stage; sections of code map to audible layers you can follow live.
+       - Controls/state: edits apply on the next cycle boundary; upcoming changes are visible before they sound.
+       - Responsive/motion: code and visuals share one clock; small screens follow a single highlighted pattern lane.
+     WEB LEVERAGE: Web Audio scheduling ties editable patterns to a shared clock with live evaluation in the page.
+     QUALITY BAR: board https://impeccable.style/worlds/cards/medium-native-algorave-source-floor.webp · hero https://impeccable.style/worlds/cards/medium-native-algorave-source-floor-hero.webp
+  4. the seven-segment display family, bedside clocks, gas-station price totems, scoreboards, and microwave panels all speaking one eight-cell mask where unlit segments are designed too
+     SOURCE ID: signals-instruments-seven-segment-alarm-clock
+     CREATIVE SPARK: At 3am the bedroom hour hangs as four red digits; by noon the same alphabet quotes gasoline at two meters tall, and at the stadium the score slams from 98 to 100 with nothing sliding, segments simply dying and igniting.
+     SYSTEM GRAMMAR:
+       - Palette/material: lit segments in LED red, amber, or scoreboard green on matte near-black ground, unlit segments held as faint ghost cells; red glow owns the night register
+       - Type/composition: one eight-cell mask makes every glyph, digits ranked in fixed slots with the colon or decimal as its own cell; absence is drawn as deliberately as light
+       - Topology/navigation: the layout is a rigid mask of cells, from four bedside digits to a price totem's stack; place never moves, only which segments light
+       - Controls/state: modes cycle by held buttons, set digits blink while everything else holds; the flashing 12:00 of an unset clock is the canonical error state
+       - Responsive/motion: cells scale as whole units and never reflow mid-glyph; every change is an instant segment swap
+     WEB LEVERAGE: CSS grid and clip-path build a true segment mask with ghost cells, and a shared worker keeps blink phase synchronized across every open tab
+     QUALITY BAR: board https://impeccable.style/worlds/cards/signals-instruments-seven-segment-alarm-clock.webp · hero https://impeccable.style/worlds/cards/signals-instruments-seven-segment-alarm-clock-hero.webp
+  5. a broadcast signal degrading on purpose, colour bars and an alert tone card interrupted by tracking noise, timecode burned into the corner and a warning crawl that keeps repeating with one word changed
+     SOURCE ID: digital-design-canon-emergency-signal-degradation
+     CREATIVE SPARK: colour bars, a tone, and a card that says please stand by, except the timecode in the corner is running backwards and the crawl at the bottom changed one word since the last time you looked at it.
+     SYSTEM GRAMMAR:
+       - Palette/material: broadcast bar primaries over a near-black field, chroma bleeding sideways, tape noise banding across the lower third
+       - Type/composition: a monospaced timecode locked to one corner, centered alert caps on a solid card, and a single-line crawl pinned to the foot
+       - Topology/navigation: the world is a channel, so navigation is tuning between cards, and each card asserts it is the only broadcast left
+       - Controls/state: controls are channel steps, an active one locks signal and clears noise, and an unavailable one drops into rolling static
+       - Responsive/motion: bars and crawl hold their proportion at any width, and motion is a vertical roll with a horizontal tracking tear
+     WEB LEVERAGE: a webgl tracking-tear shader, canvas noise banding, and a live timecode state that drives the crawl
+     QUALITY BAR: board https://impeccable.style/worlds/cards/digital-design-canon-emergency-signal-degradation.webp · hero https://impeccable.style/worlds/cards/digital-design-canon-emergency-signal-degradation-hero.webp
+  6. an edo woodblock print coming together one color block at a time, the keyblock outline printed first and each pigment block registered against carved kento notches until the sheet is whole
+     SOURCE ID: graphic-worlds-publishing-ukiyoe-block-registration
+     CREATIVE SPARK: the outline lands first in black, a ghost of a wave with nothing inside it. then indigo drops in, then safflower, each one nudged against a carved notch, and on the fifth pull the sea is suddenly deep enough to fall into.
+     SYSTEM GRAMMAR:
+       - Palette/material: mineral indigo, safflower red, and clove brown on warm kozo paper, each color a flat sealed area bounded by a black keyblock line
+       - Type/composition: vertical title cartouches sit in the upper corners, publisher and censor seals cluster at one margin as small red furniture
+       - Topology/navigation: the sheet builds in registered layers, so moving deeper adds a block rather than a page, and the keyline never moves
+       - Controls/state: controls read as carved cartouches, an active state prints its color layer in, and an inactive one shows the keyline alone
+       - Responsive/motion: narrow frames drop pigment blocks in reverse carving order, and motion is the soft bokashi wipe of one field into another
+     WEB LEVERAGE: layered svg color plates composited over one keyline, a css gradient wipe for bokashi, and progressive reveal of each registered block
+     QUALITY BAR: board https://impeccable.style/worlds/cards/graphic-worlds-publishing-ukiyoe-block-registration.webp · hero https://impeccable.style/worlds/cards/graphic-worlds-publishing-ukiyoe-block-registration-hero.webp
+A challenger wins only when its fused result beats the grounded list on
+  audience identification and product clarity. It may change task topology or
+  interaction, but never the committed visual identity.
+When you can view images, open the QUALITY BAR board and hero for any
+challenger you weigh seriously and for the world you build. They exist as a
+craft bar, the finish level and commitment the build is expected to reach,
+never as a mockup to copy; your surface serves this product, not that render.
+PRODUCT.md and DESIGN.md constrain every surface candidate's identity
+vocabulary; they do not cancel task-level composition. The seed never
+authorizes a new palette, type system, material world, or unfamiliar control
+behavior.
+The CREATIVE SPARK is a complete visual system, not a theme or decorative
+reference. Translate every supplied system rule into the product: palette and
+material, type and composition, topology, controls and states, and adaptation.
+Keep the source's visible character, scale, rhythm, and interaction instead of
+reducing vivid grammar to generic nouns. Keep a literal carrier only when it
+becomes functional.
+Ambitious motion, spatial media, or interaction is welcome when it strengthens
+the product without weakening semantics, performance, or fallback behavior.
+MODE RULES (persuade, from C:\Users\andro\.claude\skills\impeccable\reference\mode-persuade.md). They govern this surface's directions and every comp you write or judge for it, the decision comps included; where shared guidance conflicts, these win.
+DIRECTIONS
+When a catalog world's source is itself an interface language, the surface may carry its native grammar across navigation, content, controls, and states, within the platform conventions a native app keeps.
+
+For **Persuade**, the opening must make the offer intelligible and desirable, expose a clear action, and demonstrate something only this product can prove. The action is the one the category's visitors came to take, in its working form: an airline's route-and-dates search, a clinic's open appointment slots, a store's add to cart. A decorative link pointing at it elsewhere does not count. Conversion lives inside the form's own vocabulary: a hook that lands in one line, a visible primary action, a legible reading order. A committed form that hides the offer or the action has not finished translating. For **Experience**, the work itself leads from the first viewport.
+COMPS
+The world may be the carrier of the page, never a picture of it: a facade, a shutter or a book can be what the page is built on, while a viewport painted whole as a facade, a book cover or a travel poster, with no working parts in it, is a picture of the world, not its website. Material coverage is wanted: the world's material is the ground and the major surfaces, its type sets the headlines, and a world reduced to an accent on a neutral template is the category default with a sticker on it. Coverage is not performance: how many regions act out the concept is limited by the depth rule in visualize.md, and the rest stay in the world's material without performing it. Both ends erase the direction: the painted poster, and the generic product page (a headline over subcopy and a button, a row of equal cards below). The dealt composition sets the skeleton, and the compositions you write for comps two and three answer to the same test: a split hero (copy on one side, the product on the other, a badge row under it) or a centred headline over a row of cards is the template whatever world paints it.
+
+The world carries the page's parts and never absorbs them, so wherever it puts one, the page still works as a page: navigation set into a facade reads as links, copy on a shutter as set text a visitor reads, an action on a door plaque as plainly clickable, text reads against whatever sits behind it, the sections keep a steady vertical rhythm, the primary action is unmistakable, and the section below starts as a section rather than more painting. Fix a poster by making its parts work where the world put them, never by moving them into a standard layout on the world's colour: a cover that becomes copy beside a device on marigold has lost the cover.
+
+When the world is an object, the page is that one object seen once, at one scale and from one point of view, and the object keeps its real form: a book opens to two pages on one gutter, never a third panel, and a spine that carries the navigation belongs to the book on the page, never a second book beside it. More content goes on the object's own surfaces or on the next spread below, never on extra copies or impossible folds.
+
+Comps two and three each go further than the first, never cleaner: a bolder use of the same world, where the world's material carries more of the page's structure (still one dominant move, per the depth rule), a larger or stranger focal move, or a composition the category would not attempt.
+TELEMETRY: after the user's choice resolves, rerun this script once with
+  --kind <assigned|pick|challenger|canon> --from 4345a074 --scope surface --mode persuade,
+  adding --chosen <challenger-id> when a dealt challenger won and keeping
+  --register <safer|bolder> when the resolved round came from a steered hand.
+  One ping per resolved attended round. The ping is anonymous, the card kind
+  plus the catalog id when one won; your grounded candidates' names never
+  leave the machine, and the ping is skipped automatically when DO_NOT_TRACK
+  or IMPECCABLE_NO_TELEMETRY is set.
+A user- or brief-pinned decision beats the roll, always.
+DEALT INDICES (restated for truncated readers): 3, 4, 5; index
+3 leads. Present all three dealt structures; seed key 4345a074.

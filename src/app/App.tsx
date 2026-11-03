@@ -1,5 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import { HomePage } from '@/features/public/pages/HomePage'
+import { AboutPage, CalendarPage, ContactPage, DocumentsPage, StudentsInfoPage } from '@/features/public/pages/SitePages'
+import { PublicLayout } from '@/features/public/PublicLayout'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
 import { GradesPage } from '@/features/grades/pages/GradesPage'
@@ -16,7 +18,14 @@ import { TeacherPanelPage } from '@/features/teacher/TeacherPanelPage'
 
 export function App() {
   return <AuthProvider><Routes>
-    <Route path="/" element={<HomePage />} />
+    <Route element={<PublicLayout />}>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/conocenos" element={<AboutPage />} />
+      <Route path="/estudiantes" element={<StudentsInfoPage />} />
+      <Route path="/calendario" element={<CalendarPage />} />
+      <Route path="/documentos" element={<DocumentsPage />} />
+      <Route path="/contactanos" element={<ContactPage />} />
+    </Route>
     <Route path="/iniciar-sesion" element={<LoginPage />} />
     <Route element={<RequireTeacher />}>
       <Route path="/docente" element={<TeacherPanelPage />} />

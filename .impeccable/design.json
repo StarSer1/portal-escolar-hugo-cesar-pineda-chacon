@@ -1,0 +1,1370 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-29T17:49:44.510Z",
+  "title": "Design System: Escuela Primaria Hugo César Piñeda Chacón",
+  "extensions": {
+    "colorMeta": {
+      "navy-950": {
+        "role": "primary",
+        "displayName": "Azul marino de fondo",
+        "canonical": "#0c1a33",
+        "oklch": "oklch(22.1% 0.053 261.1)",
+        "tonalRamp": [
+          "#0c1a33",
+          "#112140",
+          "#15284a",
+          "#1f3a66",
+          "#2c5aa0",
+          "#c9d4e6",
+          "#e2e8f2",
+          "#f1f4f9"
+        ]
+      },
+      "navy-900": {
+        "role": "primary",
+        "displayName": "Azul marino profundo",
+        "canonical": "#112140",
+        "oklch": "oklch(25.3% 0.063 262.3)",
+        "tonalRamp": [
+          "#0c1a33",
+          "#112140",
+          "#15284a",
+          "#1f3a66",
+          "#2c5aa0",
+          "#c9d4e6",
+          "#e2e8f2",
+          "#f1f4f9"
+        ]
+      },
+      "navy-800": {
+        "role": "primary",
+        "displayName": "Azul marino esmaltado",
+        "canonical": "#15284a",
+        "oklch": "oklch(28.1% 0.068 261.1)",
+        "tonalRamp": [
+          "#0c1a33",
+          "#112140",
+          "#15284a",
+          "#1f3a66",
+          "#2c5aa0",
+          "#c9d4e6",
+          "#e2e8f2",
+          "#f1f4f9"
+        ]
+      },
+      "navy-700": {
+        "role": "primary",
+        "displayName": "Azul de banda",
+        "canonical": "#1f3a66",
+        "oklch": "oklch(35.1% 0.084 259.7)",
+        "tonalRamp": [
+          "#0c1a33",
+          "#112140",
+          "#15284a",
+          "#1f3a66",
+          "#2c5aa0",
+          "#c9d4e6",
+          "#e2e8f2",
+          "#f1f4f9"
+        ]
+      },
+      "navy-600": {
+        "role": "primary",
+        "displayName": "Azul de foco",
+        "canonical": "#2c5aa0",
+        "oklch": "oklch(47.3% 0.124 258.7)",
+        "tonalRamp": [
+          "#0c1a33",
+          "#112140",
+          "#15284a",
+          "#1f3a66",
+          "#2c5aa0",
+          "#c9d4e6",
+          "#e2e8f2",
+          "#f1f4f9"
+        ]
+      },
+      "navy-200": {
+        "role": "neutral",
+        "displayName": "Azul de selección",
+        "canonical": "#c9d4e6",
+        "oklch": "oklch(86.7% 0.028 260.3)",
+        "tonalRamp": [
+          "#0c1a33",
+          "#112140",
+          "#15284a",
+          "#1f3a66",
+          "#2c5aa0",
+          "#c9d4e6",
+          "#e2e8f2",
+          "#f1f4f9"
+        ]
+      },
+      "navy-100": {
+        "role": "neutral",
+        "displayName": "Azul pálido",
+        "canonical": "#e2e8f2",
+        "oklch": "oklch(92.9% 0.015 260.7)",
+        "tonalRamp": [
+          "#0c1a33",
+          "#112140",
+          "#15284a",
+          "#1f3a66",
+          "#2c5aa0",
+          "#c9d4e6",
+          "#e2e8f2",
+          "#f1f4f9"
+        ]
+      },
+      "navy-50": {
+        "role": "neutral",
+        "displayName": "Azul de cabecera",
+        "canonical": "#f1f4f9",
+        "oklch": "oklch(96.6% 0.007 260.7)",
+        "tonalRamp": [
+          "#0c1a33",
+          "#112140",
+          "#15284a",
+          "#1f3a66",
+          "#2c5aa0",
+          "#c9d4e6",
+          "#e2e8f2",
+          "#f1f4f9"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Acero claro",
+        "canonical": "#eef1f5",
+        "oklch": "oklch(95.7% 0.006 255.5)",
+        "tonalRamp": [
+          "#090b0e",
+          "#222427",
+          "#3e4043",
+          "#5b5e61",
+          "#7e8084",
+          "#a2a5a8",
+          "#c8cbcf",
+          "#eceff3"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Tarjeta blanca",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#808080",
+          "#a4a4a4",
+          "#cacaca",
+          "#eeeeee"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Regla",
+        "canonical": "#dde3eb",
+        "oklch": "oklch(91.4% 0.013 255.5)",
+        "tonalRamp": [
+          "#080b10",
+          "#20242a",
+          "#3b4047",
+          "#595e65",
+          "#7b8188",
+          "#9fa5ad",
+          "#c5cbd3",
+          "#e9eff7"
+        ]
+      },
+      "rule-mid": {
+        "role": "neutral",
+        "displayName": "Regla media",
+        "canonical": "#c3ccd8",
+        "oklch": "oklch(84.2% 0.019 255.5)",
+        "tonalRamp": [
+          "#060b13",
+          "#1e252d",
+          "#39404a",
+          "#565e69",
+          "#79818c",
+          "#9da5b1",
+          "#c2cbd7",
+          "#e6effc"
+        ]
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Regla fuerte",
+        "canonical": "#8491a5",
+        "oklch": "oklch(65.3% 0.033 258.9)",
+        "tonalRamp": [
+          "#040b19",
+          "#1a2434",
+          "#354052",
+          "#525e71",
+          "#748195",
+          "#98a6ba",
+          "#becce1",
+          "#e5efff"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#13203a",
+        "oklch": "oklch(24.7% 0.053 263.0)",
+        "tonalRamp": [
+          "#020921",
+          "#16233e",
+          "#31405c",
+          "#4e5e7c",
+          "#7081a1",
+          "#93a5c7",
+          "#b9cbee",
+          "#e6efff"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Tinta secundaria",
+        "canonical": "#3c4a63",
+        "oklch": "oklch(40.8% 0.046 261.8)",
+        "tonalRamp": [
+          "#020a1e",
+          "#17243a",
+          "#324058",
+          "#4f5e78",
+          "#71819c",
+          "#95a5c2",
+          "#bacbe9",
+          "#e6effe"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Apagado",
+        "canonical": "#56647b",
+        "oklch": "oklch(50.0% 0.041 260.3)",
+        "tonalRamp": [
+          "#030b1c",
+          "#182438",
+          "#334055",
+          "#505e75",
+          "#728199",
+          "#96a6bf",
+          "#bccce6",
+          "#e6effe"
+        ]
+      },
+      "placeholder": {
+        "role": "neutral",
+        "displayName": "Marcador",
+        "canonical": "#636f85",
+        "oklch": "oklch(54.0% 0.037 262.5)",
+        "tonalRamp": [
+          "#040a1b",
+          "#1a2436",
+          "#354054",
+          "#525e73",
+          "#748197",
+          "#98a5bd",
+          "#becbe4",
+          "#e6efff"
+        ]
+      },
+      "link": {
+        "role": "primary",
+        "displayName": "Azul de enlace",
+        "canonical": "#1f4f91",
+        "oklch": "oklch(43.2% 0.121 257.3)",
+        "tonalRamp": [
+          "#000a21",
+          "#00224f",
+          "#0b3d7e",
+          "#2d5da0",
+          "#4f81c7",
+          "#73a6ef",
+          "#aacdfe",
+          "#e5effe"
+        ]
+      },
+      "side-text-2": {
+        "role": "neutral",
+        "displayName": "Texto sobre esmalte",
+        "canonical": "#c3cfe3",
+        "oklch": "oklch(85.2% 0.031 260.7)",
+        "tonalRamp": [
+          "#050b18",
+          "#1b2433",
+          "#364050",
+          "#545e6f",
+          "#768193",
+          "#9aa5b8",
+          "#bfcbdf",
+          "#e6effe"
+        ]
+      },
+      "side-text-3": {
+        "role": "neutral",
+        "displayName": "Texto tenue sobre esmalte",
+        "canonical": "#9fb0cc",
+        "oklch": "oklch(75.3% 0.045 260.4)",
+        "tonalRamp": [
+          "#020a1e",
+          "#17243a",
+          "#324058",
+          "#4f5e77",
+          "#71819b",
+          "#95a6c1",
+          "#bacce8",
+          "#e6effe"
+        ]
+      },
+      "ok": {
+        "role": "tertiary",
+        "displayName": "Verde completo",
+        "canonical": "#1f8a55",
+        "oklch": "oklch(56.2% 0.125 156.1)",
+        "tonalRamp": [
+          "#17643f",
+          "#1f8a55",
+          "#bfe3cd",
+          "#bfe0cc",
+          "#e5f3eb"
+        ]
+      },
+      "ok-ink": {
+        "role": "tertiary",
+        "displayName": "Tinta verde",
+        "canonical": "#17643f",
+        "oklch": "oklch(44.8% 0.095 157.4)",
+        "tonalRamp": [
+          "#17643f",
+          "#1f8a55",
+          "#bfe3cd",
+          "#bfe0cc",
+          "#e5f3eb"
+        ]
+      },
+      "ok-bg": {
+        "role": "tertiary",
+        "displayName": "Fondo verde",
+        "canonical": "#e5f3eb",
+        "oklch": "oklch(95.1% 0.018 161.1)",
+        "tonalRamp": [
+          "#17643f",
+          "#1f8a55",
+          "#bfe3cd",
+          "#bfe0cc",
+          "#e5f3eb"
+        ]
+      },
+      "ok-line": {
+        "role": "tertiary",
+        "displayName": "Línea verde",
+        "canonical": "#bfe0cc",
+        "oklch": "oklch(87.7% 0.044 158.8)",
+        "tonalRamp": [
+          "#17643f",
+          "#1f8a55",
+          "#bfe3cd",
+          "#bfe0cc",
+          "#e5f3eb"
+        ]
+      },
+      "warn": {
+        "role": "tertiary",
+        "displayName": "Ámbar en curso",
+        "canonical": "#e4a51e",
+        "oklch": "oklch(76.2% 0.152 79.7)",
+        "tonalRamp": [
+          "#7a5300",
+          "#9a6a08",
+          "#e4a51e",
+          "#f6dc9d",
+          "#f0d9a3",
+          "#fcf1d8"
+        ]
+      },
+      "warn-ink": {
+        "role": "tertiary",
+        "displayName": "Tinta ámbar",
+        "canonical": "#7a5300",
+        "oklch": "oklch(47.3% 0.099 77.4)",
+        "tonalRamp": [
+          "#7a5300",
+          "#9a6a08",
+          "#e4a51e",
+          "#f6dc9d",
+          "#f0d9a3",
+          "#fcf1d8"
+        ]
+      },
+      "warn-bg": {
+        "role": "tertiary",
+        "displayName": "Fondo ámbar",
+        "canonical": "#fcf1d8",
+        "oklch": "oklch(96.0% 0.035 87.1)",
+        "tonalRamp": [
+          "#7a5300",
+          "#9a6a08",
+          "#e4a51e",
+          "#f6dc9d",
+          "#f0d9a3",
+          "#fcf1d8"
+        ]
+      },
+      "warn-line": {
+        "role": "tertiary",
+        "displayName": "Línea ámbar",
+        "canonical": "#f0d9a3",
+        "oklch": "oklch(89.1% 0.074 87.6)",
+        "tonalRamp": [
+          "#7a5300",
+          "#9a6a08",
+          "#e4a51e",
+          "#f6dc9d",
+          "#f0d9a3",
+          "#fcf1d8"
+        ]
+      },
+      "alert": {
+        "role": "tertiary",
+        "displayName": "Rojo atrasado",
+        "canonical": "#d64545",
+        "oklch": "oklch(59.7% 0.182 24.5)",
+        "tonalRamp": [
+          "#a12424",
+          "#d64545",
+          "#f3c0c0",
+          "#f0c4c4",
+          "#fbe9e9"
+        ]
+      },
+      "alert-ink": {
+        "role": "tertiary",
+        "displayName": "Tinta roja",
+        "canonical": "#a12424",
+        "oklch": "oklch(46.7% 0.161 26.1)",
+        "tonalRamp": [
+          "#a12424",
+          "#d64545",
+          "#f3c0c0",
+          "#f0c4c4",
+          "#fbe9e9"
+        ]
+      },
+      "alert-bg": {
+        "role": "tertiary",
+        "displayName": "Fondo rojo",
+        "canonical": "#fbe9e9",
+        "oklch": "oklch(94.8% 0.020 17.5)",
+        "tonalRamp": [
+          "#a12424",
+          "#d64545",
+          "#f3c0c0",
+          "#f0c4c4",
+          "#fbe9e9"
+        ]
+      },
+      "alert-line": {
+        "role": "tertiary",
+        "displayName": "Línea roja",
+        "canonical": "#f0c4c4",
+        "oklch": "oklch(85.9% 0.050 18.2)",
+        "tonalRamp": [
+          "#a12424",
+          "#d64545",
+          "#f3c0c0",
+          "#f0c4c4",
+          "#fbe9e9"
+        ]
+      },
+      "info": {
+        "role": "tertiary",
+        "displayName": "Azul informativo",
+        "canonical": "#3b6fb6",
+        "oklch": "oklch(54.1% 0.125 256.8)",
+        "tonalRamp": [
+          "#1f4f91",
+          "#3b6fb6",
+          "#c4d6f1",
+          "#c9d9f2",
+          "#e7eefa"
+        ]
+      },
+      "info-ink": {
+        "role": "tertiary",
+        "displayName": "Tinta informativa",
+        "canonical": "#1f4f91",
+        "oklch": "oklch(43.2% 0.121 257.3)",
+        "tonalRamp": [
+          "#1f4f91",
+          "#3b6fb6",
+          "#c4d6f1",
+          "#c9d9f2",
+          "#e7eefa"
+        ]
+      },
+      "info-bg": {
+        "role": "tertiary",
+        "displayName": "Fondo informativo",
+        "canonical": "#e7eefa",
+        "oklch": "oklch(94.7% 0.018 261.3)",
+        "tonalRamp": [
+          "#1f4f91",
+          "#3b6fb6",
+          "#c4d6f1",
+          "#c9d9f2",
+          "#e7eefa"
+        ]
+      },
+      "info-line": {
+        "role": "tertiary",
+        "displayName": "Línea informativa",
+        "canonical": "#c9d9f2",
+        "oklch": "oklch(88.1% 0.039 259.3)",
+        "tonalRamp": [
+          "#1f4f91",
+          "#3b6fb6",
+          "#c4d6f1",
+          "#c9d9f2",
+          "#e7eefa"
+        ]
+      },
+      "off": {
+        "role": "tertiary",
+        "displayName": "Gris sin dato",
+        "canonical": "#a3adbb",
+        "oklch": "oklch(74.4% 0.023 256.8)",
+        "tonalRamp": [
+          "#4f5d73",
+          "#6b778b",
+          "#a3adbb",
+          "#d5dce6",
+          "#dde3eb",
+          "#eef1f5"
+        ]
+      },
+      "off-ink": {
+        "role": "tertiary",
+        "displayName": "Tinta sin dato",
+        "canonical": "#4f5d73",
+        "oklch": "oklch(47.5% 0.040 259.3)",
+        "tonalRamp": [
+          "#4f5d73",
+          "#6b778b",
+          "#a3adbb",
+          "#d5dce6",
+          "#dde3eb",
+          "#eef1f5"
+        ]
+      },
+      "off-line": {
+        "role": "tertiary",
+        "displayName": "Línea sin dato",
+        "canonical": "#d5dce6",
+        "oklch": "oklch(89.2% 0.016 257.2)",
+        "tonalRamp": [
+          "#4f5d73",
+          "#6b778b",
+          "#a3adbb",
+          "#d5dce6",
+          "#dde3eb",
+          "#eef1f5"
+        ]
+      },
+      "site-navy": {
+        "role": "primary",
+        "displayName": "Azul marino del sitio",
+        "canonical": "#25335f",
+        "oklch": "oklch(33.3% 0.080 268.5)",
+        "tonalRamp": [
+          "#02042c",
+          "#15214b",
+          "#303f6c",
+          "#4e5f8f",
+          "#6e81b3",
+          "#90a4d8",
+          "#b3c8fe",
+          "#e8eeff"
+        ]
+      },
+      "site-navy-deep": {
+        "role": "primary",
+        "displayName": "Azul marino profundo del sitio",
+        "canonical": "#1c2749",
+        "oklch": "oklch(28.2% 0.064 268.5)",
+        "tonalRamp": [
+          "#030726",
+          "#182344",
+          "#344064",
+          "#526086",
+          "#7281aa",
+          "#94a4ce",
+          "#b7c8f4",
+          "#e8eeff"
+        ]
+      },
+      "site-blue": {
+        "role": "primary",
+        "displayName": "Azul de títulos",
+        "canonical": "#3b67ad",
+        "oklch": "oklch(51.7% 0.122 259.3)",
+        "tonalRamp": [
+          "#000729",
+          "#002156",
+          "#143f81",
+          "#3460a5",
+          "#5582ca",
+          "#76a6f1",
+          "#aacbfe",
+          "#e5efff"
+        ]
+      },
+      "site-blue-hover": {
+        "role": "primary",
+        "displayName": "Azul de títulos claro",
+        "canonical": "#2c4f8f",
+        "oklch": "oklch(57.4% 0.123 259.0)",
+        "tonalRamp": [
+          "#000729",
+          "#002157",
+          "#133f82",
+          "#3360a6",
+          "#5482cb",
+          "#75a6f1",
+          "#aacbff",
+          "#e5efff"
+        ]
+      },
+      "site-blue-dark": {
+        "role": "primary",
+        "displayName": "Azul de títulos oscuro",
+        "canonical": "#2c4f8f",
+        "oklch": "oklch(43.6% 0.113 261.4)",
+        "tonalRamp": [
+          "#000037",
+          "#011f5b",
+          "#1d3f7d",
+          "#3b5fa1",
+          "#5b82c6",
+          "#7da5ec",
+          "#adcafd",
+          "#e6efff"
+        ]
+      },
+      "site-blue-soft": {
+        "role": "neutral",
+        "displayName": "Azul tenue",
+        "canonical": "#e8eef8",
+        "oklch": "oklch(94.7% 0.015 260.7)",
+        "tonalRamp": [
+          "#080b12",
+          "#21252c",
+          "#3d424a",
+          "#5c616a",
+          "#7d838c",
+          "#a0a5af",
+          "#c4c9d3",
+          "#e9eff9"
+        ]
+      },
+      "tone-orange": {
+        "role": "secondary",
+        "displayName": "Naranja",
+        "canonical": "#b8530f",
+        "oklch": "oklch(64.0% 0.165 47.8)",
+        "tonalRamp": [
+          "#1b0300",
+          "#401700",
+          "#6c2c00",
+          "#9b4301",
+          "#ce5c03",
+          "#f6803c",
+          "#ffb691",
+          "#ffeadf"
+        ]
+      },
+      "tone-teal": {
+        "role": "secondary",
+        "displayName": "Verde azulado",
+        "canonical": "#1b7d71",
+        "oklch": "oklch(53.3% 0.088 182.6)",
+        "tonalRamp": [
+          "#000f0c",
+          "#002c27",
+          "#004d45",
+          "#007165",
+          "#399387",
+          "#5fb7aa",
+          "#84dcce",
+          "#b9fff3"
+        ]
+      },
+      "tone-red": {
+        "role": "secondary",
+        "displayName": "Rojo",
+        "canonical": "#c0474a",
+        "oklch": "oklch(56.4% 0.156 22.1)",
+        "tonalRamp": [
+          "#200001",
+          "#4d000a",
+          "#7e061a",
+          "#a83036",
+          "#cf5556",
+          "#f77978",
+          "#feb3af",
+          "#ffe8e7"
+        ]
+      },
+      "tone-violet": {
+        "role": "secondary",
+        "displayName": "Violeta",
+        "canonical": "#7c3aed",
+        "oklch": "oklch(54.1% 0.247 293.0)",
+        "tonalRamp": [
+          "#0f002c",
+          "#2d0064",
+          "#4e00a4",
+          "#6f25dc",
+          "#8d57fe",
+          "#aa90fd",
+          "#cbbffe",
+          "#efecff"
+        ]
+      },
+      "tone-purple": {
+        "role": "secondary",
+        "displayName": "Lila",
+        "canonical": "#8b5cf6",
+        "oklch": "oklch(60.6% 0.219 292.7)",
+        "tonalRamp": [
+          "#0f002b",
+          "#2c0163",
+          "#4d04a3",
+          "#6c35cf",
+          "#8b5df7",
+          "#a991fb",
+          "#cabffd",
+          "#efecff"
+        ]
+      },
+      "tone-green": {
+        "role": "secondary",
+        "displayName": "Verde",
+        "canonical": "#1f8a55",
+        "oklch": "oklch(56.2% 0.125 156.1)",
+        "tonalRamp": [
+          "#001005",
+          "#002e17",
+          "#00502c",
+          "#027444",
+          "#329862",
+          "#5abc84",
+          "#80e2a7",
+          "#c4ffd9"
+        ]
+      },
+      "line-orange": {
+        "role": "secondary",
+        "displayName": "Línea naranja",
+        "canonical": "#f28c38",
+        "oklch": "oklch(73.6% 0.156 55.9)",
+        "tonalRamp": [
+          "#190500",
+          "#3c1b00",
+          "#663200",
+          "#934b01",
+          "#c36603",
+          "#ed8732",
+          "#fdb887",
+          "#feeadd"
+        ]
+      },
+      "line-yellow": {
+        "role": "secondary",
+        "displayName": "Línea amarilla",
+        "canonical": "#f5c518",
+        "oklch": "oklch(84.2% 0.168 90.4)",
+        "tonalRamp": [
+          "#110a00",
+          "#2f2300",
+          "#524000",
+          "#775e00",
+          "#9f7e01",
+          "#c8a011",
+          "#f3c312",
+          "#ffeebe"
+        ]
+      },
+      "site-bg": {
+        "role": "neutral",
+        "displayName": "Gris del sitio",
+        "canonical": "#f8f8f8",
+        "oklch": "oklch(97.9% 0.000 89.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "site-text": {
+        "role": "neutral",
+        "displayName": "Tinta del sitio",
+        "canonical": "#1f2a44",
+        "oklch": "oklch(28.8% 0.050 265.9)",
+        "tonalRamp": [
+          "#030920",
+          "#19243e",
+          "#35415d",
+          "#54617e",
+          "#7482a1",
+          "#96a5c5",
+          "#bac9eb",
+          "#e7efff"
+        ]
+      },
+      "site-text-2": {
+        "role": "neutral",
+        "displayName": "Tinta secundaria del sitio",
+        "canonical": "#4a5570",
+        "oklch": "oklch(45.1% 0.047 267.3)",
+        "tonalRamp": [
+          "#04091e",
+          "#1b243c",
+          "#37415b",
+          "#55617c",
+          "#76829f",
+          "#98a5c3",
+          "#bcc9e8",
+          "#e8eefe"
+        ]
+      },
+      "site-line": {
+        "role": "neutral",
+        "displayName": "Línea del sitio",
+        "canonical": "#e3e7ee",
+        "oklch": "oklch(92.7% 0.010 261.8)",
+        "tonalRamp": [
+          "#090b10",
+          "#22252a",
+          "#3f4248",
+          "#5e6167",
+          "#7f8289",
+          "#a1a5ac",
+          "#c5c9d0",
+          "#ebeff6"
+        ]
+      },
+      "footer-text": {
+        "role": "neutral",
+        "displayName": "Texto del pie",
+        "canonical": "#d6dcea",
+        "oklch": "oklch(89.4% 0.020 267.3)",
+        "tonalRamp": [
+          "#080b14",
+          "#21252f",
+          "#3d424d",
+          "#5c616d",
+          "#7d828f",
+          "#9fa5b2",
+          "#c3c9d7",
+          "#e8eefd"
+        ]
+      },
+      "photo-pending": {
+        "role": "neutral",
+        "displayName": "Foto pendiente",
+        "canonical": "#dfe5ef",
+        "oklch": "oklch(92.0% 0.015 260.7)",
+        "tonalRamp": [
+          "#080b12",
+          "#21252d",
+          "#3d424a",
+          "#5c616a",
+          "#7d838c",
+          "#a0a5af",
+          "#c4c9d3",
+          "#e9eff9"
+        ]
+      },
+      "photo-pending-ink": {
+        "role": "neutral",
+        "displayName": "Tinta de foto pendiente",
+        "canonical": "#46577a",
+        "oklch": "oklch(52.7% 0.056 263.4)",
+        "tonalRamp": [
+          "#020922",
+          "#162440",
+          "#324260",
+          "#516182",
+          "#7183a5",
+          "#93a5c9",
+          "#b6caef",
+          "#e6efff"
+        ]
+      }
+    },
+    "signalFamilies": {
+      "note": "Cada señal del Kárdex: base (clip), edge (borde interior del clip), ink (texto), bg (fondo), line (borde), fill (relleno de regla). Se aplican por data-state: complete/success, progress/warn, late/alert, info, none/empty/muted.",
+      "ok": {
+        "base": "#1f8a55",
+        "edge": "#17643f",
+        "ink": "#17643f",
+        "bg": "#e5f3eb",
+        "line": "#bfe0cc",
+        "fill": "#bfe3cd"
+      },
+      "warn": {
+        "base": "#e4a51e",
+        "edge": "#9a6a08",
+        "ink": "#7a5300",
+        "bg": "#fcf1d8",
+        "line": "#f0d9a3",
+        "fill": "#f6dc9d"
+      },
+      "alert": {
+        "base": "#d64545",
+        "edge": "#a12424",
+        "ink": "#a12424",
+        "bg": "#fbe9e9",
+        "line": "#f0c4c4",
+        "fill": "#f3c0c0"
+      },
+      "info": {
+        "base": "#3b6fb6",
+        "edge": "#1f4f91",
+        "ink": "#1f4f91",
+        "bg": "#e7eefa",
+        "line": "#c9d9f2",
+        "fill": "#c4d6f1"
+      },
+      "off": {
+        "base": "#a3adbb",
+        "edge": "#6b778b",
+        "ink": "#4f5d73",
+        "bg": "#eef1f5",
+        "line": "#d5dce6",
+        "fill": "#dde3eb"
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "h1 de página en el Panel."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "h2 y encabezados de diálogo del Panel; cabeceras de tarjeta a 1.25rem."
+      },
+      "title-sm": {
+        "displayName": "Title pequeño",
+        "purpose": "h3, bloques de historial, estados vacíos del Panel."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Texto del Panel; párrafos a line-height 1.6, descripciones hasta 72ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Navegación, cabeceras de tabla, insignias, pistas y metadatos del Panel."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "CURP, matrícula y claves del Panel. Nunca texto corrido."
+      },
+      "site-hero": {
+        "displayName": "Héroe",
+        "purpose": "Título de cada diapositiva del carrusel, hasta 14ch; el subtítulo es la segunda línea del h1."
+      },
+      "site-page-title": {
+        "displayName": "Título de página",
+        "purpose": "h1 centrado en la banda de encabezado de las páginas interiores."
+      },
+      "site-section-title": {
+        "displayName": "Título de sección",
+        "purpose": "h2 centrado en site-blue al abrir cada sección del sitio."
+      },
+      "site-card-title": {
+        "displayName": "Título de tarjeta",
+        "purpose": "Bandas de Misión e Historia y título de Visión; bloques de Conócenos a 2rem."
+      },
+      "site-body": {
+        "displayName": "Body del sitio",
+        "purpose": "Texto corrido del sitio; párrafos de Conócenos a 1.0625rem."
+      },
+      "site-label": {
+        "displayName": "Label del sitio",
+        "purpose": "Navegación (0.9375rem), botones y pie (0.875rem)."
+      },
+      "site-small": {
+        "displayName": "Pequeño",
+        "purpose": "Descripción de valores, foto pendiente, Próximamente y línea final del pie."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card",
+        "value": "0 1px 2px rgb(19 32 58 / .05), 0 2px 6px rgb(19 32 58 / .04)",
+        "purpose": "Tarjetas del Panel en reposo, sesión, segmento activo."
+      },
+      {
+        "name": "lift",
+        "value": "0 2px 4px rgb(19 32 58 / .08), 0 10px 24px rgb(19 32 58 / .10)",
+        "purpose": "Enlace de salto enfocado."
+      },
+      {
+        "name": "dialog",
+        "value": "0 2px 8px rgb(12 26 51 / .12), 0 24px 64px rgb(12 26 51 / .28)",
+        "purpose": "Modales sobre velo rgb(12 26 51 / .55)."
+      },
+      {
+        "name": "focus-field",
+        "value": "0 0 0 3px rgb(44 90 160 / .28)",
+        "purpose": "Halo de campo enfocado, con borde navy-600."
+      },
+      {
+        "name": "site-card",
+        "value": "0 2px 6px rgb(31 42 68 / .06), 0 12px 28px rgb(31 42 68 / .10)",
+        "purpose": "Tarjetas, mapa, eventos y fotos de la galería del sitio."
+      },
+      {
+        "name": "site-lift",
+        "value": "0 4px 10px rgb(31 42 68 / .08), 0 20px 40px rgb(31 42 68 / .16)",
+        "purpose": "Hover de las tarjetas de Conócenos y marco del calendario."
+      },
+      {
+        "name": "gallery-glow",
+        "value": "0 0 0 1px rgb(59 103 173 / .12), 0 0 44px rgb(59 103 173 / .45)",
+        "purpose": "Solo la foto central de la galería."
+      },
+      {
+        "name": "site-header",
+        "value": "0 2px 10px rgb(0 0 0 / .18)",
+        "purpose": "Encabezado pegajoso del sitio."
+      },
+      {
+        "name": "site-round-button",
+        "value": "0 2px 8px rgb(0 0 0 / .2)",
+        "purpose": "Botones redondos de galería (flechas del carrusel a .3)."
+      },
+      {
+        "name": "site-button",
+        "value": "0 2px 6px rgb(31 42 68 / .2)",
+        "purpose": "Botón de acción del sitio."
+      }
+    ],
+    "focus": [
+      {
+        "name": "ring",
+        "value": "outline: 3px solid #2c5aa0; outline-offset: 2px",
+        "purpose": "Foco por defecto sobre fondos claros, en las dos superficies."
+      },
+      {
+        "name": "ring-on-enamel",
+        "value": "outline-color: #9cc0ff",
+        "purpose": "Foco sobre navy-800 en el Panel."
+      },
+      {
+        "name": "ring-on-site-navy",
+        "value": "outline-color: #fff",
+        "purpose": "Foco sobre el encabezado, el héroe, la banda interior y el pie del sitio."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Curva del Panel para desplazamientos y transformaciones."
+      },
+      {
+        "name": "state",
+        "value": ".15s",
+        "purpose": "Cambios de color, opacidad y borde en hover y foco, en las dos superficies."
+      },
+      {
+        "name": "slide",
+        "value": ".3s",
+        "purpose": "Clip de señal y regla de la gaveta del Panel."
+      },
+      {
+        "name": "dialog-in",
+        "value": ".22s, opacity .4 a 1 y translateY(10px) a 0",
+        "purpose": "Entrada de modales y cajón lateral del Panel."
+      },
+      {
+        "name": "site-card-lift",
+        "value": ".25s ease; translateY(-4px)",
+        "purpose": "Tarjetas de Conócenos y valores al pasar el cursor; los valores además se rellenan con su tono."
+      },
+      {
+        "name": "hero-fade",
+        "value": "opacity .7s ease; cambio cada 7000ms",
+        "purpose": "Fundido del carrusel de portada; se pausa con cursor o foco. Exclusivo del carrusel."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Detiene el avance automático y el fundido del carrusel y reduce toda transición a .01ms."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "panel-wide",
+        "value": "1280px",
+        "purpose": "Barra lateral a 244px y márgenes a 24px."
+      },
+      {
+        "name": "panel-stack",
+        "value": "1100px",
+        "purpose": "Resumen, calificaciones y organización a una columna."
+      },
+      {
+        "name": "site-menu",
+        "value": "960px",
+        "purpose": "Menú del sitio desplegable; Conócenos y Encuéntranos a una columna; valores, docentes y pie a dos; grados a tres."
+      },
+      {
+        "name": "panel-drawer",
+        "value": "860px",
+        "purpose": "Barra lateral como cajón deslizable."
+      },
+      {
+        "name": "phone",
+        "value": "640px",
+        "purpose": "Tablas del Panel como bloques, formularios a una columna."
+      },
+      {
+        "name": "site-phone",
+        "value": "600px",
+        "purpose": "Contenido del héroe al pie, galería de una foto, valores, documentos y pie en una columna."
+      }
+    ],
+    "layout": {
+      "sidebarWidth": "268px",
+      "panelMax": "1400px",
+      "teacherMax": "1200px",
+      "siteMax": "1160px",
+      "siteGutter": "clamp(16px, 4vw, 40px)",
+      "siteHeader": "64px",
+      "heroHeight": "clamp(420px, 68vh, 600px)",
+      "minTarget": "44px"
+    },
+    "siteAccents": {
+      "nav-active-line": "#7fd3c7",
+      "value-rule": "#e5484d",
+      "values-band-start": "#4f7fca",
+      "footer-icon": "#9fb6e0",
+      "footer-bottom-text": "#aab4cc",
+      "doc-file-hover": "#d9e3f4",
+      "doc-empty-bg": "#f0f2f6",
+      "selection": "#c9d8f0",
+      "hero-veil": "linear-gradient(90deg, rgb(20 30 60 / .78) 0%, rgb(20 30 60 / .45) 45%, rgb(20 30 60 / 0) 75%)",
+      "hero-veil-mobile": "linear-gradient(0deg, rgb(20 30 60 / .85) 0%, rgb(20 30 60 / .35) 60%, rgb(20 30 60 / .1) 100%)",
+      "page-band": "linear-gradient(120deg, #25335f 0%, #3b67ad 100%)",
+      "values-band": "linear-gradient(100deg, #4f7fca 0%, #3b67ad 42%, #25335f 42%, #1c2749 100%)",
+      "note": "Acentos del sitio que no son tokens reutilizables: línea del enlace activo, raya de los valores, iconos y textos del pie, y los tres degradados de marca."
+    }
+  },
+  "components": [
+    {
+      "name": "Botón primario",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "La acción principal de cada pantalla del Panel.",
+      "html": "<button class=\"ds-btn-primary\">Guardar calificaciones</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 18px; border: 1px solid transparent; border-radius: 8px; background: #15284a; color: #fff; font-family: 'Atkinson Hyperlegible Next', 'Segoe UI', system-ui, sans-serif; font-size: 1rem; font-weight: 600; line-height: 1.25; box-shadow: 0 1px 2px rgb(12 26 51 / .24); cursor: pointer; transition: background-color .15s; } .ds-btn-primary:hover { background: #1f3a66; } .ds-btn-primary:active { background: #112140; } .ds-btn-primary:focus-visible { outline: 3px solid #2c5aa0; outline-offset: 2px; }"
+    },
+    {
+      "name": "Botón secundario",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Acciones alternativas junto al primario.",
+      "html": "<button class=\"ds-btn-secondary\">Cancelar</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 18px; border: 1px solid #b6c0ce; border-radius: 8px; background: #fff; color: #15284a; font-family: 'Atkinson Hyperlegible Next', 'Segoe UI', system-ui, sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color .15s, border-color .15s; } .ds-btn-secondary:hover { background: #f1f4f9; border-color: #2c5aa0; } .ds-btn-secondary:active { background: #e2e8f2; } .ds-btn-secondary:focus-visible { outline: 3px solid #2c5aa0; outline-offset: 2px; }"
+    },
+    {
+      "name": "Campo de texto",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo con etiqueta encima, borde fuerte y halo azul al enfocar.",
+      "html": "<label class=\"ds-field\"><span>Nombre del alumno</span><input class=\"ds-input\" placeholder=\"Nombre y apellidos\"></label>",
+      "css": ".ds-field { display: grid; gap: 4px; font-family: 'Atkinson Hyperlegible Next', 'Segoe UI', system-ui, sans-serif; color: #13203a; } .ds-field > span { font-weight: 600; } .ds-input { min-height: 44px; padding: 10px 12px; border: 1px solid #8491a5; border-radius: 8px; background: #fff; color: #13203a; font: inherit; font-weight: 400; transition: border-color .15s, box-shadow .15s; } .ds-input::placeholder { color: #636f85; } .ds-input:hover:not(:focus) { border-color: #3c4a63; } .ds-input:focus { outline: none; border-color: #2c5aa0; box-shadow: 0 0 0 3px rgb(44 90 160 / .28); }"
+    },
+    {
+      "name": "Insignia de señal",
+      "kind": "chip",
+      "refersTo": "badge-success",
+      "description": "Estado del Kárdex: clip de color de 7×14px siempre con su palabra.",
+      "html": "<span class=\"ds-badge ds-ok\">Completo</span> <span class=\"ds-badge ds-warn\">En curso</span> <span class=\"ds-badge ds-alert\">Atrasado</span> <span class=\"ds-badge\">Sin datos</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 8px; padding: 3px 10px 3px 8px; border: 1px solid #d5dce6; border-radius: 6px; background: #eef1f5; color: #4f5d73; font-family: 'Atkinson Hyperlegible Next', 'Segoe UI', system-ui, sans-serif; font-size: .875rem; font-weight: 600; line-height: 1.4; --c: #a3adbb; --e: #6b778b; } .ds-badge::before { content: ''; width: 7px; height: 14px; border-radius: 2px; background: var(--c); box-shadow: inset 0 0 0 1px var(--e); } .ds-ok { background: #e5f3eb; border-color: #bfe0cc; color: #17643f; --c: #1f8a55; --e: #17643f; } .ds-warn { background: #fcf1d8; border-color: #f0d9a3; color: #7a5300; --c: #e4a51e; --e: #9a6a08; } .ds-alert { background: #fbe9e9; border-color: #f0c4c4; color: #a12424; --c: #d64545; --e: #a12424; }"
+    },
+    {
+      "name": "Navegación del Panel",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Barra lateral esmaltada; el elemento activo es una ficha blanca sacada de la gaveta.",
+      "html": "<nav class=\"ds-side\"><a class=\"ds-nav\" href=\"#\">Resumen</a><a class=\"ds-nav is-active\" href=\"#\" aria-current=\"page\">Calificaciones</a><a class=\"ds-nav\" href=\"#\">Alumnos</a></nav>",
+      "css": ".ds-side { display: grid; gap: 2px; width: 240px; padding: 12px; background: #15284a; font-family: 'Atkinson Hyperlegible Next', 'Segoe UI', system-ui, sans-serif; } .ds-nav { display: flex; align-items: center; min-height: 44px; padding: 10px 12px; border-radius: 8px; color: #c3cfe3; font-weight: 500; text-decoration: none; transition: background-color .15s, color .15s; } .ds-nav:hover { background: rgb(255 255 255 / .08); color: #fff; } .ds-nav.is-active { background: #fff; color: #15284a; font-weight: 700; box-shadow: 0 1px 3px rgb(0 0 0 / .22); } .ds-nav:focus-visible { outline: 3px solid #9cc0ff; outline-offset: 0; }"
+    },
+    {
+      "name": "Tarjeta",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Tarjeta blanca sobre acero claro con sombra ambiental mínima.",
+      "html": "<div class=\"ds-ground\"><article class=\"ds-card\"><h2>Grupo 3.° A</h2><p>28 alumnos inscritos en el ciclo actual.</p></article></div>",
+      "css": ".ds-ground { padding: 24px; background: #eef1f5; font-family: 'Atkinson Hyperlegible Next', 'Segoe UI', system-ui, sans-serif; } .ds-card { padding: 24px; border: 1px solid #dde3eb; border-radius: 10px; background: #fff; box-shadow: 0 1px 2px rgb(19 32 58 / .05), 0 2px 6px rgb(19 32 58 / .04); color: #13203a; } .ds-card h2 { margin: 0; font-size: 1.25rem; font-weight: 700; } .ds-card p { margin: 4px 0 0; color: #3c4a63; font-size: .875rem; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Encabezado del sitio",
+      "kind": "nav",
+      "refersTo": "site-header",
+      "description": "Encabezado azul marino con menú centrado y botón Login azul.",
+      "html": "<header class=\"ds-site-head\"><span class=\"ds-site-brand\" aria-hidden=\"true\"></span><nav class=\"ds-site-nav\"><a href=\"#\">Inicio</a><a href=\"#\" class=\"is-active\" aria-current=\"page\">Conócenos</a><a href=\"#\">Calendario</a><a href=\"#\">Contáctanos</a></nav><a class=\"ds-site-login\" href=\"#\">Login <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m13 6 6 6-6 6\"/></svg></a></header>",
+      "css": ".ds-site-head { display: flex; align-items: center; gap: 24px; min-height: 64px; padding: 0 24px; background: #25335f; box-shadow: 0 2px 10px rgb(0 0 0 / .18); font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif; } .ds-site-brand { width: 40px; height: 40px; border-radius: 10px; background: rgb(255 255 255 / .15); } .ds-site-nav { flex: 1; display: flex; justify-content: center; gap: 4px; } .ds-site-nav a { position: relative; padding: 10px 12px; color: #fff; font-size: .9375rem; font-weight: 600; text-decoration: none; opacity: .88; transition: opacity .15s; } .ds-site-nav a:hover, .ds-site-nav a.is-active { opacity: 1; } .ds-site-nav a.is-active::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: 4px; height: 2px; border-radius: 1px; background: #7fd3c7; } .ds-site-login { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; background: #3b67ad; color: #fff; font-size: .875rem; font-weight: 600; text-decoration: none; transition: background-color .15s; } .ds-site-login:hover { background: #2c4f8f; } .ds-site-head a:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }"
+    },
+    {
+      "name": "Botón de acción del sitio",
+      "kind": "button",
+      "refersTo": "site-button",
+      "description": "Acción azul del sitio (Detalles, Descargar calendario, Ver ubicación).",
+      "html": "<a class=\"ds-site-btn\" href=\"#\">Ver ubicación <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m13 6 6 6-6 6\"/></svg></a>",
+      "css": ".ds-site-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 6px; background: #3b67ad; color: #fff; font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif; font-size: .875rem; font-weight: 600; text-decoration: none; box-shadow: 0 2px 6px rgb(31 42 68 / .2); transition: background-color .15s; } .ds-site-btn:hover { background: #2c4f8f; } .ds-site-btn:focus-visible { outline: 3px solid #2c5aa0; outline-offset: 2px; }"
+    },
+    {
+      "name": "Botón redondo",
+      "kind": "button",
+      "refersTo": "site-round-button",
+      "description": "Flecha circular de 44px del carrusel y la galería.",
+      "html": "<button class=\"ds-round\" aria-label=\"Siguiente\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 6 6 6-6 6\"/></svg></button>",
+      "css": ".ds-round { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #25335f; color: #fff; box-shadow: 0 2px 8px rgb(0 0 0 / .2); cursor: pointer; transition: background-color .15s; } .ds-round:hover { background: #3b67ad; } .ds-round:focus-visible { outline: 3px solid #2c5aa0; outline-offset: 2px; }"
+    },
+    {
+      "name": "Tarjeta de Conócenos",
+      "kind": "card",
+      "refersTo": "site-label-band",
+      "description": "Marco blanco tipo polaroid con la banda de su tono al pie; sube al pasar el cursor.",
+      "html": "<div class=\"ds-about-wrap\"><a class=\"ds-about\" href=\"#\"><span class=\"ds-about-photo\" role=\"img\" aria-label=\"Alumnos en clase (foto pendiente)\"><svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><circle cx=\"9\" cy=\"10\" r=\"2\"/><path d=\"m21 17-5-5-9 8\"/></svg><span>Foto pendiente</span></span><span class=\"ds-about-label\">Misión</span></a></div>",
+      "css": ".ds-about-wrap { padding: 24px; background: #f8f8f8; font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif; } .ds-about { position: relative; display: block; width: 320px; padding: 10px; background: #fff; box-shadow: 0 2px 6px rgb(31 42 68 / .06), 0 12px 28px rgb(31 42 68 / .10); text-decoration: none; transition: transform .25s ease, box-shadow .25s ease; } .ds-about:hover { transform: translateY(-4px); box-shadow: 0 4px 10px rgb(31 42 68 / .08), 0 20px 40px rgb(31 42 68 / .16); } .ds-about-photo { display: grid; place-content: center; justify-items: center; gap: 6px; aspect-ratio: 4 / 3; background: #dfe5ef; color: #46577a; font-size: .8125rem; font-weight: 600; } .ds-about-label { position: absolute; left: 10px; right: 10px; bottom: 10px; padding: 12px; background: #b8530f; color: #fff; font-size: 1.75rem; font-weight: 700; text-align: center; } .ds-about:focus-visible { outline: 3px solid #2c5aa0; outline-offset: 2px; }"
+    },
+    {
+      "name": "Tarjeta de valor",
+      "kind": "card",
+      "refersTo": "site-value-card",
+      "description": "Valor sobre la franja diagonal; se rellena con su tono al pasar el cursor.",
+      "html": "<div class=\"ds-values\"><div class=\"ds-value\" style=\"--tone:#1b7d71\"><svg width=\"40\" height=\"40\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 19.5V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2\"/></svg><h3>Conocimiento</h3><p>Fomentamos la curiosidad y el gusto por aprender.</p></div><div class=\"ds-value is-low\" style=\"--tone:#7c3aed\"><svg width=\"40\" height=\"40\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21a8 8 0 0 1 16 0\"/></svg><h3>Constancia</h3><p>Acompañamos el esfuerzo diario de cada alumno.</p></div></div>",
+      "css": ".ds-values { position: relative; display: grid; grid-template-columns: repeat(2, 200px); gap: 32px; padding: 24px 24px 60px; font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif; color: #1f2a44; } .ds-values::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 96px; transform: translateY(-50%); background: linear-gradient(100deg, #4f7fca 0%, #3b67ad 42%, #25335f 42%, #1c2749 100%); } .ds-value { position: relative; padding: 26px 22px 22px; background: #fff; box-shadow: 0 2px 6px rgb(31 42 68 / .06), 0 12px 28px rgb(31 42 68 / .10); transition: background-color .25s, color .25s, transform .25s; } .ds-value.is-low { margin-top: 36px; } .ds-value svg { color: var(--tone); transition: color .25s; } .ds-value h3 { margin: 14px 0 0; font-size: .9375rem; font-weight: 700; } .ds-value h3::after { content: ''; display: block; width: 44px; height: 2px; margin: 12px 0; background: #e5484d; } .ds-value p { margin: 0; color: #4a5570; font-size: .8125rem; line-height: 1.5; transition: color .25s; } .ds-value:hover { background: var(--tone); color: #fff; transform: translateY(-4px); } .ds-value:hover svg, .ds-value:hover p { color: #fff; } .ds-value:hover h3::after { background: #fff; }"
+    },
+    {
+      "name": "Calendario escolar",
+      "kind": "custom",
+      "refersTo": "site-calendar-frame",
+      "description": "Título azul centrado con el ciclo entre líneas naranja y amarilla, sobre el marco azul del calendario.",
+      "html": "<section class=\"ds-cal\"><header><h2>Calendario Escolar</h2><p class=\"ds-cal-sub\">2026-2027</p></header><div class=\"ds-cal-frame\"><div class=\"ds-cal-img\" role=\"img\" aria-label=\"Calendario escolar (foto pendiente)\"><svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><circle cx=\"9\" cy=\"10\" r=\"2\"/><path d=\"m21 17-5-5-9 8\"/></svg><span>Foto pendiente</span></div></div></section>",
+      "css": ".ds-cal { padding: 32px 24px; background: #f8f8f8; font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif; text-align: center; } .ds-cal h2 { margin: 0; color: #3b67ad; font-size: 2.5rem; font-weight: 700; line-height: 1.2; } .ds-cal-sub { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 4px 0 40px; color: #3b67ad; font-size: .875rem; } .ds-cal-sub::before, .ds-cal-sub::after { content: ''; width: 80px; height: 3px; border-radius: 2px; background: #f28c38; } .ds-cal-sub::after { background: #f5c518; } .ds-cal-frame { max-width: 420px; margin: 0 auto; padding: 28px; border-radius: 22px; background: #3b67ad; box-shadow: 0 4px 10px rgb(31 42 68 / .08), 0 20px 40px rgb(31 42 68 / .16); } .ds-cal-img { display: grid; place-content: center; justify-items: center; gap: 6px; aspect-ratio: 4 / 3; border-radius: 12px; background: #fff; color: #46577a; font-size: .8125rem; font-weight: 600; }"
+    },
+    {
+      "name": "Pie del sitio",
+      "kind": "nav",
+      "refersTo": "site-footer",
+      "description": "Pie azul marino en columnas: escudo, secciones, contacto y acceso del personal.",
+      "html": "<footer class=\"ds-foot\"><div class=\"ds-foot-grid\"><p><strong>Escuela Primaria</strong><br>Hugo César Piñeda Chacón</p><div><h2>Secciones</h2><ul><li><a href=\"#\">Conócenos</a></li><li><a href=\"#\">Calendario</a></li></ul></div><div><h2>Personal</h2><ul><li><a href=\"#\">Entrar al Kárdex</a></li></ul></div></div><p class=\"ds-foot-bottom\">© 2026 Escuela Primaria Hugo César Piñeda Chacón</p></footer>",
+      "css": ".ds-foot { background: #25335f; color: #d6dcea; font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif; } .ds-foot-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 32px; padding: 40px 24px 32px; } .ds-foot-grid > p { margin: 0; color: #fff; font-size: .9375rem; } .ds-foot h2 { margin: 0 0 14px; color: #fff; font-size: .9375rem; font-weight: 700; } .ds-foot ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; font-size: .875rem; } .ds-foot a { color: #fff; text-decoration: none; } .ds-foot a:hover { text-decoration: underline; } .ds-foot a:focus-visible { outline: 3px solid #fff; outline-offset: 2px; } .ds-foot-bottom { margin: 0; padding: 18px 24px; border-top: 1px solid rgb(255 255 255 / .12); color: #aab4cc; font-size: .8125rem; text-align: center; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "El Kárdex y la escuela de puertas abiertas",
+    "overview": "Una sola escuela con dos superficies y dos mundos visuales. Adentro, para dirección y docentes, está el Kárdex de tarjetas visibles: gavetas de acero esmaltado en azul marino, tarjetas blancas sobre acero claro y señales de color que siempre van acompañadas de su palabra. Afuera, para las familias, está el sitio de la escuela tal como lo dibujó su comunidad: encabezado azul marino, fotografías reales del plantel a todo lo ancho, títulos azules centrados y tarjetas blancas que llevan cada una un tono propio (naranja, verde azulado, rojo, violeta, verde) en una banda, una barra o su relleno al pasar el cursor.\n\nLa densidad cambia según quién mira. El Panel es denso, tabular y sereno: Atkinson Hyperlegible Next a 700, sombras ambientales mínimas, todo en una escala de 4px. El sitio es abierto y fotográfico: Montserrat a 700 y 800, secciones de 88px de aire, sombras difusas que levantan tarjetas y marcos, y degradados azul marino a azul en los planos de marca (velo del héroe, banda de encabezado de las páginas interiores, franja de valores). Las dos superficies comparten el compromiso de objetivos táctiles de 44px y el anillo de foco visible.\n\nLo pendiente nunca se rellena con material inventado. Una foto que todavía no existe se muestra como el recuadro \"Foto pendiente\"; un texto institucional que falta se muestra como \"Información por confirmar.\" en cursiva; un documento sin archivo dice \"Próximamente\".",
+    "keyCharacteristics": [
+      "Azul marino esmaltado (`navy-800`) como suelo del Panel; azul marino de sitio (`site-navy`) en encabezado, pie y botones redondos del sitio.",
+      "Tarjetas blancas sobre acero claro (`ground`) en el Panel; tarjetas blancas sobre gris claro (`site-bg`) con un tono propio en el sitio.",
+      "Señales con clip vertical de 7×14px más palabra; nunca solo color.",
+      "Atkinson Hyperlegible Next en el Panel; Montserrat en el sitio; Atkinson Hyperlegible Mono solo para claves y códigos del Panel.",
+      "Fotografías reales de la escuela o el recuadro \"Foto pendiente\"; nunca fotos de archivo.",
+      "Cifras tabulares en tablas, fechas, contadores y ciclos del Panel."
+    ],
+    "rules": [
+      {
+        "name": "La Regla de la Señal con Palabra",
+        "section": "colors",
+        "body": "Un color de estado nunca viaja solo: el clip de color va pegado a una palabra legible (\"Completo\", \"Atrasado\"). Si quitas el color y el estado ya no se entiende, el componente está mal."
+      },
+      {
+        "name": "La Regla del Ámbar con Tinta",
+        "section": "colors",
+        "body": "Sobre `warn` el texto es `warn-ink`, nunca blanco. En el sitio, `line-yellow` solo traza líneas; nunca es fondo de texto."
+      },
+      {
+        "name": "La Regla de los Dos Trabajos",
+        "section": "colors",
+        "body": "Los tonos del sitio decoran tarjetas; las señales nombran estados del Kárdex. Una tarjeta verde de Educación Física no significa \"completo\", y una señal `ok` no decora una tarjeta."
+      },
+      {
+        "name": "La Regla del Blanco Legible",
+        "section": "colors",
+        "body": "El texto blanco pequeño (menos de 1.5rem) solo va sobre fondos con contraste de 4.5:1 o más: `site-navy`, `site-blue`, `tone-teal`, `tone-red` y `tone-violet`. `tone-orange`, `tone-purple` y `tone-green` solo llevan blanco en texto grande a 700, como las bandas de etiqueta de 1.75rem."
+      },
+      {
+        "name": "La Regla de la Familia por Superficie",
+        "section": "typography",
+        "body": "El Panel se escribe en Atkinson Hyperlegible Next; el sitio en Montserrat. No cruces una familia a la otra superficie."
+      },
+      {
+        "name": "La Regla de las Cifras Tabulares",
+        "section": "typography",
+        "body": "Tablas, fechas, horas, ciclos, contadores y calificaciones del Panel usan `font-variant-numeric: tabular-nums`. Las cifras se alinean como en una boleta."
+      },
+      {
+        "name": "La Regla de la Frase Única",
+        "section": "typography",
+        "body": "En el resumen del Panel una oración entera va a un solo tamaño (1.25rem); las cifras destacan con peso 800 y color `navy-800`, no con un salto de tamaño."
+      },
+      {
+        "name": "La Regla del Título Azul Centrado",
+        "section": "typography",
+        "body": "Cada sección del sitio abre con su título en `site-blue`, centrado, y un subtítulo breve debajo. Nada va encima del título."
+      },
+      {
+        "name": "La Regla del Brillo Único",
+        "section": "elevation",
+        "body": "En la galería solo la foto central brilla; las laterales llevan la sombra de tarjeta del sitio."
+      },
+      {
+        "name": "La Regla de la Sombra de Desplazamiento",
+        "section": "elevation",
+        "body": "Las tablas anchas del Panel muestran sombras laterales solo mientras todavía pueden desplazarse de lado."
+      }
+    ],
+    "dos": [
+      "Do usa `navy-800` como suelo del Panel y `site-navy` como marco del sitio (encabezado, pie y botones redondos).",
+      "Do acompaña cada color de estado del Panel con su palabra y su clip de 7×14px.",
+      "Do da a cada tarjeta del sitio un solo tono y aplícalo en su banda, su barra o su relleno de hover.",
+      "Do abre cada sección del sitio con su título `site-blue` centrado y un subtítulo breve.",
+      "Do usa fotografías reales de la escuela; mientras falten, muestra el recuadro \"Foto pendiente\".",
+      "Do muestra cada texto institucional pendiente como \"Información por confirmar.\" en cursiva y cada documento sin archivo como \"Próximamente\".",
+      "Do mantén los objetivos táctiles en 44px o más y el anillo de foco de 3px visible en cada fondo (blanco sobre azul marino y degradados).",
+      "Do usa cifras tabulares en fechas, horas, conteos y calificaciones del Panel.",
+      "Do limita las respuestas de estado a 0.15 a 0.3s y respeta `prefers-reduced-motion`; el fundido de 0.7s es exclusivo del carrusel."
+    ],
+    "donts": [
+      "Don't inventes datos, fotos de archivo ni un escudo: lo que falta se muestra como pendiente.",
+      "Don't uses un tono del sitio como señal de estado, ni una señal como tono de tarjeta.",
+      "Don't pongas texto blanco pequeño sobre `tone-orange`, `tone-purple`, `tone-green` ni `warn`.",
+      "Don't cruces las familias: nada de Montserrat en el Panel ni de Atkinson en el sitio.",
+      "Don't pongas sombras duras desplazadas; las sombras son difusas y teñidas de azul.",
+      "Don't coloques etiquetas en mayúsculas espaciadas encima de los títulos.",
+      "Don't hagas brillar más de una foto en la galería.",
+      "Don't uses la mono para texto corrido; es solo para claves y códigos del Panel."
+    ]
+  }
+}
