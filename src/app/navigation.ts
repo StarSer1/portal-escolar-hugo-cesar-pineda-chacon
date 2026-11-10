@@ -20,6 +20,7 @@ export const navSections: NavSection[] = [
       { label: 'Calificaciones', href: '/panel/calificaciones', icon: 'grades' },
     ],
   },
+  { label: 'Sitio público', items: [{ label: 'Sitio web', href: '/panel/sitio', icon: 'globe' }] },
   { label: 'Trazabilidad', items: [{ label: 'Actividad', href: '/panel/actividad', icon: 'history' }] },
 ]
 

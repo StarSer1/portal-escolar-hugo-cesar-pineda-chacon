@@ -15,9 +15,11 @@ import { OrganizationPage } from '@/features/academic/pages/OrganizationPage'
 import { EnrollmentsPage } from '@/features/academic/pages/EnrollmentsPage'
 import { ActivityPage } from '@/features/academic/pages/ActivityPage'
 import { TeacherPanelPage } from '@/features/teacher/TeacherPanelPage'
+import { SiteContentProvider } from '@/features/public/SiteContent'
+import { SiteEditorPage } from '@/features/public/admin/SiteEditorPage'
 
 export function App() {
-  return <AuthProvider><Routes>
+  return <AuthProvider><SiteContentProvider><Routes>
     <Route element={<PublicLayout />}>
       <Route path="/" element={<HomePage />} />
       <Route path="/conocenos" element={<AboutPage />} />
@@ -40,8 +42,9 @@ export function App() {
         <Route path="inscripciones" element={<EnrollmentsPage />} />
         <Route path="calificaciones" element={<GradesPage />} />
         <Route path="actividad" element={<ActivityPage />} />
+        <Route path="sitio" element={<SiteEditorPage />} />
       </Route>
     </Route>
     <Route path="*" element={<NotFoundPage />} />
-  </Routes></AuthProvider>
+  </Routes></SiteContentProvider></AuthProvider>
 }

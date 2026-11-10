@@ -202,6 +202,16 @@ service cloud.firestore {
       allow delete: if false;
     }
     match /announcements/{id} { allow read: if true; allow write: if admin(); }
+    // Contenido del sitio público: cualquiera lo lee; solo el director activo lo edita
+    // desde /panel/sitio. Cada sección es un documento completo; no se borran.
+    match /site/{section} {
+      allow read: if true;
+      allow create, update: if admin()
+        && section in ['general', 'images', 'home', 'gallery', 'students', 'calendar', 'documents']
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow delete: if false;
+    }
     match /academicSettings/currentYear {
       allow read: if admin() || teacher();
       allow create, update: if admin()

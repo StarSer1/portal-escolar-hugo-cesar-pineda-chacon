@@ -20,6 +20,6 @@ Los archivos se descargaron de `images.unsplash.com/<id>` con ancho de 1000 a 19
 
 ## Fechas de ejemplo del calendario
 
-`schoolEvents` en `src/features/public/school.ts` contiene fechas de ejemplo (feriados oficiales, Consejo Técnico el último viernes de cada mes, vacaciones y festejos típicos) para mostrar el calendario interactivo. No son el calendario oficial de la SEP ni de la escuela. Reemplázalas por las oficiales y cambia `eventsAreExamples` a `false` para quitar el aviso "Fechas de ejemplo".
+El calendario trae fechas de ejemplo (feriados oficiales, Consejo Técnico el último viernes de cada mes, vacaciones y festejos típicos) definidas en `defaultContent.calendar` de `src/features/public/school.ts`. No son el calendario oficial de la SEP ni de la escuela. El director las reemplaza desde **Panel → Sitio web → Calendario** y desactiva ahí el aviso "Fechas de ejemplo".
 
 También se agregó `public/img/docentes/educacion-fisica.jpg` (https://unsplash.com/photos/photo-1761039807514-292d7d33059f) para la tarjeta de Educación Física.

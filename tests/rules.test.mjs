@@ -501,3 +501,19 @@ test('teacher provisioning rejects password fields in teacher files, user profil
     assert.equal((await getDoc(doc(db, 'users', value.authUid))).exists(), false)
   }
 })
+
+test('public site content is readable by anyone and editable only by the active director', async () => {
+  const content = { slides: [], galleryIntro: 'Texto' }
+  const stamp = (uid) => ({ ...content, updatedAt: serverTimestamp(), updatedBy: uid })
+  await assertSucceeds(setDoc(doc(db, 'site', 'home'), stamp('admin')))
+  await assertSucceeds(getDocs(collection(env.unauthenticatedContext().firestore(), 'site')))
+  for (const uid of ['teacher', 'inactive', 'student']) {
+    await assertFails(setDoc(doc(env.authenticatedContext(uid).firestore(), 'site', 'home'), stamp(uid)))
+  }
+  await assertFails(setDoc(doc(env.unauthenticatedContext().firestore(), 'site', 'home'), content))
+  // Unknown sections, forged authorship or client clocks are rejected; sections are never deleted.
+  await assertFails(setDoc(doc(db, 'site', 'other'), stamp('admin')))
+  await assertFails(setDoc(doc(db, 'site', 'home'), stamp('teacher')))
+  await assertFails(setDoc(doc(db, 'site', 'home'), { ...content, updatedAt: oldTime, updatedBy: 'admin' }))
+  await assertFails(deleteDoc(doc(db, 'site', 'home')))
+})

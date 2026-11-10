@@ -2,7 +2,8 @@ import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'rea
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Icon } from '@/shared/components/Icon'
 import { SchoolEmblem } from '@/shared/components/SchoolEmblem'
-import { navLinks, school } from './school'
+import { navLinks } from './school'
+import { useSite } from './SiteContent'
 import { Photo } from './components/Photo'
 import '@/styles/site.css'
 
@@ -25,6 +26,7 @@ function useReveal(root: RefObject<HTMLDivElement | null>, key: string) {
 }
 
 export function PublicLayout() {
+  const school = useSite().content.general
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { pathname, hash } = useLocation()
@@ -83,6 +85,8 @@ export function PublicLayout() {
           <ul className="footer-contact">
             <li><Icon name="phone" size={18} /><a href={`tel:${school.phone.replace(/\s/g, '')}`}>{school.phone}</a></li>
             <li><Icon name="pin" size={18} /><span>{school.address}</span></li>
+            {school.facebook && <li><Icon name="external" size={18} /><a href={school.facebook} target="_blank" rel="noreferrer">Facebook</a></li>}
+            {school.instagram && <li><Icon name="external" size={18} /><a href={school.instagram} target="_blank" rel="noreferrer">Instagram</a></li>}
             {school.email && <li><Icon name="mail" size={18} /><a href={`mailto:${school.email}`}>{school.email}</a></li>}
           </ul>
         </div>

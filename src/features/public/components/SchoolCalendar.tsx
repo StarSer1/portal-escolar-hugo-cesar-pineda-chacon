@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Icon } from '@/shared/components/Icon'
-import { calendarPdf, currentCycle, eventKinds, eventsAreExamples, schoolEvents, type EventKind, type SchoolEvent } from '../school'
+import { currentCycle, eventKinds, type EventKind, type SchoolEvent } from '../school'
+import { useSite } from '../SiteContent'
 import { SectionTitle } from './Sections'
 
 const MONTHS = ['Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio']
@@ -22,6 +23,7 @@ const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1
 
 /** Cada día del ciclo con sus eventos; los periodos se expanden día por día. */
 function useEventsByDay() {
+  const schoolEvents = useSite().content.calendar.events
   return useMemo(() => {
     const map = new Map<string, SchoolEvent[]>()
     for (const event of schoolEvents) {
@@ -32,7 +34,7 @@ function useEventsByDay() {
       }
     }
     return map
-  }, [])
+  }, [schoolEvents])
 }
 
 interface Selection { date: string; pinned: boolean }
@@ -105,7 +107,7 @@ function CalendarGrid({ selection, onSelect, focusKind }: { selection: Selection
     {selection && position && selectedEvents.length > 0 && <div id="cal-popover" role="status" className={position.above ? 'cal-popover is-above' : 'cal-popover'}
       style={{ left: position.left, top: position.top }}>
       <p className="cal-popover-date">{capitalize(longDate.format(parse(selection.date)))}</p>
-      {selectedEvents.map((event) => <div key={event.title} className={`cal-popover-event tone-${eventKinds[event.kind].tone}`}>
+      {selectedEvents.map((event, position) => <div key={position} className={`cal-popover-event tone-${eventKinds[event.kind].tone}`}>
         <span className="kind-chip">{eventKinds[event.kind].label}</span>
         <strong>{event.title}</strong>
         {event.end && <small>{eventDateLabel(event)}</small>}
@@ -117,6 +119,7 @@ function CalendarGrid({ selection, onSelect, focusKind }: { selection: Selection
 }
 
 function UpcomingEvents({ limit, onPick }: { limit?: number; onPick: (date: string) => void }) {
+  const schoolEvents = useSite().content.calendar.events
   const today = iso(new Date())
   const upcoming = schoolEvents.filter((event) => (event.end ?? event.date) >= today).slice(0, limit)
   return <ol className="upcoming">
@@ -134,6 +137,7 @@ function UpcomingEvents({ limit, onPick }: { limit?: number; onPick: (date: stri
 }
 
 export function SchoolCalendar({ full = false }: { full?: boolean }) {
+  const { examples: eventsAreExamples, pdf: calendarPdf } = useSite().content.calendar
   const cycle = currentCycle()
   const [selection, setSelection] = useState<Selection | null>(null)
   const [focusKind, setFocusKind] = useState<EventKind | null>(null)
@@ -161,7 +165,7 @@ export function SchoolCalendar({ full = false }: { full?: boolean }) {
         }} />
         {eventsAreExamples && <p className="example-note">Fechas de ejemplo. La dirección publicará aquí las fechas oficiales del ciclo.</p>}
         {!full && <Link className="pill-button" to="/calendario">Ver calendario completo <Icon name="arrow" size={18} /></Link>}
-        {calendarPdf && <a className="pill-button is-outline" href={calendarPdf} download><Icon name="download" size={18} />Calendario oficial (PDF)</a>}
+        {calendarPdf && <a className="pill-button is-outline" href={calendarPdf} target="_blank" rel="noreferrer"><Icon name="download" size={18} />Calendario oficial (PDF)</a>}
       </aside>
     </div>
   </>

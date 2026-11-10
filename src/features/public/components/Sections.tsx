@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Icon } from '@/shared/components/Icon'
-import { aboutPhotos, gallery, mapEmbedUrl, mapLinkUrl, school, values } from '../school'
+import { mapUrls, values } from '../school'
+import { useSite } from '../SiteContent'
 import { Photo } from './Photo'
 
 export function SectionTitle({ title, children, lines = false }: { title: string; children?: ReactNode; lines?: boolean }) {
@@ -17,6 +18,7 @@ export function Pending({ children = 'Información por confirmar.' }: { children
 
 /** Misión, visión e historia en tarjetas escalonadas, como en la portada. */
 export function AboutCards() {
+  const { general: school, images: aboutPhotos } = useSite().content
   return <div className="about-cards">
     <Link to="/conocenos#mision" className="about-card photo-card tone-orange" data-reveal>
       <span className="photo-frame"><Photo src={aboutPhotos.mission} alt="Alumnos en clase" /></span>
@@ -38,6 +40,7 @@ const GALLERY_INTERVAL = 4500
 
 /** Carrusel de fotos con la central destacada; cada foto abre un visor ampliado. */
 export function Gallery() {
+  const gallery = useSite().content.gallery.photos
   const count = gallery.length
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
@@ -66,12 +69,15 @@ export function Gallery() {
   const step = (delta: number) => setActive((value) => (value + delta + count) % count)
   const stepViewer = (delta: number) => setViewer((value) => value === null ? value : (value + delta + count) % count)
 
+  if (!count) return <Pending>Pronto compartiremos fotos de la escuela.</Pending>
+  if (active >= count) setActive(0)
+
   return <div className="gallery" data-reveal onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
     <div className="gallery-stage">
       {gallery.map((photo, position) => {
         const offset = offsetOf(position)
         const hidden = Math.abs(offset) > 1
-        return <button key={photo.src} type="button" className={offset === 0 ? 'gallery-item is-center' : 'gallery-item'} data-offset={Math.max(-2, Math.min(2, offset))}
+        return <button key={position} type="button" className={offset === 0 ? 'gallery-item is-center' : 'gallery-item'} data-offset={Math.max(-2, Math.min(2, offset))}
           tabIndex={hidden ? -1 : undefined} aria-hidden={hidden} aria-label={`Ampliar foto: ${photo.alt}`}
           onClick={() => offset === 0 ? setViewer(position) : setActive(position)}>
           <Photo src={photo.src} alt="" />
@@ -80,12 +86,12 @@ export function Gallery() {
     </div>
     <div className="gallery-controls">
       <button type="button" className="round-button" onClick={() => step(-1)} aria-label="Foto anterior"><Icon name="chevronLeft" size={20} /></button>
-      <div className="gallery-dots">{gallery.map((photo, position) => <button key={photo.src} type="button" aria-label={`Ver foto ${position + 1}`} aria-current={position === active} onClick={() => setActive(position)} />)}</div>
+      <div className="gallery-dots">{gallery.map((_, position) => <button key={position} type="button" aria-label={`Ver foto ${position + 1}`} aria-current={position === active} onClick={() => setActive(position)} />)}</div>
       <button type="button" className="round-button" onClick={() => step(1)} aria-label="Foto siguiente"><Icon name="chevron" size={20} /></button>
     </div>
     <dialog ref={dialog} className="lightbox" aria-label="Foto ampliada" onClose={() => setViewer(null)} onClick={(event) => { if (event.target === dialog.current) setViewer(null) }}
       onKeyDown={(event) => { if (event.key === 'ArrowLeft') stepViewer(-1); if (event.key === 'ArrowRight') stepViewer(1) }}>
-      {viewer !== null && <figure>
+      {viewer !== null && gallery[viewer] && <figure>
         <img src={gallery[viewer].src} alt={gallery[viewer].alt} />
         <figcaption>{gallery[viewer].alt}<span>{viewer + 1} / {count}</span></figcaption>
       </figure>}
@@ -109,6 +115,8 @@ export function ValuesStrip() {
 }
 
 export function FindUs() {
+  const school = useSite().content.general
+  const { embed: mapEmbedUrl, link: mapLinkUrl } = mapUrls(school.mapQuery || school.address)
   const rows = [
     { icon: 'pin', title: 'Dirección', body: <p>{school.address}</p> },
     { icon: 'phone', title: 'Contacto', body: <><p><a href={`tel:${school.phone.replace(/\s/g, '')}`}>{school.phone}</a></p>{school.email && <p><a href={`mailto:${school.email}`}>{school.email}</a></p>}</> },

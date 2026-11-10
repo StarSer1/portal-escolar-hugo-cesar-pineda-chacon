@@ -1,9 +1,10 @@
 import { HeroCarousel } from '../components/HeroCarousel'
 import { SchoolCalendar } from '../components/SchoolCalendar'
 import { AboutCards, FindUs, Gallery, SectionTitle, ValuesStrip } from '../components/Sections'
-import { school } from '../school'
+import { useSite } from '../SiteContent'
 
 export function HomePage() {
+  const { general: school, home } = useSite().content
   return <>
     <HeroCarousel />
     <section className="section">
@@ -11,7 +12,7 @@ export function HomePage() {
       <AboutCards />
     </section>
     <section className="section section-tinted">
-      <SectionTitle title="Galería">Nuestras instalaciones dentro del plantel, priorizando siempre la limpieza y el mantenimiento del mobiliario estudiantil.</SectionTitle>
+      <SectionTitle title="Galería">{home.galleryIntro}</SectionTitle>
       <Gallery />
     </section>
     <section className="section section-flush" aria-label="Nuestros valores"><ValuesStrip /></section>

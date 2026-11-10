@@ -40,6 +40,9 @@ const paths: Record<string, string> = {
   image: 'M3 3h18v18H3zM8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M21 15l-5-5L5 21',
   school: 'M3 21h18M5 21V10l7-5 7 5v11M10 21v-5h4v5M12 5V2h3',
   download: 'M12 3v12M7 10l5 5 5-5M4 21h16',
+  upload: 'M12 21V9M7 14l5-5 5 5M4 3h16',
+  trash: 'M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 11v6M14 11v6',
+  globe: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20',
   lock:'M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4',
   inbox: 'M22 12h-6l-2 3h-4l-2-3H2M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z',
 }

@@ -1,6 +1,6 @@
-// Provisional mark until the school delivers its official crest: save the file
-// in public/ (for example public/escudo.png) and set its path here.
-const officialEmblemSrc: string | null = null
+// Escudo oficial de la escuela (recortado en círculo con fondo transparente).
+// Si se quita, se vuelve a mostrar la marca provisional "HC".
+const officialEmblemSrc: string | null = '/escudo.png'
 
 export function SchoolEmblem({ size = 48 }: { size?: number }) {
   if (officialEmblemSrc) return <img className="school-emblem" src={officialEmblemSrc} width={size} height={size} alt="" />

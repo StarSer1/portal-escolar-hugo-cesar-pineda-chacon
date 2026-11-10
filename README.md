@@ -24,6 +24,14 @@ Abre `/iniciar-sesion` y usa una cuenta existente de Authentication con perfil `
 
 **Importante:** `npm run dev` usa la base configurada en `.env.local`. No significa que la información quede solo en tu computadora. Las pruebas automatizadas de abajo configuran un entorno local aislado y no necesitan cuentas reales.
 
+## Sitio público editable
+
+El director administra todo el contenido del sitio público desde **Panel → Sitio web** (`/panel/sitio`): carrusel de la portada, calendario, documentos y sus categorías, docentes por grado, datos de contacto, misión/visión/historia, galería y fotos de encabezado. Una **vista previa en vivo** (computadora o celular) muestra el sitio real con los cambios antes de guardarlos.
+
+Cada sección se guarda como un documento de la colección `site` en Firestore. Mientras una sección no se haya guardado, el sitio muestra los valores de `defaultContent` en `src/features/public/school.ts`. Los documentos iniciales (protocolos, horarios y carta compromiso) están en `public/documentos/`.
+
+Los documentos y fotos que se suben desde el panel se guardan en Cloudinary. Consulta [docs/cloudinary.md](docs/cloudinary.md) para configurarlo. Para que el editor pueda guardar en el proyecto real, publica las reglas con `npm run deploy:rules`.
+
 ## Comandos principales
 
 - `npm run dev`: servidor local.
