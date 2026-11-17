@@ -4,7 +4,7 @@
 
 ## Decisiones incorporadas
 
-- Escala confirmada: 0 a 10; el valor mostrado se redondea al entero más cercano.
+- Escala confirmada: 5 a 10; el valor mostrado se redondea al entero más cercano.
 - Tres periodos por ciclo.
 - El director/administrador autoriza correcciones. La integración SEP queda fuera de V1.
 - Cada grupo tiene docente general, Educación Física, Inglés y Artes.

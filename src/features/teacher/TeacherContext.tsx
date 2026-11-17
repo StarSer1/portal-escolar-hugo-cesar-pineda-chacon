@@ -104,18 +104,18 @@ export function TeacherProvider({ children }: { children: ReactNode }) {
             }))
             if (!valid()) return
             const enrollments = records.flatMap((item) => item.enrollments)
-            const studentIds = [...new Set(enrollments.map((item) => item.studentId))]
-            const students = await Promise.all(studentIds.map(async (id): Promise<RosterStudent | null> => {
-              const snapshot = await getDoc(doc(db, 'students', id))
-              if (!snapshot.exists()) return null
-              const value = snapshot.data()
-              // The view retains no CURP, date of birth or family contact data.
-              return { id, names: String(value.names), surnames: String(value.surnames), matricula: String(value.matricula) }
-            }))
-            if (!valid()) return
+            // El nombre y la matrícula vienen en la propia inscripción: el docente no lee
+            // el expediente del alumno (CURP, fecha de nacimiento, contactos) y se evita
+            // una consulta por alumno.
+            const students = [...new Map(enrollments.map((item): [string, RosterStudent] => [item.studentId, {
+              id: item.studentId,
+              names: item.studentName || 'Alumno sin nombre registrado (pide a dirección actualizar la inscripción)',
+              surnames: '',
+              matricula: item.matricula ?? '',
+            }])).values()]
             groupsLoaded = true
             setData({ teacher: ownTeacher, schoolYear, groups, periods, enrollments,
-              students: students.filter((item): item is RosterStudent => item !== null),
+              students,
               subjects: [...new Map(records.flatMap((item) => item.subjects).map((item) => [item.id, item])).values()],
               grades: records.flatMap((item) => item.grades),
             })

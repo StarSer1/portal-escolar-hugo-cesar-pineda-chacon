@@ -3,13 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Portal oficial de la Escuela Primaria Hugo César Piñeda Chacón" />
-    <link rel="icon" type="image/png" href="/escudo.png" />
     <title>Escuela Primaria Hugo César Piñeda Chacón</title>
+    <meta name="description" content="Sitio oficial de la Escuela Primaria Hugo César Piñeda Chacón: calendario escolar, documentos, docentes por grado y datos de contacto." />
+    <meta name="theme-color" content="#1b2a4e" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/escudo-32.png" />
+    <link rel="apple-touch-icon" href="/escudo-180.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="canonical" href="%SITE_URL%/" />
+
+    <!-- Vista previa al compartir el enlace en WhatsApp, Facebook, etc. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_MX" />
+    <meta property="og:site_name" content="Escuela Primaria Hugo César Piñeda Chacón" />
+    <meta property="og:title" content="Escuela Primaria Hugo César Piñeda Chacón" />
+    <meta property="og:description" content="Calendario escolar, documentos, docentes por grado y datos de contacto." />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:image" content="%SITE_URL%/img/inicio/escuela.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Fuentes: conexión anticipada para que el texto aparezca antes. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Atkinson+Hyperlegible+Mono:wght@400;500;600&family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" />
   </head>
   <body>
+    <noscript>Para usar este sitio activa JavaScript en tu navegador.</noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

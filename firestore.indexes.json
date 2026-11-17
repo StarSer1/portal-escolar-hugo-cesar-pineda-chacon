@@ -1,39 +1,208 @@
 {
   "indexes": [
-    { "collectionGroup": "groups", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "generalTeacherId", "order": "ASCENDING" },
-      { "fieldPath": "schoolYearId", "order": "ASCENDING" },
-      { "fieldPath": "status", "order": "ASCENDING" }
-    ] },
-    { "collectionGroup": "groups", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "physicalTeacherId", "order": "ASCENDING" },
-      { "fieldPath": "schoolYearId", "order": "ASCENDING" },
-      { "fieldPath": "status", "order": "ASCENDING" }
-    ] },
-    { "collectionGroup": "groups", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "englishTeacherId", "order": "ASCENDING" },
-      { "fieldPath": "schoolYearId", "order": "ASCENDING" },
-      { "fieldPath": "status", "order": "ASCENDING" }
-    ] },
-    { "collectionGroup": "groups", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "artsTeacherId", "order": "ASCENDING" },
-      { "fieldPath": "schoolYearId", "order": "ASCENDING" },
-      { "fieldPath": "status", "order": "ASCENDING" }
-    ] },
-    { "collectionGroup": "enrollments", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "groupId", "order": "ASCENDING" },
-      { "fieldPath": "status", "order": "ASCENDING" }
-    ] },
-    { "collectionGroup": "grades", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "groupId", "order": "ASCENDING" },
-      { "fieldPath": "teacherId", "order": "ASCENDING" }
-    ] },
-    { "collectionGroup": "subjectPlans", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "curriculumPlanId", "order": "ASCENDING" },
-      { "fieldPath": "grade", "order": "ASCENDING" },
-      { "fieldPath": "specialty", "order": "ASCENDING" },
-      { "fieldPath": "status", "order": "ASCENDING" }
-    ] }
+    {
+      "collectionGroup": "groups",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "generalTeacherId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "schoolYearId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "groups",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "physicalTeacherId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "schoolYearId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "groups",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "englishTeacherId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "schoolYearId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "groups",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "artsTeacherId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "schoolYearId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "enrollments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "groupId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "grades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "groupId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "teacherId",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "subjectPlans",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "curriculumPlanId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "grade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "specialty",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    }
   ],
-  "fieldOverrides": []
+  "fieldOverrides": [
+    {
+      "collectionGroup": "auditLogs",
+      "fieldPath": "previousData",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "grades",
+      "fieldPath": "observation",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "grades",
+      "fieldPath": "correctionReason",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "history",
+      "fieldPath": "previousObservation",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "history",
+      "fieldPath": "newObservation",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "site",
+      "fieldPath": "slides",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "site",
+      "fieldPath": "photos",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "site",
+      "fieldPath": "grades",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "site",
+      "fieldPath": "roles",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "site",
+      "fieldPath": "events",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "site",
+      "fieldPath": "categories",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "site",
+      "fieldPath": "files",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "site",
+      "fieldPath": "shifts",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "site",
+      "fieldPath": "mission",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "site",
+      "fieldPath": "vision",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "site",
+      "fieldPath": "history",
+      "indexes": []
+    }
+  ]
 }

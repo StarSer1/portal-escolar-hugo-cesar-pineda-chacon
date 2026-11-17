@@ -1,0 +1,53 @@
+{
+  "/img/conocenos/historia.jpg": [
+    640,
+    1100
+  ],
+  "/img/conocenos/mision.jpg": [
+    640,
+    1100
+  ],
+  "/img/docentes/educacion-fisica.jpg": [
+    640,
+    1000
+  ],
+  "/img/galeria/1.jpg": [
+    640,
+    1000
+  ],
+  "/img/galeria/2.jpg": [
+    640,
+    1000
+  ],
+  "/img/galeria/3.jpg": [
+    640,
+    1000
+  ],
+  "/img/galeria/4.jpg": [
+    640,
+    1000
+  ],
+  "/img/galeria/5.jpg": [
+    640,
+    1000
+  ],
+  "/img/galeria/6.jpg": [
+    640,
+    1000
+  ],
+  "/img/inicio/calendario.jpg": [
+    640,
+    1280,
+    1920
+  ],
+  "/img/inicio/escuela.jpg": [
+    640,
+    1280,
+    1920
+  ],
+  "/img/inicio/festival.jpg": [
+    640,
+    1280,
+    1920
+  ]
+}

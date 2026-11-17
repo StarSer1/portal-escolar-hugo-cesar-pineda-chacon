@@ -30,7 +30,7 @@ async function login(page: Page, email = adminEmail) {
   await page.goto('/iniciar-sesion')
   await page.getByLabel('Correo electrónico', { exact: true }).fill(email)
   await page.getByLabel(/^Contraseña/).fill(password)
-  await page.getByRole('button', { name: 'Entrar al panel' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page).toHaveURL(email === adminEmail ? /\/panel(?:\/|$)/ : /\/docente(?:\/|$)/)
   if (email === adminEmail) await expect(page.getByRole('navigation', { name: 'Panel académico' })).toBeVisible()
 }
@@ -67,7 +67,9 @@ async function selectedId(page: Page, route: string, singular: string, field: st
 
 test.describe.serial('Panel académico con Firestore y Authentication reales en emuladores', () => {
   test.beforeAll(async ({ request }) => {
-    const clearFirestore = await request.delete(`http://127.0.0.1:8080/emulator/v1/projects/${project}/databases/(default)/documents`)
+    // En Windows el emulador recién iniciado a veces corta la primera conexión: se reintenta.
+    const clearUrl = `http://127.0.0.1:8080/emulator/v1/projects/${project}/databases/(default)/documents`
+    const clearFirestore = await request.delete(clearUrl).catch(async () => { await new Promise((resolve) => setTimeout(resolve, 1000)); return request.delete(clearUrl) })
     expect(clearFirestore.ok(), 'El emulador local de Firestore debe estar iniciado').toBeTruthy()
     const clearAuth = await request.delete(`${authHost}/emulator/v1/projects/${project}/accounts`)
     expect(clearAuth.ok(), 'El emulador local de Authentication debe estar iniciado').toBeTruthy()

@@ -44,7 +44,7 @@ async function login(page: Page, email: string, route: RegExp) {
   await page.goto('/iniciar-sesion')
   await page.getByLabel('Correo electrónico', { exact: true }).fill(email)
   await page.getByLabel(/^Contraseña/).fill(email === teacherEmail ? activeTeacherPassword : password)
-  await page.getByRole('button', { name: 'Entrar al panel', exact: true }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page).toHaveURL(route)
 }
 
@@ -62,7 +62,10 @@ async function newTeacher(page: Page, email: string, name: string) {
 
 test.describe.serial('Cuentas docentes y separación de permisos', () => {
   test.beforeAll(async ({ request }) => {
-    expect((await request.delete(`http://127.0.0.1:8080/emulator/v1/projects/${project}/databases/(default)/documents`)).ok()).toBeTruthy()
+    // En Windows el emulador a veces corta la primera conexión nueva: se reintenta una vez.
+    const clearUrl = `http://127.0.0.1:8080/emulator/v1/projects/${project}/databases/(default)/documents`
+    const cleared = await request.delete(clearUrl).catch(async () => { await new Promise((resolve) => setTimeout(resolve, 1000)); return request.delete(clearUrl) })
+    expect(cleared.ok()).toBeTruthy()
     expect((await request.delete(`${authHost}/emulator/v1/projects/${project}/accounts`)).ok()).toBeTruthy()
     const signup = await request.post(`${authHost}/identitytoolkit.googleapis.com/v1/accounts:signUp?key=demo-key`, {
       data: { email: adminEmail, password, returnSecureToken: true },

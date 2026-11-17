@@ -6,6 +6,7 @@ import { useSite } from '../SiteContent'
 export function HomePage() {
   const { general: school, home } = useSite().content
   return <>
+    <h1 className="sr-only">{school.fullName}</h1>
     <HeroCarousel />
     <section className="section">
       <SectionTitle title="Conócenos">{school.fullName}<br />{school.tagline.charAt(0).toLowerCase() + school.tagline.slice(1)}</SectionTitle>

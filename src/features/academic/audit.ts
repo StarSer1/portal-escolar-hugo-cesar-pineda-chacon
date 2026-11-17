@@ -4,9 +4,10 @@ import type { BadgeTone } from '@/shared/ui/Feedback'
 export const auditActions: Record<string, string> = {
   create: 'Registro creado', update: 'Registro actualizado', enroll: 'Inscripción registrada',
   transfer: 'Cambio de grupo', withdraw: 'Baja de inscripción', 'create-grade': 'Calificación capturada', 'correct-grade': 'Calificación corregida',
+  'update-site': 'Sitio web publicado', 'update-name': 'Nombre actualizado en la lista',
 }
 export const auditTones: Record<string, BadgeTone> = {
-  create: 'success', enroll: 'success', 'create-grade': 'success', update: 'info', transfer: 'info', 'correct-grade': 'warn', withdraw: 'alert',
+  create: 'success', enroll: 'success', 'create-grade': 'success', update: 'info', 'update-site': 'info', 'update-name': 'info', transfer: 'info', 'correct-grade': 'warn', withdraw: 'alert',
 }
 export const auditModules: Record<string, { label: string; route: string }> = {
   students: { label: 'Alumnos', route: '/panel/alumnos' }, guardians: { label: 'Tutores', route: '/panel/tutores' },
@@ -14,6 +15,12 @@ export const auditModules: Record<string, { label: string; route: string }> = {
   schoolYears: { label: 'Ciclos escolares', route: '/panel/organizacion?tab=years' }, curriculumPlans: { label: 'Planes de estudio', route: '/panel/organizacion?tab=plans' },
   subjectPlans: { label: 'Materias', route: '/panel/organizacion?tab=subjects' }, groups: { label: 'Grupos', route: '/panel/organizacion?tab=groups' },
   gradingPeriods: { label: 'Periodos', route: '/panel/organizacion?tab=periods' }, enrollments: { label: 'Inscripciones', route: '/panel/inscripciones' }, grades: { label: 'Calificaciones', route: '/panel/calificaciones' },
+  site: { label: 'Sitio web', route: '/panel/sitio' },
+}
+
+const siteSectionNames: Record<string, string> = {
+  home: 'Portada', calendar: 'Calendario', documents: 'Documentos', students: 'Página Estudiantes',
+  general: 'Datos de la escuela', gallery: 'Galería', images: 'Fotos de las páginas',
 }
 
 /** Firestore timestamps arrive as objects with toDate(); anything else has no date. */
@@ -27,6 +34,7 @@ export function auditDate(value: unknown): Date | null {
 export function auditRecordName(audit: AuditLog, data: AcademicData) {
   const person = (id?: string) => { const student = data.students.find((item) => item.id === id); return student ? `${student.names} ${student.surnames}`.trim() : undefined }
   if (audit.entityType === 'students') return person(audit.entityId) ?? 'Expediente de alumno'
+  if (audit.entityType === 'site') return siteSectionNames[audit.entityId] ?? 'Sección del sitio'
   if (audit.entityType === 'groups') {
     const group = data.groups.find((item) => item.id === audit.entityId)
     return group ? `${group.grade}° ${group.label}${group.shift ? ` · ${group.shift}` : ''}` : 'Grupo escolar'

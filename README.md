@@ -32,16 +32,26 @@ Cada sección se guarda como un documento de la colección `site` en Firestore. 
 
 Los documentos y fotos que se suben desde el panel se guardan en Cloudinary. Consulta [docs/cloudinary.md](docs/cloudinary.md) para configurarlo. Para que el editor pueda guardar en el proyecto real, publica las reglas con `npm run deploy:rules`.
 
+## Publicación y producción
+
+El sitio se publica en Firebase Hosting. La guía [docs/despliegue.md](docs/despliegue.md) explica cómo publicar en la etapa de pruebas, qué activar al pasar al plan Blaze (Cloud Functions, App Check, respaldos, dominio, cierre del registro público) y la estimación de costos mensuales.
+
 ## Comandos principales
 
 - `npm run dev`: servidor local.
 - `npm run build`: valida TypeScript y genera la versión de producción.
-- `npm run build:functions`: compila el prototipo reservado de Cloud Functions; no desplegarlo en esta entrega.
+- `npm run build:functions`: compila las Cloud Functions (alta de docentes y firma de subidas; requieren plan Blaze).
 - `npm run lint`: revisa el código.
 - `npm run emulators`: inicia Authentication y Firestore locales con un proyecto de demostración.
 - `npm run test:rules`: inicia el emulador y prueba autorización, relaciones y auditoría.
 - `npm run test:e2e`: inicia emuladores y recorre el panel con Playwright y Chrome.
-- `npm run deploy:rules`: publica únicamente las reglas de seguridad.
+- `npm run deploy:rules`: publica las reglas y los índices de Firestore.
+- `npm run deploy:hosting`: compila y publica el sitio en Firebase Hosting.
+- `npm run deploy`: publica sitio, reglas e índices (sin Cloud Functions).
+- `npm run deploy:functions`: publica las Cloud Functions (solo con plan Blaze).
+- `npm run optimize:images`: genera versiones ligeras de las fotos de `public/img` y del escudo.
+
+No uses `firebase deploy` sin opciones: también intentaría publicar las Cloud Functions.
 
 Para verificar una modificación, ejecuta `npm run build`, `npm run lint`, `npm run test:rules` y `npm run test:e2e`. Ejecuta las suites por separado y sin otros emuladores ocupando sus puertos. Los datos de prueba se borran y regeneran únicamente en proyectos locales `demo-`; nunca sustituyas estos por el ID de producción. Playwright guarda capturas y trazas en `test-results/`, excluido de Git.
 
@@ -53,6 +63,6 @@ Consulta `docs/arquitectura.md` para conocer la organización y el flujo del sis
 
 Las dependencias no se guardan en Git. Después de clonar el repositorio, ejecuta `npm ci`: instalará todas las versiones exactas indicadas en `package-lock.json`, incluido el paquete de Cloud Functions. Después crea tu archivo `.env.local` a partir de `.env.example`.
 
-El archivo `.env.local` no se comparte por Git porque contiene la configuración de cada entorno. El administrador del proyecto debe dar acceso al colega tanto al repositorio de GitHub como al proyecto de Firebase cuando necesite administrar Authentication, Firestore, Storage o Functions.
+El archivo `.env.local` no se comparte por Git porque contiene la configuración de cada entorno. El administrador del proyecto debe dar acceso al colega tanto al repositorio de GitHub como al proyecto de Firebase cuando necesite administrar Authentication, Firestore o Functions.
 
 Esta versión incluye alumnos, tutores y vínculos, docentes con cuenta individual y correo único, ciclos, planes, materias, grupos, periodos, inscripciones, calificaciones y actividad. El docente consulta sus grupos del ciclo actual, captura calificaciones de su especialidad y puede cambiar su contraseña; las correcciones académicas corresponden a dirección. Las cuentas de familias, documentos oficiales, asistencia e integración SEP quedan pendientes; no se debe compartir una cuenta administradora para suplir esos permisos.

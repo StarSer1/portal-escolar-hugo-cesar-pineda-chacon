@@ -25,12 +25,6 @@ service cloud.firestore {
     function teacherEnrollment(data) {
       return data.status == 'active' && currentTeacherGroup(record('groups', data.groupId));
     }
-    function teacherStudent(id) {
-      let yearId = record('academicSettings', 'currentYear').schoolYearId;
-      let slot = record('enrollmentSlots', id + '_' + yearId);
-      let enrollment = record('enrollments', slot.currentEnrollmentId);
-      return enrollment.studentId == id && enrollment.schoolYearId == yearId && teacherEnrollment(enrollment);
-    }
     function academic(name) {
       return name in ['students', 'guardians', 'studentGuardians', 'teachers', 'schoolYears',
         'curriculumPlans', 'subjectPlans', 'groups', 'gradingPeriods', 'enrollments', 'grades'];
@@ -201,15 +195,39 @@ service cloud.firestore {
             && after('teachers', resource.data.teacherId).email != email));
       allow delete: if false;
     }
-    match /announcements/{id} { allow read: if true; allow write: if admin(); }
     // Contenido del sitio público: cualquiera lo lee; solo el director activo lo edita
-    // desde /panel/sitio. Cada sección es un documento completo; no se borran.
+    // desde /panel/sitio. Cada sección es un documento completo con versión y entrada
+    // en la bitácora. Los límites protegen el costo de lectura de cada visitante.
+    function siteUrl(value) {
+      return value is string && value.size() <= 2000
+        && (value == '' || value.matches('^https://[^\\s]+$') || value.matches('^/([^/].*)?$'));
+    }
+    function validSite(section, data) {
+      return (section == 'general'
+          && shape(data, ['name', 'fullName', 'tagline', 'address', 'phone', 'email', 'mapQuery',
+            'mission', 'vision', 'history', 'facebook', 'instagram', 'shifts'])
+          && required(data.name, 160) && required(data.fullName, 160) && text(data.tagline, 300)
+          && text(data.address, 300) && text(data.phone, 60) && text(data.email, 254) && text(data.mapQuery, 300)
+          && text(data.mission, 3000) && text(data.vision, 3000) && text(data.history, 6000)
+          && siteUrl(data.facebook) && siteUrl(data.instagram) && data.shifts is list && data.shifts.size() <= 10)
+        || (section == 'images'
+          && shape(data, ['mission', 'history', 'about', 'students', 'calendar', 'documents', 'contact'])
+          && siteUrl(data.mission) && siteUrl(data.history) && siteUrl(data.about) && siteUrl(data.students)
+          && siteUrl(data.calendar) && siteUrl(data.documents) && siteUrl(data.contact))
+        || (section == 'home' && shape(data, ['slides', 'galleryIntro'])
+          && data.slides is list && data.slides.size() <= 12 && text(data.galleryIntro, 600))
+        || (section == 'gallery' && shape(data, ['photos']) && data.photos is list && data.photos.size() <= 80)
+        || (section == 'students' && shape(data, ['intro', 'grades', 'rolesIntro', 'roles', 'evaluation'])
+          && text(data.intro, 800) && data.grades is list && data.grades.size() <= 6
+          && text(data.rolesIntro, 600) && data.roles is list && data.roles.size() <= 12 && text(data.evaluation, 1200))
+        || (section == 'calendar' && shape(data, ['events', 'examples', 'pdf'])
+          && data.events is list && data.events.size() <= 300 && data.examples is bool && siteUrl(data.pdf))
+        || (section == 'documents' && shape(data, ['categories', 'files'])
+          && data.categories is list && data.categories.size() <= 40 && data.files is list && data.files.size() <= 400);
+    }
     match /site/{section} {
       allow read: if true;
-      allow create, update: if admin()
-        && section in ['general', 'images', 'home', 'gallery', 'students', 'calendar', 'documents']
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid;
+      allow create, update: if admin() && validSite(section, request.resource.data) && metadata('site', section);
       allow delete: if false;
     }
     match /academicSettings/currentYear {
@@ -237,7 +255,8 @@ service cloud.firestore {
     match /subjectPlans/{id} {
       allow read: if teacher() && resource.data.specialty == teacherRecord().specialty && resource.data.status == 'active';
     }
-    match /students/{id} { allow get: if teacher() && teacherStudent(id); }
+    // Los docentes no leen expedientes de alumnos (CURP, nacimiento): su lista usa
+    // el nombre y la matrícula guardados en cada inscripción.
     match /studentIdentifiers/{identifierId} {
       allow read: if admin();
       allow create, update: if admin()
@@ -262,10 +281,18 @@ service cloud.firestore {
         && (resource == null || resource.data.linkId == '' || resource.data.linkId == request.resource.data.linkId
           || after('studentGuardians', resource.data.linkId).primary == false);
     }
+    function rosterMatches(data) {
+      let student = after('students', data.studentId);
+      return data.studentName == (student.names.trim() + ' ' + student.surnames.trim()).trim()
+        && data.matricula == student.matricula;
+    }
     function validEnrollment(data) {
       let group = record('groups', data.groupId);
       let year = record('schoolYears', data.schoolYearId);
-      return shape(data, ['studentId', 'groupId', 'schoolYearId', 'startDate', 'endDate', 'status', 'reason'])
+      let base = ['studentId', 'groupId', 'schoolYearId', 'startDate', 'endDate', 'status', 'reason'];
+      let meta = ['createdAt', 'updatedAt', 'updatedBy', 'revision', 'auditId'];
+      return data.keys().hasAll(base.concat(meta)) && data.keys().hasOnly(base.concat(meta).concat(['studentName', 'matricula']))
+        && text(data.get('studentName', ''), 330) && text(data.get('matricula', ''), 40)
         && group.schoolYearId == data.schoolYearId && validDateString(data.startDate)
         && data.startDate >= year.startDate && data.startDate <= year.endDate
         && text(data.reason, 1000)
@@ -286,6 +313,7 @@ service cloud.firestore {
       allow create: if admin() && validEnrollment(request.resource.data) && metadata('enrollments', id)
         && request.resource.data.status == 'active'
         && record('students', request.resource.data.studentId).status == 'active'
+        && rosterMatches(request.resource.data)
         && record('groups', request.resource.data.groupId).status == 'active'
         && record('schoolYears', request.resource.data.schoolYearId).status == 'active'
         && after('enrollmentSlots', request.resource.data.studentId + '_' + request.resource.data.schoolYearId).currentEnrollmentId == id;
@@ -293,6 +321,11 @@ service cloud.firestore {
         && unchanged(['studentId', 'groupId', 'schoolYearId', 'startDate'])
         && resource.data.status == 'active' && request.resource.data.status in ['transferred', 'withdrawn']
         && validEnrollmentTransition(request.resource.data, id);
+      // Corrección del nombre o la matrícula del alumno en su inscripción vigente.
+      allow update: if admin() && validEnrollment(request.resource.data) && metadata('enrollments', id)
+        && resource.data.status == 'active'
+        && unchanged(['studentId', 'groupId', 'schoolYearId', 'startDate', 'endDate', 'status', 'reason'])
+        && rosterMatches(request.resource.data);
     }
     function validEnrollmentSlot(data, id) {
       return data.keys().hasOnly(['studentId', 'schoolYearId', 'currentEnrollmentId', 'previousEnrollmentId', 'updatedAt', 'updatedBy'])
@@ -332,13 +365,13 @@ service cloud.firestore {
       return shape(data, ['studentId', 'enrollmentId', 'groupId', 'schoolYearId', 'subjectPlanId',
           'periodId', 'periodOrder', 'score', 'roundedScore', 'teacherId', 'observation', 'correctionReason', 'version'])
         && id == data.enrollmentId + '_' + data.subjectPlanId + '_' + data.periodId
-        && data.score is number && data.score >= 0 && data.score <= 10
+        && data.score is number && data.score >= 5 && data.score <= 10
         && data.roundedScore is int && data.roundedScore == math.floor(data.score + 0.5)
         && text(data.observation, 1000) && text(data.correctionReason, 1000) && data.version is int
         && gradeRelations(data);
     }
     match /grades/{id} {
-      allow get: if teacher() && (resource == null
+      allow get: if teacher() && ((resource == null && teacherEnrollment(record('enrollments', id.split('_')[0])))
         || (resource.data.teacherId == teacherId() && currentTeacherGroup(record('groups', resource.data.groupId))));
       allow list: if teacher() && resource.data.teacherId == teacherId() && currentTeacherGroup(record('groups', resource.data.groupId));
       allow create: if (admin() || (teacher() && request.resource.data.teacherId == teacherId()
@@ -375,8 +408,10 @@ service cloud.firestore {
           && request.resource.data.action == 'create-grade' && request.resource.data.previousData == null
           && !exists(/databases/$(database)/documents/grades/$(request.resource.data.entityId))
           && after('grades', request.resource.data.entityId).teacherId == teacherId()))
+        && request.resource.data.keys().hasAll(['action', 'entityType', 'entityId', 'actorId', 'createdAt', 'previousData'])
         && request.resource.data.keys().hasOnly(['action', 'entityType', 'entityId', 'actorId', 'createdAt', 'previousData'])
-        && academic(request.resource.data.entityType) && required(request.resource.data.action, 40)
+        && (academic(request.resource.data.entityType) || (request.resource.data.entityType == 'site' && admin()))
+        && required(request.resource.data.action, 40)
         && request.resource.data.actorId == request.auth.uid && request.resource.data.createdAt == request.time
         && after(request.resource.data.entityType, request.resource.data.entityId).auditId == id
         && after(request.resource.data.entityType, request.resource.data.entityId).updatedAt == request.time

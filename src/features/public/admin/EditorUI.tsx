@@ -1,11 +1,30 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { errorMessage } from '@/shared/errors'
 import { Icon } from '@/shared/components/Icon'
+import { allowedUrlHint, isAllowedUrl } from '@/shared/safeUrl'
 import { Button, IconButton } from '@/shared/ui/Button'
 import { Alert } from '@/shared/ui/Feedback'
 import { Field } from '@/shared/ui/Field'
 import { defaultContent, type SiteContent, type SiteSection } from '../school'
-import { saveSiteSection, uploadLimits, uploadsConfigured, uploadSiteFile, useSite, type UploadFolder } from '../SiteContent'
+import { uploadLimits, type UploadFolder } from '../SiteContent'
+import { saveSiteSection, uploadsConfigured, uploadSiteFile, type LiveSite } from './siteStore'
+
+/** Contenido guardado en vivo; lo provee SiteEditorPage con useLiveSite(). */
+export const LiveSiteContext = createContext<LiveSite | null>(null)
+function useLive() {
+  const live = useContext(LiveSiteContext)
+  if (!live) throw new Error('El editor debe abrirse desde Panel → Sitio web.')
+  return live
+}
+
+/** Campos que contienen direcciones (enlaces, fotos o documentos). */
+const urlKeys = new Set(['href', 'image', 'src', 'photo', 'pdf', 'facebook', 'instagram', 'actionHref'])
+function unsafeUrls(value: unknown, urlField = false, found: string[] = []): string[] {
+  if (typeof value === 'string') { if (urlField && !isAllowedUrl(value)) found.push(value) }
+  else if (Array.isArray(value)) value.forEach((item) => unsafeUrls(item, false, found))
+  else if (value && typeof value === 'object') Object.entries(value).forEach(([key, item]) => unsafeUrls(item, urlKeys.has(key), found))
+  return found
+}
 
 /**
  * Borrador local de una sección: se edita sin afectar el sitio hasta "Guardar".
@@ -14,22 +33,27 @@ import { saveSiteSection, uploadLimits, uploadsConfigured, uploadSiteFile, useSi
  */
 export type DraftListener = (section: SiteSection, dirty: boolean, draft: unknown) => void
 export function useSectionDraft<S extends SiteSection>(section: S, onDraftChange: DraftListener) {
-  const { content } = useSite()
-  const remote = content[section]
+  const live = useLive()
+  const remote = live.content[section]
+  const remoteRevision = live.revisions[section] ?? 0
   const [draft, setDraft] = useState<SiteContent[S]>(remote)
   const [baseline, setBaseline] = useState<SiteContent[S]>(remote)
+  const [baseRevision, setBaseRevision] = useState(remoteRevision)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const dirty = JSON.stringify(draft) !== JSON.stringify(baseline)
   const dirtyRef = useRef(dirty)
-  dirtyRef.current = dirty
+  useEffect(() => { dirtyRef.current = dirty }, [dirty])
+  // Solo se guarda cuando ya se leyó el contenido real; nunca partiendo del original por error.
+  const canSave = live.ready && !live.error
 
   useEffect(() => {
     if (dirtyRef.current) return
     setDraft(remote)
     setBaseline(remote)
-  }, [remote])
+    setBaseRevision(remoteRevision)
+  }, [remote, remoteRevision])
   useEffect(() => { onDraftChange(section, dirty, draft) }, [section, dirty, draft, onDraftChange])
   useEffect(() => {
     if (!dirty) return
@@ -41,12 +65,15 @@ export function useSectionDraft<S extends SiteSection>(section: S, onDraftChange
   const update = (change: Partial<SiteContent[S]>) => { setNotice(''); setDraft((current) => ({ ...current, ...change })) }
 
   async function save(validate?: (value: SiteContent[S]) => string) {
-    const problem = validate?.(draft) ?? ''
+    if (!canSave) { setError('Aún no se carga el contenido guardado. Espera un momento e inténtalo de nuevo.'); return }
+    const invalid = unsafeUrls(draft, section === 'images')
+    const problem = invalid.length ? `Esta dirección no es válida: «${invalid[0].slice(0, 80)}». ${allowedUrlHint}` : validate?.(draft) ?? ''
     if (problem) { setError(problem); setNotice(''); return }
     setSaving(true); setError(''); setNotice('')
     try {
-      await saveSiteSection(section, draft)
+      await saveSiteSection(section, draft, baseRevision)
       setBaseline(draft)
+      setBaseRevision(baseRevision + 1)
       setNotice('Cambios publicados. Ya se ven en el sitio.')
     } catch (caught) {
       setError(errorMessage(caught))
@@ -54,23 +81,24 @@ export function useSectionDraft<S extends SiteSection>(section: S, onDraftChange
   }
 
   return {
-    draft, update, dirty, saving, error, notice, save,
-    discard: () => { setDraft(baseline); setError(''); setNotice('') },
+    draft, update, dirty, saving, error, notice, save, canSave,
+    // Descartar vuelve a la versión guardada más reciente (también tras un conflicto).
+    discard: () => { setDraft(remote); setBaseline(remote); setBaseRevision(remoteRevision); setError(''); setNotice('') },
     restoreDefaults: () => { setDraft(defaultContent[section]); setError(''); setNotice('Se cargó el contenido original. Pulsa "Guardar cambios" para publicarlo.') },
   }
 }
 
 /** Barra fija al pie con los mensajes y los botones de la sección. */
-interface DraftStatus { error: string; notice: string; saving: boolean; dirty: boolean; discard: () => void; restoreDefaults: () => void }
+interface DraftStatus { error: string; notice: string; saving: boolean; dirty: boolean; canSave: boolean; discard: () => void; restoreDefaults: () => void }
 export function SaveBar({ draft, onSave }: { draft: DraftStatus; onSave: () => void }) {
   return <div className="site-editor-bar">
     {draft.error && <Alert tone="error" role="alert">{draft.error}</Alert>}
     {draft.notice && !draft.error && <Alert tone="success" role="status">{draft.notice}</Alert>}
     <div className="site-editor-actions">
       <Button variant="quiet" size="sm" icon="refresh" onClick={() => { if (window.confirm('¿Cargar el contenido original de esta sección? No se publica hasta que guardes.')) draft.restoreDefaults() }} disabled={draft.saving}>Contenido original</Button>
-      <span className="site-editor-state">{draft.dirty ? 'Cambios sin guardar' : 'Todo guardado'}</span>
-      <Button onClick={draft.discard} disabled={!draft.dirty || draft.saving}>Descartar</Button>
-      <Button variant="primary" icon="check" loading={draft.saving} disabled={!draft.dirty} onClick={onSave}>Guardar cambios</Button>
+      <span className="site-editor-state">{!draft.canSave ? 'Cargando lo publicado…' : draft.dirty ? 'Cambios sin guardar' : 'Todo guardado'}</span>
+      <Button onClick={draft.discard} disabled={(!draft.dirty && !draft.error) || draft.saving}>Descartar</Button>
+      <Button variant="primary" icon="check" loading={draft.saving} disabled={!draft.dirty || !draft.canSave} onClick={onSave}>Guardar cambios</Button>
     </div>
   </div>
 }

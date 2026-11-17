@@ -90,6 +90,9 @@ export interface GradingPeriod extends Entity {
 }
 export interface Enrollment extends Entity {
   studentId: string
+  /** Copia del nombre y la matrícula para el panel docente (sin datos personales sensibles). */
+  studentName?: string
+  matricula?: string
   groupId: string
   schoolYearId: string
   startDate: string

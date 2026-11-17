@@ -1,6 +1,6 @@
-import { collection, doc, getDocs, query, runTransaction, serverTimestamp, where } from 'firebase/firestore'
+import { doc, runTransaction, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/config/firebase'
-import type { Grade } from '@/types/models'
+import { GRADE_MAX, GRADE_MIN } from '@/features/grades/capture'
 import { currentActor, writeAudited } from '@/features/academic/services/academic.service'
 
 export interface SaveGradeInput {
@@ -19,8 +19,8 @@ export interface SaveGradeInput {
 
 export async function saveGrade(input: SaveGradeInput) {
   const actorId = currentActor()
-  if (!Number.isFinite(input.score) || input.score < 0 || input.score > 10) {
-    throw new Error('La calificación debe ser un número entre 0 y 10.')
+  if (!Number.isFinite(input.score) || input.score < GRADE_MIN || input.score > GRADE_MAX) {
+    throw new Error(`La calificación debe ser un número entre ${GRADE_MIN} y ${GRADE_MAX}.`)
   }
   const roundedScore = Math.round(input.score)
   const gradeId = `${input.enrollmentId}_${input.subjectPlanId}_${input.periodId}`
@@ -66,7 +66,3 @@ export async function saveGrade(input: SaveGradeInput) {
   return { gradeId, roundedScore }
 }
 
-export async function listGrades(groupId: string) {
-  const snapshot = await getDocs(query(collection(db, 'grades'), where('groupId', '==', groupId)))
-  return snapshot.docs.map((grade) => ({ id: grade.id, ...grade.data() }) as Grade)
-}

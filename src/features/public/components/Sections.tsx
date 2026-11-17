@@ -119,7 +119,7 @@ export function FindUs() {
   const { embed: mapEmbedUrl, link: mapLinkUrl } = mapUrls(school.mapQuery || school.address)
   const rows = [
     { icon: 'pin', title: 'Dirección', body: <p>{school.address}</p> },
-    { icon: 'phone', title: 'Contacto', body: <><p><a href={`tel:${school.phone.replace(/\s/g, '')}`}>{school.phone}</a></p>{school.email && <p><a href={`mailto:${school.email}`}>{school.email}</a></p>}</> },
+    { icon: 'phone', title: 'Contacto', body: <>{school.phone ? <p><a href={`tel:${school.phone.replace(/[^\d+]/g, '')}`}>{school.phone}</a></p> : <Pending />}{school.email && <p><a href={`mailto:${school.email}`}>{school.email}</a></p>}</> },
     { icon: 'clock', title: 'Horarios', body: <>{school.shifts.map((shift) => <p key={shift.name}><strong>{shift.name}</strong> · {shift.days}, {shift.hours}</p>)}</> },
   ]
   return <div className="find-us">

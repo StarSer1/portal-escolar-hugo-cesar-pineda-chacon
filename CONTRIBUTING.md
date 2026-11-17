@@ -17,4 +17,4 @@ No subas `node_modules`, `.env.local`, llaves privadas ni datos reales de estudi
 3. Ejecuta `npm run build` y `npm run lint`. Si cambias datos, permisos o recorridos, ejecuta también `npm run test:rules` y `npm run test:e2e` (Java 21 y Chrome).
 4. Abre un *pull request* para revisión antes de integrar en `main`.
 
-Las suites usan emuladores locales y datos ficticios; no cambies sus IDs `demo-` por un proyecto real. Ejecuta cada suite por separado. No despliegues el prototipo de `functions`: no forma parte del flujo actual del panel.
+Las suites usan emuladores locales y datos ficticios; no cambies sus IDs `demo-` por un proyecto real. Ejecuta cada suite por separado. Las Cloud Functions solo se despliegan con `npm run deploy:functions` cuando el proyecto tenga plan Blaze; nunca uses `firebase deploy` sin opciones.

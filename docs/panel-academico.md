@@ -86,7 +86,7 @@ La tabla se basa en la auditoría documentada; no atribuye a RASE flujos de inte
 
 ## Decisiones de operación
 
-- La escala aprobada es de 0 a 10. El prototipo conserva el valor capturado y calcula también su redondeo al entero más cercano. Esto es una regla técnica inicial, no una certificación de la política oficial de evaluación.
+- La escala aprobada es de 5 a 10 (no se aceptan valores menores a 5). El prototipo conserva el valor capturado y calcula también su redondeo al entero más cercano. Esto es una regla técnica inicial, no una certificación de la política oficial de evaluación.
 - Los tres periodos son el punto de partida observado en los ciclos recientes del archivo. Los nombres y las fechas se configuran para el ciclo nuevo; no se copian calendarios históricos.
 - La dirección administra las correcciones. Un periodo o ciclo cerrado bloquea calificaciones nuevas, pero permite corregir una existente con motivo obligatorio, incremento de versión e historial atómico. No hace falta reabrirlo para una corrección. El cierre y la reapertura también quedan registrados; no hay envío ni validación ante SEP.
 - Cada grupo utiliza cuatro funciones: general, Educación Física, Inglés y Artes. El registro de un docente y la cuenta con la que se autentica son conceptos distintos, vinculados mediante `teachers.authUid` y `users.teacherId`. La contraseña se gestiona exclusivamente en Firebase Authentication.
@@ -103,7 +103,7 @@ Los docentes habilitados entran en `/docente`. Solo consultan grupos activos del
 
 El docente también puede cambiar su contraseña desde su panel, verificando primero la contraseña actual. La lista muestra nombre y matrícula, pero las reglas autorizan el documento completo de cada alumno asignado: no debe confundirse esa presentación reducida con restricciones por campo. Los datos de tutores y los alumnos de grupos ajenos siguen fuera de su autorización.
 
-El panel usa el SDK de Firestore directamente, con reglas de seguridad, para funcionar con la configuración gratuita existente. Las Cloud Functions del repositorio no forman parte de este recorrido ni son necesarias para probarlo: son un prototipo pendiente de revisión y no deben desplegarse en esta entrega. No debe publicarse únicamente la interfaz: las reglas actualizadas forman parte del mismo cambio.
+El panel usa el SDK de Firestore directamente, con reglas de seguridad, para funcionar con la configuración gratuita existente. Las Cloud Functions del repositorio son opcionales: solo crean cuentas docentes y firman subidas cuando el proyecto pase al plan Blaze (ver [despliegue.md](despliegue.md)). No debe publicarse únicamente la interfaz: las reglas actualizadas forman parte del mismo cambio.
 
 El panel administrativo mantiene sus catálogos en memoria mediante suscripciones de Firestore. Todavía no incorpora paginación de expedientes. El panel docente hace consultas acotadas a sus asignaciones y especialidad. Antes de ampliar significativamente el volumen deberá optimizarse ese acceso y revisarse el consumo; no se promete capacidad ilimitada dentro del plan gratuito.
 
@@ -160,4 +160,4 @@ Para estas pruebas necesitas Java 21 y, para el navegador configurado, Google Ch
 
 ## Pendientes acordados para avances posteriores
 
-Asistencia, planeación, diagnóstico y seguimiento siguen pendientes por decisión del proyecto. También quedan para después las notificaciones, solicitudes formales de corrección, documentos oficiales (constancias, boletas y sus formatos), la integración SEP y la administración del contenido institucional. Esta lista debe revisarse al planear cada siguiente entrega.
+Asistencia, planeación, diagnóstico y seguimiento siguen pendientes por decisión del proyecto. También quedan para después las notificaciones, solicitudes formales de corrección, documentos oficiales (constancias, boletas y sus formatos), y la integración SEP. El contenido institucional ya se administra desde **Panel → Sitio web**. Esta lista debe revisarse al planear cada siguiente entrega.

@@ -1,8 +1,8 @@
 import { useState, type CSSProperties, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { saveGrade } from '@/features/grades/services/grades.service'
-import { captureFor, captureStateLabel, captureTone, daysUntil } from '@/features/grades/capture'
-import { useAcademic } from '@/features/academic/AcademicContext'
+import { captureFor, captureStateLabel, captureTone, daysUntil, GRADE_MAX, GRADE_MIN, gradeScaleLabel } from '@/features/grades/capture'
+import { useAcademic, useGrades } from '@/features/academic/AcademicContext'
 import { groupName, matchesQuery, today } from '@/features/academic/components/AcademicUI'
 import { errorMessage } from '@/shared/errors'
 import { Button } from '@/shared/ui/Button'
@@ -41,15 +41,17 @@ export function GradesPage() {
   const subjects = data.subjectPlans.filter((item) => item.curriculumPlanId === group?.curriculumPlanId && item.grade === group.grade && (item.status === 'active' || item.id === editing?.subjectPlanId))
   const enrollments = data.enrollments.filter((item) => item.groupId === groupId && (item.status === 'active' || item.id === editing?.enrollmentId))
   const enrollment = enrollments.find((item) => item.id === enrollmentId)
-  const capture = group && period ? captureFor(data, group, period, daysUntil(period, today())) : undefined
+  // Ciclo actual en vivo; ciclos anteriores se consultan al elegirlos.
+  const { grades, loading: gradesLoading, error: gradesError } = useGrades({ schoolYearId: yearId })
+  const capture = group && period ? captureFor({ ...data, grades }, group, period, daysUntil(period, today())) : undefined
   const studentName = (id: string) => { const student = data.students.find((item) => item.id === id); return student ? `${student.names} ${student.surnames}` : 'Expediente no vinculado' }
   const subjectName = (id: string) => data.subjectPlans.find((item) => item.id === id)?.name || 'Materia no vinculada'
   const periodName = (grade: Grade) => data.gradingPeriods.find((item) => item.id === grade.periodId)?.name || `Periodo ${grade.periodOrder}`
-  const rows = data.grades.filter((item) => item.groupId === groupId && (!periodId || item.periodId === periodId))
+  const rows = grades.filter((item) => item.groupId === groupId && (!periodId || item.periodId === periodId))
   const visibleRows = rows.filter((item) => (!subjectFilter || item.subjectPlanId === subjectFilter) && matchesQuery(query, studentName(item.studentId)))
   const rowSubjects = Array.from(new Set(rows.map((item) => item.subjectPlanId))).map((id) => ({ value: id, label: subjectName(id) })).sort((a, b) => a.label.localeCompare(b.label, 'es'))
-  const legacyGrades = data.grades.filter((item) => !data.enrollments.some((record) => record.id === item.enrollmentId)
-    || !data.groups.some((record) => record.id === item.groupId) || !data.subjectPlans.some((record) => record.id === item.subjectPlanId))
+  const known = { enrollments: new Set(data.enrollments.map((record) => record.id)), groups: new Set(data.groups.map((record) => record.id)), subjects: new Set(data.subjectPlans.map((record) => record.id)) }
+  const legacyGrades = grades.filter((item) => !known.enrollments.has(item.enrollmentId) || !known.groups.has(item.groupId) || !known.subjects.has(item.subjectPlanId))
 
   function resetCapture() { setEditing(null); setEnrollmentId(''); setSubjectId(''); setScore(''); setObservation(''); setReason(''); setError(''); setMessage('') }
   function edit(grade: Grade) {
@@ -59,7 +61,7 @@ export function GradesPage() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setMessage(''); setError('')
     if (!group || !period || !enrollment || !subjectId || score.trim() === '') { setError('Selecciona ciclo, grupo, periodo, alumno y materia.'); return }
-    const existing = data.grades.find((item) => item.enrollmentId === enrollmentId && item.subjectPlanId === subjectId && item.periodId === periodId)
+    const existing = grades.find((item) => item.enrollmentId === enrollmentId && item.subjectPlanId === subjectId && item.periodId === periodId)
     if (existing && !editing) { setError('Esta calificación ya existe. Usa Corregir en la tabla para conservar el historial.'); return }
     if (editing && !reason.trim()) { setError('Escribe el motivo de la corrección.'); return }
     setBusy(true)
@@ -80,7 +82,7 @@ export function GradesPage() {
   ]
 
   return <>
-    <PageHeader title="Calificaciones" description="Captura resultados por grupo y periodo, y consulta lo registrado." actions={<Badge tone="count">Escala de 0 a 10</Badge>} />
+    <PageHeader title="Calificaciones" description="Captura resultados por grupo y periodo, y consulta lo registrado." actions={<Badge tone="count">{gradeScaleLabel}</Badge>} />
     <section className="card context-bar" aria-label="Selección de ciclo, grupo y periodo">
       <div className="context-fields">
         <Field label="Ciclo escolar">
@@ -113,6 +115,8 @@ export function GradesPage() {
       </div>}
     </section>
     {!data.enrollments.length && <Alert tone="warning">Primero registra e inscribe a los alumnos para capturar sus calificaciones. <Link to="/panel/inscripciones">Ir a inscripciones</Link>.</Alert>}
+    {gradesError &&<Alert tone="error" role="alert">No se pudieron consultar las calificaciones de este ciclo: {gradesError}</Alert>}
+    {gradesLoading && <p className="text-muted" role="status">Consultando las calificaciones de este ciclo…</p>}
     {period?.status === 'closed' && <Alert tone="warning">El periodo está cerrado. Puedes corregir una calificación existente como administrador, indicando el motivo. La captura de nuevos resultados está bloqueada.</Alert>}
     {!group ? <section className="card"><EmptyState icon="grades" title="Elige un grupo para empezar">Selecciona el ciclo, el grupo y el periodo. Aquí podrás capturar resultados y consultar lo registrado.</EmptyState></section>
       : <div className="grades-layout">
@@ -131,8 +135,8 @@ export function GradesPage() {
                 {subjects.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
               </select>
             </Field>
-            <Field label="Calificación" full hint={`Escala de 0 a 10. Valor redondeado: ${score !== '' && Number.isFinite(Number(score)) ? Math.round(Number(score)) : '—'}`}>
-              <input required type="number" min="0" max="10" step="0.1" placeholder="Ej. 8.5" inputMode="decimal" className="score-input" value={score} disabled={busy} onChange={(event) => setScore(event.target.value)} />
+            <Field label="Calificación" full hint={`${gradeScaleLabel}. Valor redondeado: ${score !== '' && Number.isFinite(Number(score)) ? Math.round(Number(score)) : '—'}`}>
+              <input required type="number" min={GRADE_MIN} max={GRADE_MAX} step="0.1" placeholder="Ej. 8.5" inputMode="decimal" className="score-input" value={score} disabled={busy} onChange={(event) => setScore(event.target.value)} />
             </Field>
             <Field label="Observación (opcional)" full>
               <textarea maxLength={1000} value={observation} disabled={busy} onChange={(event) => setObservation(event.target.value)} placeholder="Comentario sobre el resultado" />

@@ -1,5 +1,10 @@
 import type { AcademicData, GradingPeriod, Group } from '@/types/models'
 
+/** Escala oficial de calificaciones (también se valida en firestore.rules). */
+export const GRADE_MIN = 5
+export const GRADE_MAX = 10
+export const gradeScaleLabel = `Escala de ${GRADE_MIN} a ${GRADE_MAX}`
+
 export type CaptureState = 'complete' | 'progress' | 'late' | 'none' | 'empty'
 export interface GroupCapture { group: Group; students: number; expected: number; captured: number; share: number; state: CaptureState; teacher?: string }
 

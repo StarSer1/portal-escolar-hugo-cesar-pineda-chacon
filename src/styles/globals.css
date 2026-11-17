@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;500;600&family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
 /* ==========================================================================
    Kárdex de tarjetas visibles — sistema visual del Panel académico.
@@ -137,7 +136,7 @@ img.school-emblem { border-radius: 50%; object-fit: cover; background: #fff; }
 .panel-body { margin-left: var(--sidebar-width); min-width: 0; min-height: 100dvh; display: flex; flex-direction: column; }
 .topbar { position: sticky; top: 0; z-index: 20; min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); padding: var(--space-xs) var(--space-xl); background: var(--card); border-bottom: 1px solid var(--rule); }
 .topbar-start { display: flex; align-items: center; gap: var(--space-sm); min-width: 0; }
-.topbar-end { display: flex; align-items: center; gap: var(--space-md); }
+.topbar-end { display: flex; align-items: center; gap: var(--space-md); min-width: 0; }
 .breadcrumb { min-width: 0; color: var(--muted); font-size: var(--text-base); }
 .breadcrumb ol { display: flex; align-items: center; gap: 0 var(--space-xs); margin: 0; padding: 0; list-style: none; white-space: nowrap; }
 .breadcrumb li { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
@@ -145,14 +144,14 @@ img.school-emblem { border-radius: 50%; object-fit: cover; background: #fff; }
 .breadcrumb li[aria-current='page'] { color: var(--ink); font-weight: 600; }
 .breadcrumb a { color: inherit; text-decoration: none; }
 .breadcrumb a:hover { color: var(--navy-800); text-decoration: underline; }
-.cycle-chip { display: inline-flex; align-items: center; gap: var(--space-xs); padding: 6px var(--space-sm); border: 1px solid var(--rule); border-radius: 999px; background: var(--navy-50); color: var(--ink-2); font-size: var(--text-sm); text-decoration: none; white-space: nowrap; }
+.cycle-chip { display: inline-flex; align-items: center; gap: var(--space-xs); padding: 6px var(--space-sm); border: 1px solid var(--rule); border-radius: 999px; background: var(--navy-50); color: var(--ink-2); font-size: var(--text-sm); text-decoration: none; white-space: nowrap; min-width: 0; max-width: 100%; overflow: hidden; }
 .cycle-chip:hover { border-color: var(--navy-200); color: var(--navy-800); }
-.cycle-chip strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+.cycle-chip strong { color: var(--ink); font-variant-numeric: tabular-nums; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .cycle-chip-dot { width: 7px; height: 14px; border-radius: 2px; background: var(--ok); box-shadow: inset 0 0 0 1px var(--ok-edge); }
 .cycle-chip-period { color: var(--muted); }
 .cycle-chip.is-missing { background: var(--warn-bg); border-color: var(--warn-line); color: var(--warn-ink); }
 .cycle-chip.is-missing .cycle-chip-dot { background: var(--warn); box-shadow: inset 0 0 0 1px var(--warn-edge); }
-.topbar-user { display: flex; align-items: center; gap: var(--space-sm); min-width: 0; padding-left: var(--space-md); border-left: 1px solid var(--rule); }
+.topbar-user { display: flex; align-items: center; gap: var(--space-sm); min-width: 0; flex-shrink: 0; padding-left: var(--space-md); border-left: 1px solid var(--rule); }
 .topbar-user-text { min-width: 0; }
 .topbar-user strong { display: block; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--text-base); font-weight: 600; }
 .topbar-user small { display: block; color: var(--muted); }
@@ -690,3 +689,13 @@ a.signal-item:hover > svg { color: var(--navy-800); }
   .cell-stack > span, .cell-reason { white-space: normal; max-width: none; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+
+/* Carga de rutas y aviso de inactividad */
+.route-loading { display: grid; place-items: center; min-height: 60vh; }
+.idle-warning { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: var(--space-md); background: rgb(16 24 50 / .55); }
+.idle-card { display: grid; gap: var(--space-sm); max-width: 440px; padding: var(--space-lg); border-radius: var(--radius-lg); background: var(--card); box-shadow: 0 20px 60px rgb(16 32 64 / .35); }
+.idle-card .row-actions { justify-content: flex-end; }
+
+.login-forgot { justify-self: center; margin-top: var(--space-sm); }
+.link-button { padding: 4px; border: 0; background: none; color: var(--navy-600); font: inherit; font-size: var(--text-sm); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.link-button:hover { color: var(--navy-800); }

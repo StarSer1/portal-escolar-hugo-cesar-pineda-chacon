@@ -7,9 +7,9 @@ import { CheckboxField, FormSection } from '@/shared/ui/Field'
 import { Modal } from '@/shared/ui/Modal'
 import { TabPanel, Tabs } from '@/shared/ui/Tabs'
 import { displayDay, documentIcons, eventKinds, roleColors, type EventKind, type SchoolDocument, type SchoolEvent, type SiteSection } from '../school'
-import { useSite } from '../SiteContent'
 import { eventDateLabel } from '../components/SchoolCalendar'
-import { EditorCard, FileInput, ItemCard, list, SaveBar, SelectInput, TextInput, useSectionDraft, type DraftListener } from './EditorUI'
+import { useLiveSite } from './siteStore'
+import { EditorCard, FileInput, LiveSiteContext, ItemCard, list, SaveBar, SelectInput, TextInput, useSectionDraft, type DraftListener } from './EditorUI'
 import { SitePreview, type PreviewPage } from './SitePreview'
 
 const page = {
@@ -44,7 +44,7 @@ function initialPreview() {
 }
 
 export function SiteEditorPage() {
-  const { error } = useSite()
+  const live = useLiveSite()
   const [params, setParams] = useSearchParams()
   const tabsId = useId()
   const [draft, setDraft] = useState<{ section: SiteSection; dirty: boolean; value: unknown } | null>(null)
@@ -72,12 +72,13 @@ export function SiteEditorPage() {
         <Button icon="image" aria-pressed={preview} onClick={() => togglePreview(!preview)}>{preview ? 'Ocultar vista previa' : 'Vista previa'}</Button>
         <a className="btn btn-secondary" href={current.pages[0].path} target="_blank" rel="noreferrer"><Icon name="external" size={18} />Ver página publicada</a>
       </>} />
-    {error && <Alert tone="warning" title="No se pudo leer el contenido guardado">El sitio muestra el contenido original. Revisa la conexión; si el problema continúa, verifica que las reglas de Firestore estén publicadas.</Alert>}
+    {live.error && <Alert tone="warning" title="No se pudo leer el contenido guardado">Se vuelve a intentar automáticamente. Mientras tanto no se puede guardar, para no reemplazar lo publicado. Si continúa, revisa la conexión y que las reglas de Firestore estén publicadas.</Alert>}
     <div className={preview ? 'site-editor-layout' : 'org-layout'}>
       <Tabs idBase={tabsId} label="Secciones del sitio" orientation={preview ? 'horizontal' : 'vertical'} value={tab} onChange={change}
         tabs={sections.map((item) => ({ value: item.value, label: item.label, description: preview ? undefined : item.description }))} />
       <TabPanel idBase={tabsId} value={tab}>
-        <div className="site-editor" key={tab}>
+        {!live.ready ? <div className="panel-loading" role="status"><span className="spinner" aria-hidden="true" /> Cargando el contenido publicado…</div>
+        : <LiveSiteContext.Provider value={live}><div className="site-editor" key={tab}>
           {tab === 'home' ? <HomeEditor onDraftChange={onDraftChange} />
             : tab === 'calendar' ? <CalendarEditor onDraftChange={onDraftChange} />
             : tab === 'documents' ? <DocumentsEditor onDraftChange={onDraftChange} />
@@ -85,7 +86,7 @@ export function SiteEditorPage() {
             : tab === 'general' ? <GeneralEditor onDraftChange={onDraftChange} />
             : tab === 'gallery' ? <GalleryEditor onDraftChange={onDraftChange} />
             : <ImagesEditor onDraftChange={onDraftChange} />}
-        </div>
+        </div></LiveSiteContext.Provider>}
       </TabPanel>
       {preview && <SitePreview key={tab} section={tab} pages={current.pages} dirty={dirty}
         value={draft?.section === tab ? draft.value : undefined} onClose={() => togglePreview(false)} />}

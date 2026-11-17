@@ -1,0 +1,13 @@
+{
+  "name": "Escuela Primaria Hugo César Piñeda Chacón",
+  "short_name": "Hugo César Piñeda",
+  "lang": "es-MX",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#ffffff",
+  "theme_color": "#1b2a4e",
+  "icons": [
+    { "src": "/escudo-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/escudo.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

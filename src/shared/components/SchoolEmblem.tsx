@@ -1,8 +1,8 @@
-// Escudo oficial de la escuela (recortado en círculo con fondo transparente).
-// Si se quita, se vuelve a mostrar la marca provisional "HC".
-const officialEmblemSrc: string | null = '/escudo.png'
-
+/**
+ * Escudo oficial de la escuela (recortado en círculo con fondo transparente).
+ * Se usan versiones reducidas (generadas con `npm run optimize:images`) en
+ * lugar del original de 512 px, que pesa unas 30 veces más.
+ */
 export function SchoolEmblem({ size = 48 }: { size?: number }) {
-  if (officialEmblemSrc) return <img className="school-emblem" src={officialEmblemSrc} width={size} height={size} alt="" />
-  return <span className="school-emblem school-emblem-provisional" style={{ width: size, height: size, fontSize: Math.round(size * 0.36) }} aria-hidden="true">HC</span>
+  return <img className="school-emblem" src="/escudo-96.png" srcSet="/escudo-96.png 1x, /escudo-180.png 2x" width={size} height={size} alt="" decoding="async" />
 }

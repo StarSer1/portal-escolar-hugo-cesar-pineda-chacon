@@ -66,8 +66,9 @@ export function RequireAdmin() {
 
 export function RequireTeacher() {
   const { user, profile, loading, error } = useAuth()
+  const location = useLocation()
   if (loading) return <CheckingAccess />
-  if (!user) return <Navigate to="/iniciar-sesion" replace />
+  if (!user) return <Navigate to="/iniciar-sesion" state={{ from: location.pathname }} replace />
   if (profile?.active && profile.role === 'admin') return <Navigate to="/panel" replace />
   if (error || !profile?.active || profile.role !== 'teacher' || !profile.teacherId) return <AccessDenied title="Acceso docente no disponible" message={error || 'Tu cuenta no tiene acceso docente activo. Solicita al director que revise tu perfil y las asignaciones.'} />
   return <Outlet />

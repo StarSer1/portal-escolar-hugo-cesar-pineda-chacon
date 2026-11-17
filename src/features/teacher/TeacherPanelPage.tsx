@@ -5,6 +5,7 @@ import { auth } from '@/config/firebase'
 import { useAuth } from '@/features/auth/AuthContext'
 import { fullName, groupName, specialtyLabels } from '@/features/academic/components/AcademicUI'
 import { saveGrade } from '@/features/grades/services/grades.service'
+import { GRADE_MAX, GRADE_MIN, gradeScaleLabel } from '@/features/grades/capture'
 import { Icon } from '@/shared/components/Icon'
 import { SchoolEmblem } from '@/shared/components/SchoolEmblem'
 import { errorMessage } from '@/shared/errors'
@@ -114,7 +115,7 @@ function TeacherWorkspace() {
           <form className="form-grid capture-form" onSubmit={submit}>
             <Field label="Alumno inscrito" full><select required value={enrollmentId} disabled={!group || busy} onChange={(event) => setEnrollmentId(event.target.value)}><option value="">Selecciona un alumno</option>{enrollments.map((item) => <option key={item.id} value={item.id}>{studentName(item.studentId)}</option>)}</select></Field>
             <Field label="Materia" full><select required value={subjectId} disabled={!group || busy} onChange={(event) => setSubjectId(event.target.value)}><option value="">Selecciona una materia</option>{subjects.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
-            <Field label="Calificación" full hint={`Escala de 0 a 10. Valor redondeado: ${score !== '' && Number.isFinite(Number(score)) ? Math.round(Number(score)) : '—'}`}><input type="number" required min={0} max={10} step="0.1" inputMode="decimal" className="score-input" value={score} disabled={busy} placeholder="Ej. 8.5" onChange={(event) => setScore(event.target.value)} /></Field>
+            <Field label="Calificación" full hint={`${gradeScaleLabel}. Valor redondeado: ${score !== '' && Number.isFinite(Number(score)) ? Math.round(Number(score)) : '—'}`}><input type="number" required min={GRADE_MIN} max={GRADE_MAX} step="0.1" inputMode="decimal" className="score-input" value={score} disabled={busy} placeholder="Ej. 8.5" onChange={(event) => setScore(event.target.value)} /></Field>
             <Field label="Observación (opcional)" full><textarea maxLength={1000} value={observation} disabled={busy} onChange={(event) => setObservation(event.target.value)} /></Field>
             <div className="form-actions field-full"><Button type="submit" variant="primary" loading={saving} disabled={busy || !group || !period || period.status !== 'open'}>{saving ? 'Guardando…' : 'Guardar calificación'}</Button></div>
           </form>

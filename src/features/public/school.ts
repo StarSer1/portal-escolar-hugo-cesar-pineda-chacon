@@ -3,7 +3,7 @@
  *
  * El director edita todo este contenido desde el panel (/panel/sitio); los
  * cambios se guardan en Firestore (colección `site`) y los archivos que sube,
- * en Storage. Los valores de este archivo son los que se muestran mientras una
+ * en Cloudinary (ver docs/cloudinary.md). Los valores de este archivo son los que se muestran mientras una
  * sección no se haya guardado nunca desde el panel. Un texto vacío se muestra
  * como "Información por confirmar".
  */
@@ -131,7 +131,7 @@ export const defaultContent: SiteContent = {
   home: {
     slides: [
       {
-        tag: 'Evento', title: 'Festival 2026', subtitle: 'Marzo - Junio',
+        tag: 'Evento', title: 'Festival 2027', subtitle: 'Marzo - Junio',
         text: 'Bienvenidos a nuestro nuevo festival escolar, donde presentaremos a la reina de la escuela.',
         image: img('inicio/festival.jpg'), actionLabel: 'Detalles', actionHref: '/calendario',
       },
@@ -188,7 +188,7 @@ export const defaultContent: SiteContent = {
       { date: '2027-02-24', kind: 'festejo', title: 'Día de la Bandera', detail: 'Ceremonia cívica de honores a la bandera en el patio de la escuela.' },
       { date: '2027-02-26', kind: 'cte', title: 'Consejo Técnico Escolar', detail: 'Sesión de Consejo Técnico del personal docente. No hay clases para los alumnos.' },
       { date: '2027-03-15', kind: 'suspension', title: 'Natalicio de Benito Juárez', detail: 'Suspensión de labores por el natalicio de Benito Juárez.' },
-      { date: '2027-03-19', kind: 'festejo', title: 'Festival 2026: presentación de la reina', detail: 'Inicio del festival escolar (marzo a junio) con la presentación de la reina de la escuela.' },
+      { date: '2027-03-19', kind: 'festejo', title: 'Festival 2027: presentación de la reina', detail: 'Inicio del festival escolar (marzo a junio) con la presentación de la reina de la escuela.' },
       { date: '2027-03-22', end: '2027-04-02', kind: 'vacaciones', title: 'Vacaciones de primavera', detail: 'Periodo vacacional de Semana Santa y Semana de Pascua.' },
       { date: '2027-04-30', kind: 'festejo', title: 'Día del Niño', detail: 'Festejo para los alumnos con juegos y actividades recreativas.' },
       { date: '2027-05-05', kind: 'suspension', title: 'Batalla de Puebla', detail: 'Suspensión de labores por el aniversario de la Batalla de Puebla.' },

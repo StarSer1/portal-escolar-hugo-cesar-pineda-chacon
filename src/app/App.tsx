@@ -1,50 +1,33 @@
+import { lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { HomePage } from '@/features/public/pages/HomePage'
 import { AboutPage, CalendarPage, ContactPage, DocumentsPage, StudentsInfoPage } from '@/features/public/pages/SitePages'
 import { PublicLayout } from '@/features/public/PublicLayout'
-import { LoginPage } from '@/features/auth/pages/LoginPage'
-import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
-import { GradesPage } from '@/features/grades/pages/GradesPage'
-import { NotFoundPage } from '@/shared/pages/NotFoundPage'
-import { AuthProvider, RequireAdmin, RequireTeacher } from '@/features/auth/AuthContext'
-import { PanelLayout } from '@/app/PanelLayout'
-import { StudentsPage } from '@/features/academic/pages/StudentsPage'
-import { GuardiansPage } from '@/features/academic/pages/GuardiansPage'
-import { TeachersPage } from '@/features/academic/pages/TeachersPage'
-import { OrganizationPage } from '@/features/academic/pages/OrganizationPage'
-import { EnrollmentsPage } from '@/features/academic/pages/EnrollmentsPage'
-import { ActivityPage } from '@/features/academic/pages/ActivityPage'
-import { TeacherPanelPage } from '@/features/teacher/TeacherPanelPage'
 import { SiteContentProvider } from '@/features/public/SiteContent'
-import { SiteEditorPage } from '@/features/public/admin/SiteEditorPage'
+import { NotFoundPage } from '@/shared/pages/NotFoundPage'
+import { ErrorBoundary } from './ErrorBoundary'
+
+// Solo se descargan al entrar al login, al panel o al área docente.
+const PrivateShell = lazy(() => import('./PrivateShell'))
+const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage').then((module) => ({ default: module.LoginPage })))
+const AdminArea = lazy(() => import('./AdminArea'))
+const TeacherArea = lazy(() => import('./TeacherArea'))
 
 export function App() {
-  return <AuthProvider><SiteContentProvider><Routes>
-    <Route element={<PublicLayout />}>
+  return <ErrorBoundary><Routes>
+    <Route element={<SiteContentProvider><PublicLayout /></SiteContentProvider>}>
       <Route path="/" element={<HomePage />} />
       <Route path="/conocenos" element={<AboutPage />} />
       <Route path="/estudiantes" element={<StudentsInfoPage />} />
       <Route path="/calendario" element={<CalendarPage />} />
       <Route path="/documentos" element={<DocumentsPage />} />
       <Route path="/contactanos" element={<ContactPage />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Route>
-    <Route path="/iniciar-sesion" element={<LoginPage />} />
-    <Route element={<RequireTeacher />}>
-      <Route path="/docente" element={<TeacherPanelPage />} />
+    <Route element={<PrivateShell />}>
+      <Route path="/iniciar-sesion" element={<LoginPage />} />
+      <Route path="/docente/*" element={<TeacherArea />} />
+      <Route path="/panel/*" element={<AdminArea />} />
     </Route>
-    <Route element={<RequireAdmin />}>
-      <Route path="/panel" element={<PanelLayout />}>
-        <Route index element={<DashboardPage />} />
-        <Route path="alumnos" element={<StudentsPage />} />
-        <Route path="tutores" element={<GuardiansPage />} />
-        <Route path="docentes" element={<TeachersPage />} />
-        <Route path="organizacion" element={<OrganizationPage />} />
-        <Route path="inscripciones" element={<EnrollmentsPage />} />
-        <Route path="calificaciones" element={<GradesPage />} />
-        <Route path="actividad" element={<ActivityPage />} />
-        <Route path="sitio" element={<SiteEditorPage />} />
-      </Route>
-    </Route>
-    <Route path="*" element={<NotFoundPage />} />
-  </Routes></SiteContentProvider></AuthProvider>
+  </Routes></ErrorBoundary>
 }

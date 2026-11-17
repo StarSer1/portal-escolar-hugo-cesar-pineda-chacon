@@ -10,6 +10,7 @@ import { Icon } from '@/shared/components/Icon'
 import { SchoolEmblem } from '@/shared/components/SchoolEmblem'
 import { Button, IconButton } from '@/shared/ui/Button'
 import { Alert, Skeleton } from '@/shared/ui/Feedback'
+import { usePageTitle } from '@/shared/hooks/usePageTitle'
 import { breadcrumbFor, navSections } from './navigation'
 
 function CycleStatus() {
@@ -34,6 +35,7 @@ function PanelShell() {
   const [logoutError, setLogoutError] = useState('')
   const location = useLocation()
   const trail = breadcrumbFor(location.pathname, location.search)
+  usePageTitle(`${trail.at(-1) ?? 'Panel'} · Panel`)
 
   useEffect(() => {
     if (!menu) return

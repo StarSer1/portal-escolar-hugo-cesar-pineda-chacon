@@ -146,7 +146,7 @@ Colecciones principales: `users`, `students`, `guardians`, `schoolYears`, `group
 
 ### Críticas
 
-1. ¿La escala, mínimo aprobatorio y regla de redondeo vigentes son exactamente 0–10?
+1. ~~¿La escala, mínimo aprobatorio y regla de redondeo vigentes son exactamente 0–10?~~ **Resuelto (nov. 2026):** la escala oficial es de 5 a 10; el portal rechaza valores menores a 5.
 2. ¿Quién registra, valida y autoriza una corrección después de cerrar un periodo? ¿Qué evidencia exige SEP?
 3. ¿Qué datos pueden consultar tutores/alumnos y cómo se verificará su identidad?
 4. ¿Planeación, asistencia, diagnóstico y seguimiento forman parte del alcance obligatorio de la primera versión?

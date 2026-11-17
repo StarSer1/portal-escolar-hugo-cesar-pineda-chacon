@@ -16,7 +16,7 @@ const student = { names: 'Alumno', surnames: 'Prueba', curp: 'TEST000101HDFABC01
 const guardian = { name: 'Tutor Prueba', email: '', phone: '5555555555', address: '', education: '', occupation: '', status: 'active' }
 const year = { name: '2026-2027', startDate: '2026-08-01', endDate: '2027-07-31', status: 'active' }
 const group = { schoolYearId: 'year', curriculumPlanId: 'plan', grade: 1, label: 'A', shift: 'matutino', status: 'active', generalTeacherId: 'general', physicalTeacherId: 'physical', englishTeacherId: 'english', artsTeacherId: 'arts' }
-const enrollment = { studentId: 'student', groupId: 'group', schoolYearId: 'year', startDate: '2026-09-01', endDate: '', status: 'active', reason: '' }
+const enrollment = { studentId: 'student', groupId: 'group', schoolYearId: 'year', startDate: '2026-09-01', endDate: '', status: 'active', reason: '', studentName: 'Alumno Prueba', matricula: 'QA-001' }
 const gradeId = 'enrollment_subject_year_1'
 const grade = { studentId: 'student', enrollmentId: 'enrollment', groupId: 'group', schoolYearId: 'year', subjectPlanId: 'subject', periodId: 'year_1', periodOrder: 1, score: 8.5, roundedScore: 9, teacherId: 'general', observation: '', correctionReason: '', version: 1 }
 
@@ -231,6 +231,9 @@ test('enrollment requires one active slot; transfer preserves old record and wit
 test('grades validate all relations, assigned teacher, score range and rounding', async () => {
   await seedEnrollment()
   await assertFails(save('grades', gradeId, { ...grade, score: 11, roundedScore: 11 }))
+  // Escala oficial de 5 a 10.
+  await assertFails(save('grades', gradeId, { ...grade, score: 4.9, roundedScore: 5 }))
+  await assertFails(save('grades', gradeId, { ...grade, score: 0, roundedScore: 0 }))
   await assertFails(save('grades', gradeId, { ...grade, roundedScore: 8 }))
   await assertFails(save('grades', gradeId, { ...grade, groupId: 'group2' }))
   await assertFails(save('grades', gradeId, { ...grade, teacherId: 'english' }))
@@ -387,9 +390,11 @@ test('teacher queries are scoped to own active current groups, rosters and speci
   await assertSucceeds(getDocs(query(collection(scoped, 'enrollments'), where('groupId', '==', 'group'), where('status', '==', 'active'))))
   await assertFails(getDocs(collection(scoped, 'enrollments')))
   await assertFails(getDoc(doc(scoped, 'enrollments', 'outsideEnrollment')))
-  await assertSucceeds(getDoc(doc(scoped, 'students', 'student')))
+  // Privacidad: el docente nunca lee el expediente (CURP, nacimiento); su lista usa la inscripción.
+  await assertFails(getDoc(doc(scoped, 'students', 'student')))
   await assertFails(getDoc(doc(scoped, 'students', 'outside')))
   await assertFails(getDocs(collection(scoped, 'students')))
+  assert.equal((await getDoc(doc(scoped, 'enrollments', 'enrollment'))).data().studentName, 'Alumno Prueba')
   await assertSucceeds(getDocs(query(collection(scoped, 'subjectPlans'), where('specialty', '==', 'general'), where('curriculumPlanId', '==', 'plan'), where('grade', '==', 1), where('status', '==', 'active'))))
   await assertFails(getDoc(doc(scoped, 'subjectPlans', 'englishSubject')))
   for (const name of ['guardians', 'studentGuardians', 'auditLogs', 'teacherEmails', 'users']) await assertFails(getDocs(collection(scoped, name)))
@@ -440,11 +445,11 @@ test('teacher capture rejects closed periods and inactive student, enrollment, g
 test('changing current year or group assignment revokes teacher reads and capture even with valid login', async () => {
   await seedEnrollment()
   const scoped = teacherDb()
-  await assertSucceeds(getDoc(doc(scoped, 'students', 'student')))
+  await assertSucceeds(getDoc(doc(scoped, 'enrollments', 'enrollment')))
   await env.withSecurityRulesDisabled(async (context) => {
     await setDoc(doc(context.firestore(), 'groups', 'group'), { ...group, generalTeacherId: 'replacement', ...base })
   })
-  await assertFails(getDoc(doc(scoped, 'students', 'student')))
+  await assertFails(getDoc(doc(scoped, 'enrollments', 'enrollment')))
   await assertFails(teacherGrade())
   await env.withSecurityRulesDisabled(async (context) => {
     await setDoc(doc(context.firestore(), 'groups', 'group'), { ...group, ...base })
@@ -504,16 +509,54 @@ test('teacher provisioning rejects password fields in teacher files, user profil
 
 test('public site content is readable by anyone and editable only by the active director', async () => {
   const content = { slides: [], galleryIntro: 'Texto' }
-  const stamp = (uid) => ({ ...content, updatedAt: serverTimestamp(), updatedBy: uid })
-  await assertSucceeds(setDoc(doc(db, 'site', 'home'), stamp('admin')))
+  const publish = (data, id = 'home') => { const batch = writeBatch(db); audited(batch, 'site', id, data); return batch.commit() }
+  await assertSucceeds(publish(content))
   await assertSucceeds(getDocs(collection(env.unauthenticatedContext().firestore(), 'site')))
+  // Cada guardado lleva versión y bitácora; sin ellas se rechaza.
+  await assertFails(setDoc(doc(db, 'site', 'home'), { ...content, updatedAt: serverTimestamp(), updatedBy: 'admin' }))
   for (const uid of ['teacher', 'inactive', 'student']) {
-    await assertFails(setDoc(doc(env.authenticatedContext(uid).firestore(), 'site', 'home'), stamp(uid)))
+    const other = env.authenticatedContext(uid).firestore()
+    await assertFails(setDoc(doc(other, 'site', 'home'), { ...content, ...base }))
   }
   await assertFails(setDoc(doc(env.unauthenticatedContext().firestore(), 'site', 'home'), content))
-  // Unknown sections, forged authorship or client clocks are rejected; sections are never deleted.
-  await assertFails(setDoc(doc(db, 'site', 'other'), stamp('admin')))
-  await assertFails(setDoc(doc(db, 'site', 'home'), stamp('teacher')))
-  await assertFails(setDoc(doc(db, 'site', 'home'), { ...content, updatedAt: oldTime, updatedBy: 'admin' }))
+  // Secciones desconocidas, campos extra, listas enormes y direcciones peligrosas se rechazan.
+  await assertFails(publish(content, 'other'))
+  await assertFails(publish({ ...content, extra: true }))
+  await assertFails(publish({ slides: Array.from({ length: 13 }, () => ({})), galleryIntro: '' }))
+  const images = { mission: '/img/a.jpg', history: '', about: 'https://res.cloudinary.com/x/image/upload/a.jpg', students: '', calendar: '', documents: '', contact: '' }
+  await assertSucceeds(publish(images, 'images'))
+  for (const bad of ['javascript:alert(1)', 'http://inseguro.test/a.jpg', '//otro-sitio.test/a.jpg', 'data:text/html,hola']) {
+    await assertFails(publish({ ...images, about: bad }, 'images'))
+  }
   await assertFails(deleteDoc(doc(db, 'site', 'home')))
+})
+
+test('site sections saved before versioning can still be updated with audit', async () => {
+  // Documentos creados por la versión anterior del editor: sin createdAt, revision ni auditId.
+  await env.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'site', 'gallery'), { photos: [{ src: '/img/galeria/1.jpg', alt: 'Foto' }], updatedAt: oldTime, updatedBy: 'admin' })
+  })
+  const previous = (await getDoc(doc(db, 'site', 'gallery'))).data()
+  const batch = writeBatch(db)
+  audited(batch, 'site', 'gallery', { photos: [] }, previous, 'update-site')
+  await assertSucceeds(batch.commit())
+  assert.equal((await getDoc(doc(db, 'site', 'gallery'))).data().revision, 1)
+})
+
+test('enrollment keeps the student name for teachers and it must match the student file', async () => {
+  const wrong = writeBatch(db)
+  audited(wrong, 'enrollments', 'enrollment', { ...enrollment, studentName: 'Nombre inventado' })
+  wrong.set(doc(db, 'enrollmentSlots', 'student_year'), { studentId: 'student', schoolYearId: 'year', currentEnrollmentId: 'enrollment', previousEnrollmentId: '', updatedBy: 'admin', updatedAt: serverTimestamp() })
+  await assertFails(wrong.commit())
+  await seedEnrollment()
+  // Al corregir el nombre del alumno se actualiza su inscripción vigente en la misma operación.
+  const previousStudent = (await getDoc(doc(db, 'students', 'student'))).data()
+  const previousEnrollment = (await getDoc(doc(db, 'enrollments', 'enrollment'))).data()
+  const rename = writeBatch(db)
+  audited(rename, 'students', 'student', { ...student, names: 'Alumna' }, previousStudent)
+  audited(rename, 'enrollments', 'enrollment', { ...previousEnrollment, studentName: 'Alumna Prueba' }, previousEnrollment, 'update-name')
+  await assertSucceeds(rename.commit())
+  const current = (await getDoc(doc(db, 'enrollments', 'enrollment'))).data()
+  await assertFails(save('enrollments', 'enrollment', { ...current, studentName: 'Otro nombre' }))
+  await assertFails(save('enrollments', 'enrollment', { ...current, groupId: 'group2' }))
 })

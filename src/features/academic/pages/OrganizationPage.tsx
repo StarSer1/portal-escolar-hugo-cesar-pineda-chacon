@@ -140,11 +140,14 @@ function GroupsSection() {
     key: `${value}TeacherId`, label, type: 'select', required: true, section: 'Docentes responsables',
     options: (draft) => data.teachers.filter((item) => item.specialty === value && (item.status === 'active' || item.id === draft[`${value}TeacherId`])).map((item) => ({ value: item.id, label: item.name })),
   }))
+  // Alumnos activos por grupo, calculado una sola vez (no por cada fila).
+  const activeByGroup = new Map<string, number>()
+  for (const enrollment of data.enrollments) if (enrollment.status === 'active') activeByGroup.set(enrollment.groupId, (activeByGroup.get(enrollment.groupId) ?? 0) + 1)
   const columns: Column<ManagedRecord>[] = [
     { key: 'group', header: 'Grupo', sortValue: (record) => Number(record.grade) * 100 + String(record.label).charCodeAt(0), cell: (record) => <strong className="nowrap">{groupName({ grade: Number(record.grade), label: String(record.label), shift: String(record.shift) })}</strong> },
     { key: 'general', header: 'Docente general', sortValue: (record) => teacher(record.generalTeacherId) ?? '', cell: (record) => teacher(record.generalTeacherId) ?? <span className="text-muted">Sin docente</span> },
     { key: 'specialists', header: 'Especialidades', priority: 'low', cell: (record) => <dl className="mini-list"><div><dt>EF</dt><dd>{teacher(record.physicalTeacherId) ?? '—'}</dd></div><div><dt>Inglés</dt><dd>{teacher(record.englishTeacherId) ?? '—'}</dd></div><div><dt>Artes</dt><dd>{teacher(record.artsTeacherId) ?? '—'}</dd></div></dl> },
-    { key: 'students', header: 'Alumnos', align: 'end', sortValue: (record) => data.enrollments.filter((enrollment) => enrollment.groupId === record.id && enrollment.status === 'active').length, cell: (record) => data.enrollments.filter((enrollment) => enrollment.groupId === record.id && enrollment.status === 'active').length },
+    { key: 'students', header: 'Alumnos', align: 'end', sortValue: (record) => activeByGroup.get(record.id) ?? 0, cell: (record) => activeByGroup.get(record.id) ?? 0 },
     { key: 'cycle', header: 'Ciclo', priority: 'low', cell: (record) => <span className="nowrap">{data.schoolYears.find((year) => year.id === record.schoolYearId)?.name ?? 'Ciclo no disponible'}</span> },
     { key: 'status', header: 'Estado', sortValue: (record) => String(record.status), cell: (record) => <StatusBadge value={String(record.status)} /> },
   ]

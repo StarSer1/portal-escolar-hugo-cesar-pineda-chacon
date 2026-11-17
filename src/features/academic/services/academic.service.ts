@@ -1,9 +1,9 @@
 import {
-  collection, doc, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp,
-  type DocumentData, type DocumentReference, type Transaction,
+  collection, doc, getDocs, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, where,
+  type DocumentData, type DocumentReference, type Query, type Transaction,
 } from 'firebase/firestore'
 import { auth, db } from '@/config/firebase'
-import { emptyAcademicData, type AcademicData, type EditableCollection } from '@/types/models'
+import { emptyAcademicData, type AcademicData, type EditableCollection, type Grade } from '@/types/models'
 
 const fields: Record<EditableCollection, string[]> = {
   students: ['names', 'surnames', 'curp', 'birthDate', 'sex', 'matricula', 'status'],
@@ -47,26 +47,53 @@ export function writeAudited(
   return auditRef.id
 }
 
-export function watchAcademicData(onData: (data: AcademicData) => void, onError: (error: Error) => void) {
+/**
+ * Datos en vivo del panel de dirección.
+ * Las calificaciones son la colección que más crece (miles por ciclo), así que
+ * solo se escuchan las del ciclo actual; las de ciclos anteriores se consultan
+ * cuando se piden (loadGrades). `gradesYearId` indica qué ciclo está en vivo.
+ */
+export function watchAcademicData(onData: (data: AcademicData, gradesYearId: string) => void, onError: (error: Error) => void) {
   const data = { ...emptyAcademicData }
   const names = Object.keys(data) as (keyof AcademicData)[]
   const initialized = new Set<keyof AcademicData>()
   let disposed = false
-  const unsubscribe = names.map((name) => {
-    const source = name === 'auditLogs'
-      ? query(collection(db, name), orderBy('createdAt', 'desc'), limit(100))
-      : collection(db, name)
-    return onSnapshot(source, (snapshot) => {
-      // Every snapshot is a new array; callers can safely derive memoized selectors.
-      Object.assign(data, { [name]: snapshot.docs.map((record) => ({ ...record.data(), id: record.id })) })
-      initialized.add(name)
-      // Do not mount forms with partial catalog data: their initial cycle/group
-      // selection must be derived only after every listener has initialized.
-      if (!disposed && initialized.size === names.length) onData({ ...data })
-    }, (error) => { if (!disposed) onError(error) })
-  })
-  return () => { disposed = true; unsubscribe.forEach((stop) => stop()) }
+  let gradesYearId = ''
+  const emit = () => { if (!disposed && initialized.size === names.length) onData({ ...data }, gradesYearId) }
+  const listen = (name: keyof AcademicData, source: Query<DocumentData>) => onSnapshot(source, (snapshot) => {
+    // Every snapshot is a new array; callers can safely derive memoized selectors.
+    Object.assign(data, { [name]: snapshot.docs.map((record) => ({ ...record.data(), id: record.id })) })
+    initialized.add(name)
+    // Do not mount forms with partial catalog data: their initial cycle/group
+    // selection must be derived only after every listener has initialized.
+    emit()
+  }, (error) => { if (!disposed) onError(error) })
+
+  const unsubscribe = names.filter((name) => name !== 'grades').map((name) => listen(name, name === 'auditLogs'
+    ? query(collection(db, name), orderBy('createdAt', 'desc'), limit(100))
+    : collection(db, name)))
+  let stopGrades = () => {}
+  const stopYear = onSnapshot(doc(db, 'academicSettings', 'currentYear'), (snapshot) => {
+    const yearId = String(snapshot.data()?.schoolYearId ?? '')
+    if (yearId === gradesYearId && initialized.has('grades')) return
+    stopGrades()
+    gradesYearId = yearId
+    if (!yearId) { stopGrades = () => {}; data.grades = []; initialized.add('grades'); emit(); return }
+    initialized.delete('grades')
+    stopGrades = listen('grades', query(collection(db, 'grades'), where('schoolYearId', '==', yearId)))
+  }, (error) => { if (!disposed) onError(error) })
+  return () => { disposed = true; unsubscribe.forEach((stop) => stop()); stopGrades(); stopYear() }
 }
+
+/** Consulta única de calificaciones de otro ciclo o de un alumno (historial). */
+export async function loadGrades(filter: { schoolYearId: string } | { studentId: string }) {
+  const [field, value] = 'schoolYearId' in filter ? ['schoolYearId', filter.schoolYearId] : ['studentId', filter.studentId]
+  const snapshot = await getDocs(query(collection(db, 'grades'), where(field, '==', value)))
+  return snapshot.docs.map((record) => ({ ...record.data(), id: record.id }) as Grade)
+}
+
+/** Nombre que ve el docente en su lista (se guarda en la inscripción). */
+export const rosterName = (student: DocumentData) => `${String(student.names ?? '').trim()} ${String(student.surnames ?? '').trim()}`.trim()
 
 function check(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message)
@@ -167,6 +194,17 @@ export async function saveRecord(name: EditableCollection, input: Record<string,
     }
     // Unique student identifiers are reserved in the same transaction as the student.
     const identifierWrites: { ref: DocumentReference<DocumentData>; studentId: string }[] = []
+    let rosterUpdate: { ref: DocumentReference<DocumentData>; data: DocumentData } | undefined
+    if (name === 'students' && previous && (previous.names !== data.names || previous.surnames !== data.surnames || previous.matricula !== data.matricula)) {
+      // Mantener al día el nombre que ve el docente en la inscripción vigente del ciclo actual.
+      const yearId = (await transaction.get(doc(db, 'academicSettings', 'currentYear'))).data()?.schoolYearId as string | undefined
+      const slot = yearId ? (await transaction.get(doc(db, 'enrollmentSlots', `${ref.id}_${yearId}`))).data() : undefined
+      if (slot?.currentEnrollmentId) {
+        const enrollmentRef = doc(db, 'enrollments', slot.currentEnrollmentId)
+        const enrollment = (await transaction.get(enrollmentRef)).data()
+        if (enrollment?.status === 'active') rosterUpdate = { ref: enrollmentRef, data: enrollment }
+      }
+    }
     if (name === 'students') {
       for (const key of ['curp', 'matricula']) {
         const identifierRef = doc(db, 'studentIdentifiers', `${key}_${data[key]}`)
@@ -202,6 +240,7 @@ export async function saveRecord(name: EditableCollection, input: Record<string,
     if (oldPrimary) writeAudited(transaction, 'studentGuardians', oldPrimary.ref, { ...oldPrimary.data, primary: false }, oldPrimary.data, actorId)
     if (guardianSlot) transaction.set(guardianSlot.ref, { studentId: data.studentId, linkId: guardianSlot.linkId, updatedAt: serverTimestamp() })
     writeAudited(transaction, name, ref, data, previous, actorId)
+    if (rosterUpdate) writeAudited(transaction, 'enrollments', rosterUpdate.ref, { ...rosterUpdate.data, studentName: rosterName(data), matricula: data.matricula }, rosterUpdate.data, actorId, 'update-name')
   })
   return ref.id
 }
@@ -239,6 +278,7 @@ export async function enrollStudent(input: { studentId: string; groupId: string;
     writeAudited(transaction, 'enrollments', newRef, {
       studentId: input.studentId, groupId: input.groupId, schoolYearId, startDate: input.startDate,
       endDate: '', status: 'active', reason: input.reason?.trim() ?? '',
+      studentName: rosterName(student.data()), matricula: String(student.data().matricula ?? ''),
     }, undefined, actorId, 'enroll')
     transaction.set(slotRef, {
       studentId: input.studentId, schoolYearId, currentEnrollmentId: newRef.id,

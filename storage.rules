@@ -1,10 +1,12 @@
 rules_version = '2';
+// El portal no usa Cloud Storage: los documentos y fotos del sitio se guardan en
+// Cloudinary (ver docs/cloudinary.md). Si alguien activa Storage en el proyecto,
+// estas reglas impiden subir o leer archivos hasta que se definan reglas propias.
+// No se publica con `npm run deploy` (firebase.json no incluye Storage).
 service firebase.storage {
   match /b/{bucket}/o {
-    match /public/{allPaths=**} { allow read: if true; }
-    match /users/{userId}/{allPaths=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }
-

@@ -1,0 +1,58 @@
+# Revisión automática de cada cambio: lint, compilación y pruebas con emuladores.
+# Nunca usa el proyecto real de Firebase: las pruebas corren en proyectos "demo-".
+name: CI
+
+on:
+  push:
+    branches: [main, Temporal-Design]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Compilar sitio
+        run: npm run build
+
+      - name: Compilar Cloud Functions
+        run: npm run build:functions
+
+      - name: Pruebas de reglas de Firestore
+        run: npm run test:rules
+
+      - name: Pruebas de navegador (Playwright + Chrome)
+        run: npm run test:e2e
+
+      - name: Guardar capturas si algo falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-resultados
+          path: test-results/
+          retention-days: 7

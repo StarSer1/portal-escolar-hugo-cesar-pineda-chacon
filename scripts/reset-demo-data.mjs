@@ -302,10 +302,12 @@ if (seed) {
   // Enrollments on the first day of the cycle.
   jumpTo('2026-08-28T15:00:00Z')
   const enrollments = []
+  // Nombre y matrícula para el panel docente (mismo formato que rosterName en academic.service.ts).
+  const roster = (student) => ({ studentName: `${student.names.trim()} ${student.surnames.trim()}`.trim(), matricula: student.matricula })
   for (const student of students.filter((item) => item.group)) {
     const id = autoId()
     const { record, at } = audited('enrollments', id, { studentId: student.id, groupId: student.group.id, schoolYearId: yearId,
-      startDate: '2026-08-31', endDate: '', status: 'active', reason: '' }, { action: 'enroll', at: tick(3) })
+      startDate: '2026-08-31', endDate: '', status: 'active', reason: '', ...roster(student) }, { action: 'enroll', at: tick(3) })
     enrollments.push({ id, student, group: student.group, record, at, previous: '' })
   }
   // One change of group (1° A to 1° B) and one withdrawal (from 4° A).
@@ -318,7 +320,7 @@ if (seed) {
       { action: 'transfer', previous: moving.record })
     const id = autoId()
     const { record, at } = audited('enrollments', id, { studentId: moving.student.id, groupId: target.id, schoolYearId: yearId,
-      startDate: '2026-09-14', endDate: '', status: 'active', reason }, { action: 'enroll' })
+      startDate: '2026-09-14', endDate: '', status: 'active', reason, ...roster(moving.student) }, { action: 'enroll' })
     moving.record = moved.record
     moving.closed = true
     enrollments.push({ id, student: moving.student, group: target, record, at, previous: moving.id })

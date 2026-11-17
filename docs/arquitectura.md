@@ -7,7 +7,7 @@
 - `src/config`: integraciones externas, hoy Firebase.
 - `src/shared`: componentes, páginas o utilidades reutilizables.
 - `src/types`: contratos TypeScript para los datos.
-- `functions`: prototipo de backend reservado para una fase con Cloud Functions; no interviene en el recorrido gratuito actual.
+- `functions`: Cloud Functions para el plan Blaze: alta de cuentas docentes (`createTeacherAccount`, `deleteOrphanTeacherAccount`) y firma de subidas a Cloudinary (`signCloudinaryUpload`). No escriben en Firestore; el sitio funciona sin ellas en el plan gratuito. Ver [despliegue.md](despliegue.md).
 
 ## Flujo de calificaciones
 
@@ -41,6 +41,8 @@ Firebase Hosting sirve la aplicación React. El navegador se conecta al proyecto
 
 Con `VITE_USE_EMULATORS=true`, la configuración conecta Authentication a `127.0.0.1:9099` y Firestore a `127.0.0.1:8080`, y exige un proyecto con prefijo `demo-`. Las suites `npm run test:rules` y `npm run test:e2e` utilizan exclusivamente ese entorno local. El sitio y las reglas se comprueban con `npm run build`, `npm run lint` y ambas suites; las pruebas no habilitan planes de pago ni ejecutan Cloud Functions.
 
-El contexto carga todos los documentos de las colecciones académicas y solo los últimos 100 de auditoría. Es una base funcional para esta etapa; paginación, consultas segmentadas y políticas de respaldo siguen siendo trabajo explícito para escalar. El directorio `functions` no debe desplegarse sin reemplazar y revisar su prototipo de permisos.
+El contexto escucha en vivo los catálogos, alumnos, tutores e inscripciones, los últimos 100 registros de auditoría y **solo las calificaciones del ciclo actual** (`academicSettings/currentYear`). Las calificaciones de ciclos anteriores y el historial de un alumno se consultan al abrirlos (`useGrades`). No se usa caché persistente de Firestore para no dejar datos personales en computadoras compartidas.
+
+El sitio público lee la colección `site` una vez por visita con Firestore Lite y guarda una copia en el navegador; el panel, el área docente y Firebase Auth se descargan solo al entrar a esas rutas. El panel docente toma el nombre y la matrícula de cada alumno de su inscripción (`studentName`, `matricula`), sin leer el expediente. Ver [despliegue.md](despliegue.md) para hosting, cabeceras de seguridad, respaldos y costos.
 
 Nunca deben guardarse llaves privadas, contraseñas ni archivos `.env.local` en Git.

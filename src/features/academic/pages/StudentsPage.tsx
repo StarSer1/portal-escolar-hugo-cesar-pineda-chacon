@@ -1,6 +1,6 @@
 import { useId, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { useAcademic } from '@/features/academic/AcademicContext'
+import { useAcademic, useGrades } from '@/features/academic/AcademicContext'
 import { saveRecord } from '@/features/academic/services/academic.service'
 import { Button, ButtonLink } from '@/shared/ui/Button'
 import type { Column } from '@/shared/ui/DataTable'
@@ -186,11 +186,13 @@ function StudentDetails({ student, age, enrollments, onClose, onBusy }: { studen
 /** One boleta per enrollment: subjects as rows, the cycle's periods as columns. */
 function StudentHistory({ enrollments }: { enrollments: Enrollment[] }) {
   const { data } = useAcademic()
+  // Historial completo del alumno (todos los ciclos), consultado al abrir su expediente.
+  const { grades: studentGrades, loading: gradesLoading } = useGrades({ studentId: enrollments[0]?.studentId ?? '' })
   if (!enrollments.length) return <EmptyState icon="history" title="El historial comienza con su primera inscripción">Las inscripciones y calificaciones del nuevo sistema se conservan aquí.</EmptyState>
-  return <div className="history-list">{enrollments.map((enrollment) => {
+  return <div className="history-list">{gradesLoading && <p className="text-muted" role="status">Consultando calificaciones de ciclos anteriores…</p>}{enrollments.map((enrollment) => {
     const group = data.groups.find((record) => record.id === enrollment.groupId)
     const year = data.schoolYears.find((record) => record.id === enrollment.schoolYearId)
-    const grades = data.grades.filter((record) => record.enrollmentId === enrollment.id)
+    const grades = studentGrades.filter((record) => record.enrollmentId === enrollment.id)
     const periods = data.gradingPeriods.filter((record) => record.schoolYearId === enrollment.schoolYearId).sort((a, b) => a.order - b.order)
     const columns = periods.length ? periods.map((period) => ({ key: period.id, order: period.order, label: period.name })) : [1, 2, 3].map((order) => ({ key: `p${order}`, order, label: `Periodo ${order}` }))
     const subjectIds = Array.from(new Set(grades.map((grade) => grade.subjectPlanId)))

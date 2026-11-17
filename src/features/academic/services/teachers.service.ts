@@ -1,5 +1,6 @@
 import { deleteApp, getApp, initializeApp } from 'firebase/app'
-import { connectAuthEmulator, createUserWithEmailAndPassword, deleteUser, initializeAuth, inMemoryPersistence, signOut, type User } from 'firebase/auth'
+import { connectAuthEmulator, createUserWithEmailAndPassword, deleteUser, initializeAuth, inMemoryPersistence, signOut } from 'firebase/auth'
+import { connectFunctionsEmulator, getFunctions, httpsCallable } from 'firebase/functions'
 import { collection, doc, getDoc, getDocFromServer, getDocs, runTransaction, serverTimestamp, type DocumentData } from 'firebase/firestore'
 import { auth, db } from '@/config/firebase'
 import type { ActiveStatus, TeacherSpecialty } from '@/types/models'
@@ -34,6 +35,27 @@ async function validateTeacher(input: TeacherInput, id?: string) {
   return data
 }
 
+/**
+ * Cuenta de Authentication recién creada para un docente.
+ * - "browser" (plan Spark): se crea desde el navegador con una instancia de Auth aislada.
+ *   Requiere dejar habilitado el registro público de cuentas en Firebase Auth.
+ * - "functions" (plan Blaze): la crea la Cloud Function createTeacherAccount, y el
+ *   registro público se puede desactivar. Ver docs/despliegue.md.
+ */
+interface CreatedAccount { uid: string; remove: () => Promise<void> }
+const useFunctions = import.meta.env.VITE_TEACHER_PROVISIONING === 'functions'
+
+function callable<Input, Output>(name: string) {
+  const functions = getFunctions(getApp(), 'us-central1')
+  if (import.meta.env.VITE_USE_EMULATORS === 'true') connectFunctionsEmulator(functions, '127.0.0.1', 5001)
+  return httpsCallable<Input, Output>(functions, name)
+}
+
+async function createAccountWithFunction(email: string, password: string): Promise<CreatedAccount> {
+  const { data } = await callable<{ email: string; password: string }, { uid: string }>('createTeacherAccount')({ email, password })
+  return { uid: data.uid, remove: async () => { await callable<{ uid: string }, unknown>('deleteOrphanTeacherAccount')({ uid: data.uid }) } }
+}
+
 /** Password is sent only to Firebase Authentication, never Firestore or logs. */
 export async function saveTeacher(input: TeacherInput, options: { id?: string; password?: string } = {}) {
   const actorId = currentActor()
@@ -54,16 +76,17 @@ export async function saveTeacher(input: TeacherInput, options: { id?: string; p
     throw new Error('Este correo ya está reservado o pertenecía a registros de prueba repetidos. Usa un correo personal diferente.')
   }
 
-  const secondary = options.password !== undefined ? initializeApp(getApp().options, `teacher-provision-${crypto.randomUUID()}`) : undefined
+  const secondary = options.password !== undefined && !useFunctions ? initializeApp(getApp().options, `teacher-provision-${crypto.randomUUID()}`) : undefined
   const secondaryAuth = secondary ? initializeAuth(secondary, { persistence: inMemoryPersistence }) : undefined
-  let createdUser: User | undefined
+  let createdUser: CreatedAccount | undefined
   let committed = false
   try {
-    if (secondaryAuth && options.password !== undefined) {
+    if (options.password !== undefined && useFunctions) createdUser = await createAccountWithFunction(data.email, options.password)
+    else if (secondaryAuth && options.password !== undefined) {
       if (import.meta.env.VITE_USE_EMULATORS === 'true') connectAuthEmulator(secondaryAuth, 'http://127.0.0.1:9099', { disableWarnings: true })
       // This isolated, memory-only Auth instance cannot replace the director's session.
       const result = await createUserWithEmailAndPassword(secondaryAuth, data.email, options.password)
-      createdUser = result.user
+      createdUser = { uid: result.user.uid, remove: () => deleteUser(result.user) }
     }
     await runTransaction(db, async (transaction) => {
       const previous = (await transaction.get(ref)).data()
@@ -114,14 +137,14 @@ export async function saveTeacher(input: TeacherInput, options: { id?: string; p
           committed = true
           return { id: ref.id, accountCreated: true }
         }
-        if (!savedProfile.exists() && savedTeacher.data()?.authUid !== createdUser.uid) await deleteUser(createdUser)
+        if (!savedProfile.exists() && savedTeacher.data()?.authUid !== createdUser.uid) await createdUser.remove()
         else throw new Error('Estado de la cuenta requiere revisión')
       } catch {
         throw new Error('No se pudo confirmar el alta ni completar su recuperación. Dirección debe revisar este correo en Firebase Authentication antes de volver a intentarlo. No se guardó ninguna contraseña en el expediente.')
       }
     }
     const code = typeof error === 'object' && error && 'code' in error ? String(error.code) : ''
-    if (code === 'auth/email-already-in-use') throw new Error('Ese correo ya tiene una cuenta en el portal. No se creará otra ni se reemplazará su contraseña.')
+    if (code === 'auth/email-already-in-use' || code === 'functions/already-exists') throw new Error('Ese correo ya tiene una cuenta en el portal. No se creará otra ni se reemplazará su contraseña.')
     if (code === 'auth/weak-password' || code === 'auth/password-does-not-meet-requirements') throw new Error('La contraseña no cumple la política de seguridad. Usa una contraseña más larga y revisa los requisitos de Firebase.')
     throw error
   } finally {

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'rea
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Icon } from '@/shared/components/Icon'
 import { SchoolEmblem } from '@/shared/components/SchoolEmblem'
+import { usePageTitle } from '@/shared/hooks/usePageTitle'
 import { navLinks } from './school'
 import { useSite } from './SiteContent'
 import { Photo } from './components/Photo'
@@ -32,6 +33,9 @@ export function PublicLayout() {
   const { pathname, hash } = useLocation()
   const site = useRef<HTMLDivElement>(null)
   useReveal(site, pathname)
+  const page = navLinks.find((link) => link.href === pathname)
+  // La portada usa solo el nombre de la escuela; las páginas desconocidas ponen su propio título.
+  usePageTitle(!page ? null : page.href === '/' ? undefined : page.label)
 
   useEffect(() => {
     setMenuOpen(false)
@@ -62,7 +66,7 @@ export function PublicLayout() {
         <nav id="site-nav" className={menuOpen ? 'site-nav is-open' : 'site-nav'} aria-label="Principal">
           <ul>{navLinks.map((link) => <li key={link.href}><NavLink to={link.href} end>{link.label}</NavLink></li>)}</ul>
         </nav>
-        <Link className="login-button" to="/iniciar-sesion"><Icon name="lock" size={16} />Login</Link>
+        <Link className="login-button" to="/iniciar-sesion" aria-label="Iniciar sesión"><Icon name="lock" size={16} /><span className="login-button-text">Iniciar sesión</span></Link>
         <button type="button" className="menu-button" aria-expanded={menuOpen} aria-controls="site-nav" aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} onClick={() => setMenuOpen((open) => !open)}>
           <Icon name={menuOpen ? 'close' : 'menu'} size={24} />
         </button>
@@ -83,7 +87,7 @@ export function PublicLayout() {
         <div>
           <h2>Contacto</h2>
           <ul className="footer-contact">
-            <li><Icon name="phone" size={18} /><a href={`tel:${school.phone.replace(/\s/g, '')}`}>{school.phone}</a></li>
+            {school.phone && <li><Icon name="phone" size={18} /><a href={`tel:${school.phone.replace(/[^\d+]/g, '')}`}>{school.phone}</a></li>}
             <li><Icon name="pin" size={18} /><span>{school.address}</span></li>
             {school.facebook && <li><Icon name="external" size={18} /><a href={school.facebook} target="_blank" rel="noreferrer">Facebook</a></li>}
             {school.instagram && <li><Icon name="external" size={18} /><a href={school.instagram} target="_blank" rel="noreferrer">Instagram</a></li>}
@@ -107,7 +111,7 @@ export function PublicLayout() {
 /** Encabezado de las páginas interiores, sobre una foto de la escuela. */
 export function PageHeader({ title, image, children }: { title: string; image: string; children?: ReactNode }) {
   return <section className="page-header-band">
-    <Photo className="page-header-photo" src={image} alt="" eager fallback={<span className="page-header-photo" />} />
+    <Photo className="page-header-photo" src={image} alt="" priority sizes="100vw" fallback={<span className="page-header-photo" />} />
     <div className="page-header-content">
       <nav className="crumbs" aria-label="Ubicación"><Link to="/">Inicio</Link><Icon name="chevron" size={14} /><span aria-current="page">{title}</span></nav>
       <h1>{title}</h1>

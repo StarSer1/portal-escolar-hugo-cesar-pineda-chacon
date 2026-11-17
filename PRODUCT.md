@@ -32,13 +32,13 @@ Portal institucional de la escuela con dos partes: un sitio público informativo
 - Nombre: Escuela Primaria Hugo César Piñeda Chacón.
 - Sitio público: sigue la maqueta de referencia del usuario (2026-10-29), un sitio escolar institucional convencional y sobrio: encabezado azul marino, carrusel de fotos, tarjetas de Misión/Visión/Historia, galería, franja de valores, calendario escolar en imagen, mapa "Encuéntranos" y pie azul marino. Tipografía Montserrat. El usuario rechazó explícitamente un enfoque conceptual o extravagante.
 - Kárdex (panel): azul marino institucional de `src/styles/globals.css` y Atkinson Hyperlegible Next.
-- El escudo oficial aún no se entrega; `SchoolEmblem` usa una marca provisional "HC".
+- El escudo oficial está en `public/escudo.png` (y versiones reducidas generadas con `npm run optimize:images`).
 
 ## Evidence on Hand
 
 - Datos confirmados por el usuario (maqueta): dirección Del Mesón S/N, Camino Real, 23088 La Paz, B.C.S.; teléfono +52 612 114 3049; turno matutino 7:00–13:00 y vespertino 13:00–18:00, de lunes a viernes; texto de la visión; evento "Festival 2026, marzo–junio".
 - Fotografías reales de la escuela existen (aparecen en la maqueta) pero los archivos aún no están en el repositorio. Mientras tanto `public/img/` tiene imágenes de ejemplo de Unsplash, documentadas en `docs/imagenes-de-ejemplo.md`, que deben reemplazarse por las reales con el mismo nombre.
-- Pendientes: misión, historia, correo, calendario oficial del ciclo vigente, documentos y escudo. Se muestran como "Información por confirmar" o "Foto pendiente"; no se inventan datos.
+- El director edita todo el contenido del sitio desde Panel → Sitio web. Pendientes de capturar: misión, historia, correo y calendario oficial del ciclo vigente. Mientras tanto se muestran como "Información por confirmar"; no se inventan datos.
 
 ## Product Principles
 

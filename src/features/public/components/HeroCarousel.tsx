@@ -8,7 +8,8 @@ import { Photo } from './Photo'
 const INTERVAL = 7000
 
 export function HeroCarousel() {
-  const { slides } = useSite().content.home
+  const { content, ready } = useSite()
+  const { slides } = content.home
   const [rawIndex, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
   const [reduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
@@ -25,15 +26,19 @@ export function HeroCarousel() {
 
   const go = (step: number) => setIndex((current) => (current + step + count) % count)
 
+  // Se cargan solo la diapositiva visible y sus vecinas: menos datos en celulares.
+  const near = (position: number) => count < 4 || position === index || position === (index + 1) % count || position === (index - 1 + count) % count
+
   return <>
-    {count > 0 && <section className="hero" aria-roledescription="carrusel" aria-label="Avisos de la escuela"
+    {!ready && <section className="hero is-loading" aria-busy="true" aria-label="Cargando avisos de la escuela" />}
+    {ready && count > 0 && <section className="hero" aria-roledescription="carrusel" aria-label="Avisos de la escuela"
       onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
       {slides.map((slide, position) => <div key={position} className={position === index ? 'hero-slide is-active' : 'hero-slide'}
         role="group" aria-roledescription="diapositiva" aria-label={`${position + 1} de ${count}`} aria-hidden={position !== index}>
-        <Photo className="hero-photo" src={slide.image} alt="" eager={position === 0} />
+        {near(position) && <Photo className="hero-photo" src={slide.image} alt="" eager={position === index} priority={position === 0} sizes="100vw" />}
         <div className="hero-content">
           <p className="hero-tag">{slide.tag}</p>
-          <h1>{slide.title}{slide.subtitle && <span>{slide.subtitle}</span>}</h1>
+          <h2 className="hero-title">{slide.title}{slide.subtitle && <span>{slide.subtitle}</span>}</h2>
           <p className="hero-text">{slide.text}</p>
           {slide.actionLabel && slide.actionHref && <SlideAction href={slide.actionHref} hidden={position !== index}>{slide.actionLabel}</SlideAction>}
         </div>
@@ -59,9 +64,9 @@ export function HeroCarousel() {
   </>
 }
 
-/** Botón de la diapositiva: enlace interno del sitio o dirección externa. */
+/** Botón de la diapositiva: ruta interna del sitio o dirección externa (ya saneada en SiteContent). */
 function SlideAction({ href, hidden, children }: { href: string; hidden: boolean; children: string }) {
   const content = <>{children} <Icon name="arrow" size={18} /></>
-  if (/^https?:/.test(href)) return <a className="pill-button is-light" href={href} target="_blank" rel="noreferrer" tabIndex={hidden ? -1 : undefined}>{content}</a>
+  if (!href.startsWith('/')) return <a className="pill-button is-light" href={href} target="_blank" rel="noreferrer" tabIndex={hidden ? -1 : undefined}>{content}</a>
   return <Link className="pill-button is-light" to={href} tabIndex={hidden ? -1 : undefined}>{content}</Link>
 }
