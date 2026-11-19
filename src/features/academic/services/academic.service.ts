@@ -12,7 +12,7 @@ const fields: Record<EditableCollection, string[]> = {
   teachers: ['name', 'email', 'phone', 'specialty', 'status'],
   schoolYears: ['name', 'startDate', 'endDate', 'status'],
   curriculumPlans: ['name', 'version', 'status'],
-  subjectPlans: ['curriculumPlanId', 'name', 'grade', 'specialty', 'status'],
+  subjectPlans: ['curriculumPlanId', 'name', 'grade', 'specialty', 'status', 'formativeField'],
   groups: ['schoolYearId', 'curriculumPlanId', 'grade', 'label', 'shift', 'status', 'generalTeacherId', 'physicalTeacherId', 'englishTeacherId', 'artsTeacherId'],
   gradingPeriods: ['schoolYearId', 'name', 'order', 'startDate', 'endDate', 'status'],
 }
@@ -114,6 +114,7 @@ function cleanInput(name: EditableCollection, input: Record<string, unknown>) {
   if ('email' in data) check(!data.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email), 'Escribe un correo electrónico válido.')
   if ('grade' in data) check(Number.isInteger(data.grade) && data.grade >= 1 && data.grade <= 6, 'El grado debe estar entre primero y sexto.')
   if ('specialty' in data) check(['general', 'physical', 'english', 'arts'].includes(data.specialty), 'Selecciona el área docente.')
+  if (name === 'subjectPlans') check(['', 'lenguajes', 'saberes', 'etica', 'humano'].includes(data.formativeField), 'Selecciona un campo formativo válido.')
   if (name === 'students') {
     data.curp = String(data.curp).toUpperCase()
     data.matricula = String(data.matricula).toUpperCase()

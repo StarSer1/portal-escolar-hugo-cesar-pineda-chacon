@@ -44,7 +44,7 @@ export interface HomeContent { slides: Slide[]; galleryIntro: string }
 export interface GalleryPhoto { src: string; alt: string }
 export interface GalleryContent { photos: GalleryPhoto[] }
 
-export type EventKind = 'ciclo' | 'suspension' | 'cte' | 'vacaciones' | 'festejo'
+export type EventKind = 'ciclo' | 'suspension' | 'cte' | 'vacaciones' | 'festejo' | 'tarea'
 /** `end` (opcional) marca el último día de un periodo, como las vacaciones. */
 export interface SchoolEvent { date: string; end?: string; kind: EventKind; title: string; detail: string }
 export interface CalendarContent { events: SchoolEvent[]; examples: boolean; pdf: string }
@@ -76,6 +76,7 @@ export const eventKinds: Record<EventKind, { label: string; tone: string }> = {
   cte: { label: 'Consejo Técnico', tone: 'violet' },
   vacaciones: { label: 'Vacaciones', tone: 'yellow' },
   festejo: { label: 'Festejo escolar', tone: 'teal' },
+  tarea: { label: 'Tarea o pendiente', tone: 'orange' },
 }
 
 /** Íconos disponibles para las categorías de documentos. */

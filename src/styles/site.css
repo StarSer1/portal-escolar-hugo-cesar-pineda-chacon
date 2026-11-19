@@ -205,13 +205,13 @@ html:has(.site) { font-size: clamp(16px, .6rem + .62vw, 19px); }
 .cal-day { position: relative; display: grid; place-items: center; aspect-ratio: 1; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--text); font-family: inherit; font-size: .8125rem; font-weight: 600; font-variant-numeric: tabular-nums; }
 .cal-day.is-weekend { color: #9aa3b5; font-weight: 500; }
 .cal-day.is-today { box-shadow: inset 0 0 0 2px var(--navy); color: var(--navy); font-weight: 800; }
-.k-ciclo { --day: var(--blue); } .k-suspension { --day: var(--red); } .k-cte { --day: var(--violet); } .k-festejo { --day: var(--teal); } .k-vacaciones { --day: #ffd96a; --day-ink: var(--text); }
+.k-ciclo { --day: var(--blue); } .k-suspension { --day: var(--red); } .k-cte { --day: var(--violet); } .k-festejo { --day: var(--teal); } .k-vacaciones { --day: #ffd96a; --day-ink: var(--text); } .k-tarea { --day: var(--orange); }
 .cal-day.has-event { background: var(--day); color: var(--day-ink, #fff); font-weight: 700; cursor: pointer; transition: transform .2s var(--ease), box-shadow .2s, opacity .25s; }
 .cal-day.has-event.is-today { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--navy); }
 .cal-day.has-event:hover, .cal-day.has-event.is-selected { z-index: 1; transform: scale(1.18); box-shadow: 0 6px 14px rgb(31 42 68 / .28); }
 .cal[data-focus='ciclo'] .cal-day.has-event:not(.k-ciclo), .cal[data-focus='suspension'] .cal-day.has-event:not(.k-suspension),
 .cal[data-focus='cte'] .cal-day.has-event:not(.k-cte), .cal[data-focus='vacaciones'] .cal-day.has-event:not(.k-vacaciones),
-.cal[data-focus='festejo'] .cal-day.has-event:not(.k-festejo) { opacity: .2; }
+.cal[data-focus='festejo'] .cal-day.has-event:not(.k-festejo), .cal[data-focus='tarea'] .cal-day.has-event:not(.k-tarea) { opacity: .2; }
 .cal-popover { position: absolute; z-index: 10; width: min(300px, calc(100% - 16px)); padding: 16px 18px 18px; border-radius: 12px; background: #fff; box-shadow: 0 0 0 1px rgb(31 42 68 / .08), 0 20px 50px rgb(31 42 68 / .28); transform: translateX(-50%); animation: pop-in .22s var(--ease); }
 .cal-popover.is-above { transform: translate(-50%, -100%); animation-name: pop-in-above; }
 @keyframes pop-in { from { opacity: 0; transform: translate(-50%, 6px); } }

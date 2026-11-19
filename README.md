@@ -24,9 +24,13 @@ Abre `/iniciar-sesion` y usa una cuenta existente de Authentication con perfil `
 
 **Importante:** `npm run dev` usa la base configurada en `.env.local`. No significa que la información quede solo en tu computadora. Las pruebas automatizadas de abajo configuran un entorno local aislado y no necesitan cuentas reales.
 
+## Documentos oficiales
+
+En **Panel → Documentos oficiales** (`/panel/documentos`), solo para la dirección, se generan las boletas de evaluación (horizontal o vertical), el listado oficial de inscripción con su estadística (por grupo o general, en Excel o PDF), la carta compromiso de cada alumno con sus tutores y los horarios de docentes especialistas, que el director puede editar. Mientras el sistema está en prueba llevan la marca de agua «PRUEBA». Consulta la [guía del panel académico](docs/panel-academico.md#documentos-oficiales).
+
 ## Sitio público editable
 
-El director administra todo el contenido del sitio público desde **Panel → Sitio web** (`/panel/sitio`): carrusel de la portada, calendario, documentos y sus categorías, docentes por grado, datos de contacto, misión/visión/historia, galería y fotos de encabezado. Una **vista previa en vivo** (computadora o celular) muestra el sitio real con los cambios antes de guardarlos.
+El director administra todo el contenido del sitio público desde **Panel → Sitio web** (`/panel/sitio`): carrusel de la portada, calendario (incluidas las tareas o pendientes para las familias), documentos y sus categorías, docentes por grado, datos de contacto, misión/visión/historia, galería y fotos de encabezado. Una **vista previa en vivo** (computadora o celular) muestra el sitio real con los cambios antes de guardarlos.
 
 Cada sección se guarda como un documento de la colección `site` en Firestore. Mientras una sección no se haya guardado, el sitio muestra los valores de `defaultContent` en `src/features/public/school.ts`. Los documentos iniciales (protocolos, horarios y carta compromiso) están en `public/documentos/`.
 

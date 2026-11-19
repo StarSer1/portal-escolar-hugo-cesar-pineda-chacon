@@ -5,6 +5,7 @@ import { organizationTabs } from '@/app/navigation'
 import type { Column } from '@/shared/ui/DataTable'
 import { Alert, PageHeader } from '@/shared/ui/Feedback'
 import { TabPanel, Tabs } from '@/shared/ui/Tabs'
+import { formativeFieldOf, formativeLabels, formativeOptions, isFormativeField } from '@/features/documents/formative'
 import { activeOptions, displayDate, gradeOptions, groupName, RecordManager, specialtyLabels, specialtyOptions, StatusBadge, type FormField, type ManagedRecord } from '../components/AcademicUI'
 
 type Section = typeof organizationTabs[number]['value']
@@ -109,6 +110,11 @@ function SubjectsSection() {
     { key: 'name', header: 'Materia', sortValue: (record) => String(record.name), cell: (record) => <strong>{String(record.name)}</strong> },
     { key: 'grade', header: 'Grado', sortValue: (record) => Number(record.grade) * 1000 + String(record.name).charCodeAt(0), cell: (record) => `${String(record.grade)}°` },
     { key: 'specialty', header: 'Responsable', sortValue: (record) => specialtyLabels[String(record.specialty)], cell: (record) => specialtyLabels[String(record.specialty)] },
+    { key: 'field', header: 'Campo formativo', priority: 'low', sortValue: (record) => formativeFieldOf({ name: String(record.name), formativeField: String(record.formativeField ?? '') }) ?? 'zz', cell: (record) => {
+      const field = formativeFieldOf({ name: String(record.name), formativeField: String(record.formativeField ?? '') })
+      if (!field) return <span className="text-muted">Sin asignar</span>
+      return isFormativeField(record.formativeField) ? formativeLabels[field] : <span className="text-muted">{formativeLabels[field]} (sugerido)</span>
+    } },
     { key: 'plan', header: 'Plan', priority: 'low', cell: (record) => planName(record.curriculumPlanId) },
     { key: 'status', header: 'Estado', sortValue: (record) => String(record.status), cell: (record) => <StatusBadge value={String(record.status)} /> },
   ]
@@ -125,6 +131,7 @@ function SubjectsSection() {
         { key: 'curriculumPlanId', label: 'Plan de estudios', type: 'select', required: true, immutable: true, options: (draft) => data.curriculumPlans.filter((plan) => plan.status === 'active' || plan.id === draft.curriculumPlanId).map((plan) => ({ value: plan.id, label: `${plan.name} · ${plan.version}` })), section: 'Ubicación en el plan' },
         { key: 'grade', label: 'Grado', type: 'select', required: true, immutable: true, options: gradeOptions, section: 'Ubicación en el plan' },
         { key: 'specialty', label: 'Especialidad responsable', type: 'select', required: true, immutable: true, options: specialtyOptions, hint: 'Plan, grado y especialidad se conservan al editar para proteger el historial.', section: 'Ubicación en el plan' },
+        { key: 'formativeField', label: 'Campo formativo (boleta)', type: 'select', options: formativeOptions, placeholder: 'Sugerir según el nombre', hint: 'La boleta oficial promedia las materias de cada campo formativo. Si no eliges uno, se sugiere según el nombre de la materia.', section: 'Boleta de evaluación' },
         { key: 'status', label: 'Estado', type: 'select', required: true, defaultValue: 'active', options: activeOptions, section: 'Estado' },
       ]} validate={(draft, id) => {
         if (data.subjectPlans.some((subject) => subject.id !== id && subject.curriculumPlanId === draft.curriculumPlanId && subject.grade === Number(draft.grade) && subject.name.toLowerCase() === draft.name.toLowerCase())) return 'Esta materia ya está registrada para ese plan y grado.'

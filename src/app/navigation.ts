@@ -18,6 +18,7 @@ export const navSections: NavSection[] = [
       { label: 'Organización escolar', href: '/panel/organizacion', icon: 'layers' },
       { label: 'Inscripciones', href: '/panel/inscripciones', icon: 'enroll' },
       { label: 'Calificaciones', href: '/panel/calificaciones', icon: 'grades' },
+      { label: 'Documentos oficiales', href: '/panel/documentos', icon: 'file' },
     ],
   },
   { label: 'Sitio público', items: [{ label: 'Sitio web', href: '/panel/sitio', icon: 'globe' }] },

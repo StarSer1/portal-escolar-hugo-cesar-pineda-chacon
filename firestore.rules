@@ -117,7 +117,10 @@ service cloud.firestore {
         && required(data.version, 40) && activeStatus(data.status);
     }
     function validSubject(data) {
-      return shape(data, ['curriculumPlanId', 'name', 'grade', 'specialty', 'status'])
+      // formativeField (campo formativo de la boleta) es opcional: las materias anteriores no lo tienen.
+      let base = ['curriculumPlanId', 'name', 'grade', 'specialty', 'status'];
+      return (shape(data, base) || shape(data, base.concat(['formativeField'])))
+        && data.get('formativeField', '') in ['', 'lenguajes', 'saberes', 'etica', 'humano']
         && required(data.name, 160) && gradeLevel(data.grade) && specialty(data.specialty)
         && activeStatus(data.status) && exists(/databases/$(database)/documents/curriculumPlans/$(data.curriculumPlanId))
         && unchanged(['curriculumPlanId', 'grade', 'specialty']);
@@ -228,6 +231,19 @@ service cloud.firestore {
     match /site/{section} {
       allow read: if true;
       allow create, update: if admin() && validSite(section, request.resource.data) && metadata('site', section);
+      allow delete: if false;
+    }
+    // Formatos editables de Documentos oficiales (solo dirección). Hoy: horarios de
+    // docentes especialistas. Cada guardado lleva versión y entrada en la bitácora.
+    function validDocumentTemplate(id, data) {
+      return id == 'specialistSchedules'
+        && shape(data, ['tables', 'signerName', 'signerRole'])
+        && data.tables is list && data.tables.size() <= 12
+        && text(data.signerName, 160) && text(data.signerRole, 160);
+    }
+    match /documentTemplates/{id} {
+      allow read: if admin();
+      allow create, update: if admin() && validDocumentTemplate(id, request.resource.data) && metadata('documentTemplates', id);
       allow delete: if false;
     }
     match /academicSettings/currentYear {
@@ -410,7 +426,7 @@ service cloud.firestore {
           && after('grades', request.resource.data.entityId).teacherId == teacherId()))
         && request.resource.data.keys().hasAll(['action', 'entityType', 'entityId', 'actorId', 'createdAt', 'previousData'])
         && request.resource.data.keys().hasOnly(['action', 'entityType', 'entityId', 'actorId', 'createdAt', 'previousData'])
-        && (academic(request.resource.data.entityType) || (request.resource.data.entityType == 'site' && admin()))
+        && (academic(request.resource.data.entityType) || (request.resource.data.entityType in ['site', 'documentTemplates'] && admin()))
         && required(request.resource.data.action, 40)
         && request.resource.data.actorId == request.auth.uid && request.resource.data.createdAt == request.time
         && after(request.resource.data.entityType, request.resource.data.entityId).auditId == id

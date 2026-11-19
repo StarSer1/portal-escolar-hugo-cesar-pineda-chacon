@@ -23,6 +23,7 @@
     "preview:hosting": "npm run build && firebase emulators:start --only hosting --project demo-portal-academico"
   },
   "dependencies": {
+    "exceljs": "^4.4.0",
     "firebase": "^12.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

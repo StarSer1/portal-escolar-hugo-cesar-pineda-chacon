@@ -149,6 +149,26 @@ test('primary guardian replacement demotes old link atomically; two primaries ca
   assert.equal((await getDoc(doc(db, 'studentGuardians', firstId))).data().primary, false)
 })
 
+test('subject formative field (boleta) is optional and limited to the four official fields', async () => {
+  const subject = { curriculumPlanId: 'plan', name: 'Español', grade: 1, specialty: 'general', status: 'active' }
+  await assertSucceeds(save('subjectPlans', 'subject', { ...subject, formativeField: 'lenguajes' }))
+  await assertSucceeds(save('subjectPlans', 'subject', { ...subject, formativeField: '' }))
+  await assertSucceeds(save('subjectPlans', 'legacySubject', subject))
+  await assertFails(save('subjectPlans', 'subject', { ...subject, formativeField: 'deportes' }))
+  await assertFails(save('subjectPlans', 'subject', { ...subject, formativeField: 3 }))
+})
+
+test('specialist schedules template is admin-only, audited and limited to its known shape', async () => {
+  const value = { tables: [{ title: 'Inglés', subject: 'english', tone: 'orange', rows: [{ time: '8:00 a 8:50', recess: false, cells: ['1A', '', '', '', ''] }] }], signerName: 'Subdirección', signerRole: 'Subdirector académico' }
+  await assertSucceeds(save('documentTemplates', 'specialistSchedules', value))
+  await assertSucceeds(getDoc(doc(db, 'documentTemplates', 'specialistSchedules')))
+  await assertFails(save('documentTemplates', 'otherTemplate', value))
+  await assertFails(save('documentTemplates', 'specialistSchedules', { ...value, extra: true }))
+  await assertFails(setDoc(doc(db, 'documentTemplates', 'specialistSchedules'), { ...value, revision: 9 }))
+  await assertFails(getDoc(doc(env.authenticatedContext('teacher-general').firestore(), 'documentTemplates', 'specialistSchedules')))
+  await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(), 'documentTemplates', 'specialistSchedules')))
+})
+
 test('groups require four specialized teachers; structural references remain immutable', async () => {
   await assertSucceeds(save('groups', 'newgroup', { ...group, label: 'C' }))
   await assertFails(save('groups', 'invalid', { ...group, englishTeacherId: 'physical' }))

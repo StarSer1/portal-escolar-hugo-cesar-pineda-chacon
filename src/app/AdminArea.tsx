@@ -8,6 +8,7 @@ import { TeachersPage } from '@/features/academic/pages/TeachersPage'
 import { OrganizationPage } from '@/features/academic/pages/OrganizationPage'
 import { EnrollmentsPage } from '@/features/academic/pages/EnrollmentsPage'
 import { GradesPage } from '@/features/grades/pages/GradesPage'
+import { DocumentsPage } from '@/features/documents/pages/DocumentsPage'
 import { ActivityPage } from '@/features/academic/pages/ActivityPage'
 import { SiteEditorPage } from '@/features/public/admin/SiteEditorPage'
 
@@ -23,6 +24,7 @@ export default function AdminArea() {
         <Route path="organizacion" element={<OrganizationPage />} />
         <Route path="inscripciones" element={<EnrollmentsPage />} />
         <Route path="calificaciones" element={<GradesPage />} />
+        <Route path="documentos" element={<DocumentsPage />} />
         <Route path="actividad" element={<ActivityPage />} />
         <Route path="sitio" element={<SiteEditorPage />} />
         <Route path="*" element={<Navigate to="/panel" replace />} />

@@ -24,7 +24,7 @@ const page = {
 /** Cada sección indica las páginas donde se ve; la primera es la principal. */
 const sections: { value: SiteSection; label: string; description: string; pages: PreviewPage[] }[] = [
   { value: 'home', label: 'Inicio', description: 'Carrusel de avisos y eventos de la portada.', pages: [page.home] },
-  { value: 'calendar', label: 'Calendario', description: 'Fechas del ciclo, días sin clases y festejos.', pages: [page.calendar, page.home] },
+  { value: 'calendar', label: 'Calendario', description: 'Fechas del ciclo, días sin clases, festejos y tareas.', pages: [page.calendar, page.home] },
   { value: 'documents', label: 'Documentos', description: 'Archivos para descargar y sus categorías.', pages: [page.documents] },
   { value: 'students', label: 'Estudiantes', description: 'Docentes por grado y evaluación.', pages: [page.students] },
   { value: 'general', label: 'Datos de la escuela', description: 'Contacto, horarios, misión, visión e historia.', pages: [page.contact, page.about, page.home] },
@@ -152,7 +152,7 @@ function CalendarEditor({ onDraftChange }: EditorProps) {
   return <>
     <EditorCard title="Fechas del ciclo escolar" description="Aparecen en el calendario de la portada y en la página Calendario."
       action={<Button icon="plus" onClick={() => setEditing({ index: -1, event: { date: '', kind: 'festejo', title: '', detail: '' } })}>Agregar fecha</Button>}>
-      {!events.length ? <EmptyState compact icon="calendar" title="Sin fechas">Agrega el inicio del ciclo, los días sin clases y los festejos.</EmptyState>
+      {!events.length ? <EmptyState compact icon="calendar" title="Sin fechas">Agrega el inicio del ciclo, los días sin clases, los festejos y las tareas o pendientes para las familias.</EmptyState>
         : <div className="table-wrap"><table className="data-table">
           <caption className="sr-only">Fechas del calendario escolar</caption>
           <thead><tr><th scope="col">Fecha</th><th scope="col">Tipo</th><th scope="col">Título</th><th scope="col" className="cell-actions">Acciones</th></tr></thead>

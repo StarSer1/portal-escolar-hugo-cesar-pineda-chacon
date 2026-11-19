@@ -67,6 +67,8 @@ export interface SubjectPlan extends Entity {
   grade: number
   specialty: TeacherSpecialty
   status: ActiveStatus
+  /** Campo formativo de la boleta oficial; vacío = se sugiere por el nombre. */
+  formativeField?: '' | 'lenguajes' | 'saberes' | 'etica' | 'humano'
 }
 export interface Group extends Entity {
   schoolYearId: string

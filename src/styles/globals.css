@@ -593,7 +593,7 @@ a.signal-item:hover > svg { color: var(--navy-800); }
 .grade-teacher-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, .6fr) auto; gap: var(--space-sm); align-items: end; }
 .grade-teacher-row > .row-actions { padding-bottom: 4px; }
 .kind-dot { display: inline-block; width: 10px; height: 10px; margin-right: 8px; border-radius: 50%; background: var(--navy-600); vertical-align: middle; }
-.kind-dot.tone-red { background: #c0474a; } .kind-dot.tone-violet { background: #7c3aed; } .kind-dot.tone-yellow { background: #f5c518; } .kind-dot.tone-teal { background: #1b7d71; } .kind-dot.tone-blue { background: #3b67ad; }
+.kind-dot.tone-red { background: #c0474a; } .kind-dot.tone-violet { background: #7c3aed; } .kind-dot.tone-yellow { background: #f5c518; } .kind-dot.tone-teal { background: #1b7d71; } .kind-dot.tone-blue { background: #3b67ad; } .kind-dot.tone-orange { background: #b8530f; }
 
 @media (max-width: 1280px) {
   :root { --sidebar-width: 244px; }
@@ -699,3 +699,13 @@ a.signal-item:hover > svg { color: var(--navy-800); }
 .login-forgot { justify-self: center; margin-top: var(--space-sm); }
 .link-button { padding: 4px; border: 0; background: none; color: var(--navy-600); font: inherit; font-size: var(--text-sm); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .link-button:hover { color: var(--navy-800); }
+
+/* --- Documentos oficiales ----------------------------------------------- */
+.field-label { color: var(--ink); font-size: var(--text-base); font-weight: 600; }
+.doc-preview .card-heading { flex-wrap: wrap; }
+.doc-frame { display: block; width: 100%; height: min(78vh, 900px); border: 1px solid var(--rule); border-radius: var(--radius); background: #5f6670; }
+.letter-facts { margin: 0; padding-left: var(--space-lg); display: grid; gap: var(--space-2xs); }
+.schedule-grid input:not([type='checkbox']) { width: 100%; min-width: 0; min-height: 34px; padding: 0 var(--space-xs); border: 1px solid var(--rule); border-radius: var(--radius-sm); font: inherit; }
+.schedule-grid .schedule-cell { width: 4.5rem; text-align: center; text-transform: uppercase; font-weight: 600; }
+.schedule-grid td:first-child input { min-width: 8rem; }
+.schedule-recess { text-align: center; font-weight: 700; color: var(--ink-2); letter-spacing: .1em; }

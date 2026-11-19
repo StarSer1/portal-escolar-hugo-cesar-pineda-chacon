@@ -72,7 +72,7 @@ function FieldControl({ field, draft, editing, onChange }: { field: FormField; d
     const options = typeof field.options === 'function' ? field.options(draft) : field.options
     return <Field label={field.label} required={field.required} hint={hint} full={field.full}>
       <select name={field.key} value={value} disabled={locked} required={field.required} onChange={(event) => onChange(field.key, event.target.value)}>
-        <option value="">Seleccionar…</option>
+        <option value="">{field.placeholder ?? 'Seleccionar…'}</option>
         {options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
       </select>
     </Field>

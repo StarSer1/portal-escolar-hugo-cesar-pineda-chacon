@@ -5,7 +5,7 @@ Esta guía describe el panel administrativo ampliado. Sustituye las instruccione
 ## Recorrido recomendado
 
 1. Inicia sesión con una cuenta administradora habilitada. La cuenta debe existir en Firebase Authentication y tener su perfil `users/{uid}` en Firestore.
-2. Registra el plan de estudios y sus materias por grado. Indica la especialidad que imparte cada materia.
+2. Registra el plan de estudios y sus materias por grado. Indica la especialidad que imparte cada materia y su campo formativo, que se usa en la boleta.
 3. Registra los docentes: general, Educación Física, Inglés y Artes. Cada docente nuevo necesita un correo único y una contraseña inicial de al menos 12 caracteres. El alta crea su cuenta de acceso y la vincula con su expediente, sin cerrar la sesión del director. Consulta la [guía de acceso docente](acceso-docentes.md) antes de habilitar registros anteriores.
 4. Crea el ciclo escolar, con sus fechas, y configura los periodos de evaluación.
 5. Crea los grupos, vinculando ciclo, grado, plan y los cuatro docentes correspondientes.
@@ -13,8 +13,29 @@ Esta guía describe el panel administrativo ampliado. Sustituye las instruccione
 7. Inscribe al alumno en el grupo. La inscripción enlaza su expediente con el ciclo escolar.
 8. Abre Calificaciones y selecciona ciclo, grupo, alumno, materia y periodo. Guarda el valor y, cuando corresponda, su observación o motivo de corrección.
 9. Consulta el historial del alumno y la actividad administrativa para comprobar el resultado.
+10. Genera las boletas y los listados de inscripción en **Documentos oficiales** (`/panel/documentos`).
 
 Las listas se alimentan de Firestore. Si un selector está vacío, primero hay que registrar el catálogo del que depende. No se genera información escolar ficticia al abrir el panel.
+
+## Documentos oficiales
+
+La sección **Documentos oficiales** del panel solo está disponible para la dirección (perfil `admin`). Genera los documentos a partir de la información registrada. Mientras el sistema esté en prueba, cada documento lleva una marca de agua grande «PRUEBA»; se controla con la constante `WATERMARK` de `src/features/documents/reports.ts`.
+
+- **Boleta de evaluación** (formato SEP con campos formativos), en hoja carta horizontal o vertical. Se genera para un alumno o para todo el grupo, una boleta por hoja, y se imprime o se guarda como PDF desde la vista previa.
+  - Cada materia pertenece a un campo formativo: Lenguajes; Saberes y Pensamiento Científico; Ética, Naturaleza y Sociedades; o De lo Humano y lo Comunitario. Se asigna en *Organización escolar → Materias*. Si no se elige, se sugiere según el nombre: Español, Inglés y Artes van a Lenguajes; Matemáticas y Ciencias, a Saberes; Historia, Geografía y Formación Cívica, a Ética; Educación Física, a De lo Humano. La página avisa qué materias quedan fuera.
+  - La calificación de un campo en un periodo es el promedio de sus materias, redondeado a entero. El promedio final de cada campo y el promedio final de grado se escriben con un decimal sin redondear y solo aparecen cuando están los tres periodos.
+  - De 2.º a 6.º se marca «Promovida(o)» si el promedio final de grado es de 6 o más. Asistencias, folio y lengua indígena quedan en blanco para llenarse a mano.
+- **Listado oficial de inscripción y registro estadístico**, por grupo o de todos los grupos. Se descarga en Excel, con el mismo diseño que los formatos de la SEP, o se imprime o guarda como PDF. El general agrega un concentrado de toda la escuela.
+  - La edad es la cumplida al 30 de septiembre del año en que inicia el ciclo.
+  - Se considera inscripción inicial la que comenzó hasta esa fecha; las posteriores son altas. Las bajas son las inscripciones dadas de baja o con cambio de grupo.
+- **Carta compromiso** sobre la corresponsabilidad, con el texto completo del ciclo. Se elige ciclo, grupo y alumno. La carta se llena con:
+  - El nombre, grado y grupo del alumno, y hasta dos hermanos inscritos (otros alumnos con algún tutor en común).
+  - El tutor principal como «padre, madre o tutor».
+  - Los teléfonos según el parentesco registrado en el vínculo: «Padre» o «Tutor» para el celular del padre; «Madre» o «Tutora» para el de la madre; cualquier otro tutor con teléfono como familiar mayor de edad.
+  - Lo que falte queda en blanco para llenarse a mano. Las firmas del director y del tutor se hacen a mano.
+- **Horarios de docentes especialistas** (Inglés, Educación Física y Artes), igual que el formato de la subdirección: las tablas por especialidad y, si se elige, una tabla por grupo que se calcula a partir de ellas.
+  - El director lo edita con «Editar horario»: horas, recesos, grupos por celda, títulos, colores y la firma al pie. La página avisa si un grupo queda con dos clases a la misma hora.
+  - Se guarda en `documentTemplates/specialistSchedules` con control de versión y entrada en Actividad. Mientras no se guarde, se usa el horario original incluido en `src/features/documents/specialistSchedule.ts`.
 
 ## Relación entre módulos
 
